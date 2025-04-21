@@ -12,6 +12,8 @@ ENV/
 .venv/
 *.sqlite3
 
+
+
 # macOS
 .DS_Store
 
@@ -47,6 +49,8 @@ build/
 # PDFs / generated files
 *.pdf
 README copy.md
+set_email_config.sh
+set_config.sh
 
 # System
 Thumbs.db
