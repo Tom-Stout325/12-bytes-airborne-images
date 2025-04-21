@@ -13,7 +13,8 @@ Run:
     pip install -r requirements.txt 
 
 
-
+Heroku logs:
+heroku logs --tail --app airborne-images-12bytes
 
 
 Base requirements.txt:
