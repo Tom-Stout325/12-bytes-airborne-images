@@ -62,7 +62,6 @@ def edit_pilot_profile(request):
     })
 
 
-
 @login_required
 def delete_pilot_profile(request):
     profile = get_object_or_404(PilotProfile, user=request.user)

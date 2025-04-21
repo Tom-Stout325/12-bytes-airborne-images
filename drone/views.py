@@ -25,6 +25,9 @@ from .models import *
 def documents(request):
     return render(request, 'drones/documents.html')
 
+def home(request):
+    return render(request, 'home.html')
+
 
 @login_required
 def incident_reporting_system(request):
