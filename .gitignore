@@ -55,3 +55,4 @@ set_config.sh
 # System
 Thumbs.db
 ehthumbs.db
+.env
