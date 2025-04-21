@@ -1,0 +1,212 @@
+
+{% load static %}
+{% load humanize %}
+
+
+
+
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'styles/index.css' %}">
+    <link rel="stylesheet" type="text/css" href="https://bootswatch.com/5/flatly/bootstrap.min.css">
+    <script src="{% static 'js/index.js' %}" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400&family=Kalnia:wght@100;300;400&display=swap" rel="stylesheet">
+
+	<style>
+		.invoice-box {
+			max-width: 800px;
+			margin: auto;
+			padding: 30px;
+			border: 1px solid #eee;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+			font-size: 16px;
+			line-height: 24px;
+			font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+			color: #555;
+		}
+
+		.invoice-box table {
+			width: 100%;
+			line-height: inherit;
+			text-align: left;
+		}
+
+		.invoice-box table td {
+			padding: 5px;
+			vertical-align: top;
+		}
+
+		.invoice-box table tr td:nth-child(2) {
+			text-align: center;
+		}
+
+		.invoice-box table tr.top table td {
+			padding-bottom: 20px;
+		}
+
+		.invoice-box table tr.top table td.title {
+			font-size: 45px;
+			line-height: 45px;
+			color: #333;
+		}
+
+		.invoice-box table tr.information table td {
+			padding-bottom: 40px;
+		}
+
+		.invoice-box table tr.heading td {
+			background: #eee;
+			border-bottom: 1px solid #ddd;
+			font-weight: bold;
+		}
+
+		.invoice-box table tr.details td {
+			padding-bottom: 20px;
+		}
+
+		.invoice-box table tr.item td {
+			border-bottom: 1px solid #eee;
+		}
+
+		.invoice-box table tr.item.last td {
+			border-bottom: none;
+		}
+
+		.invoice-box table tr.total td:nth-child(2) {
+			border-top: 2px solid #eee;
+			font-weight: bold;
+		}
+
+		@media only screen and (max-width: 600px) {
+			.invoice-box table tr.top table td {
+				width: 100%;
+				display: block;
+				text-align: center;
+			}
+
+			.invoice-box table tr.information table td {
+				width: 100%;
+				display: block;
+				text-align: center;
+			}
+		}
+
+		/** RTL **/
+		.invoice-box.rtl {
+			direction: rtl;
+			font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+		}
+
+		.invoice-box.rtl table {
+			text-align: right;
+		}
+
+		.invoice-box.rtl table tr td:nth-child(2) {
+			text-align: left;
+		}
+	</style>
+</head>
+
+{% block content %}
+<body>
+	<div class="invoice-box">
+		<table cellpadding="0" cellspacing="0">
+			<tr class="top">
+				<td colspan="2">
+					<table>
+						<tr>
+							<td class="title">
+								{% if rendering_for_pdf %}
+    								<img src="{{ logo_base64 }}" alt="Logo" style="width: 200px"/>
+								{% else %}
+    								<img src="{% static 'images/logo2.png' %}" alt="Logo" style="width: 200px"/>
+								{% endif %}
+							</td>
+							<td>
+								<h1>Invoice</h1><br>
+								<p class="fs-5">Invoice Number: {{ invoice.invoice_numb}}  <br />
+								Invoice Date: {{ invoice.date }}</p>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr class="information">
+				<td colspan="2">
+					<table>
+						<tr>
+							<td>
+								<div style="
+									background-color:#34495e; 
+									color: white;
+									text-align: left;
+									padding-left: 10px;">FROM:</div>
+									<p>TSP, llc <br>
+									<span style="font-weight: lighter; font-size: 1rem">dba:</span><span class="fs-5">Airborne Images </span><br>
+									2241 West 171st Street <br>
+									Westfield, Indiana, 46074</p>
+								</div>
+							</td>
+							<td style="text-align: left;">
+								<div style="
+									background-color:#34495e; 
+									color: white;
+									text-align: left;
+									padding-left: 10px  ">TO:</div>
+								{{ invoice.client }}<br />
+								{{ invoice.client.street }}<br />
+								{{ invoice.client.address2 }}<br />
+								{{ invoice.client.email}}
+							</td>
+						</tr>			
+					</table>
+				</td>
+			</tr>
+		<table>
+	</div>
+	<!-- End of Invoice Header -->
+
+	<div class="container" style="border: 1px solid #34495e; padding: 1rem">
+		<div class="row">
+			<div class="col-sm-6">
+				<p>Event: {{ invoice.event }} <br>
+					Location: {{ invoice.location }}
+				</p>
+			</div>
+			<div class="col-sm 6">
+			</div>
+		</div>
+	</div>
+	<div>
+		<table class="table table-hover">
+			{% load humanize %}
+			<thead>
+				<tr class="table-primary">
+					<th class='text-white'>Qty</th>
+					<th class='text-white'>Description</th>
+					<th class='text-white'>Amount</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>1</td>
+					<td >{{ invoice.service}}</td>
+					<td>$ {{ invoice.amount|floatformat:2|intcomma }}</td>
+				</tr>
+			</tbody>
+		</table>
+				<br><br>
+				<hr style="border: 2px solid #34495e">
+		<div style="text-align: right; padding-right: 10rem;">
+				<h6>Invoice Total:  $ {{ invoice.amount|floatformat:2|intcomma }}</h6>
+		</div>
+			<br><br><br><br>
+			<hr>
+		<div class="row" style="text-align: center;">
+			<p style="font-weight: lighter">317.987.7387 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;www.Airborne-Images.net &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;tom@airborne-images.net</p>
+		</div>
+	</div>
+</body>
+{% endblock %}

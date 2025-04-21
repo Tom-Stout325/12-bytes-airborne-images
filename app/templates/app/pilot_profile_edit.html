@@ -1,0 +1,72 @@
+{% extends 'index.html' %} 
+
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Update Your Profile</h4>
+    </div>
+    <div class="card-body">
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <h5>User Information</h5>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="first_name" class="form-label">First Name</label>
+            <input
+              type="text"
+              name="first_name"
+              value="{{ user.first_name }}"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="last_name" class="form-label">Last Name</label>
+            <input
+              type="text"
+              name="last_name"
+              value="{{ user.last_name }}"
+              class="form-control"
+              required
+            />
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input
+            type="email"
+            name="email"
+            value="{{ user.email }}"
+            class="form-control"
+            required
+          />
+        </div>
+
+        <hr />
+
+        <h5>Pilot Information</h5>
+        {{ profile_form.non_field_errors }} 
+        {% for field in profile_form %}
+        <div class="mb-3">
+          <label class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% for error in field.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+      
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-success">Save Changes</button>
+          <a href="{% url 'pilot_profile' %}" class="btn btn-secondary"
+            >Cancel</a
+          >
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

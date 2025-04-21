@@ -1,0 +1,79 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white text-center">
+      <h2 class="mb-0">NHRA Invoice Summary</h2>
+    </div>
+    <div class="card-body">
+      <!-- Export Button -->
+      <div class="mb-3 text-end">
+        <button class="btn btn-success btn-sm export-btn">Export to CSV</button>
+      </div>
+
+      <div class="table-responsive">
+        <table id="summaryTable" class="table table-bordered table-hover table-sm align-middle">
+          <thead class="table-light">
+            <tr>
+              <th class="border border-primary text-center">Event</th>
+              {% for year in years %}
+                <th class="text-center border border-primary" colspan="3">{{ year }}</th>
+              {% endfor %}
+            </tr>
+            <tr>
+              <th class="border border-primary"></th>
+              {% for year in years %}
+                <th class="text-success border border-primary">Income</th>
+                <th class="text-danger border border-primary">Expense</th>
+                <th class="text-primary border border-primary">Net</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for keyword, data in summary_data.items %}
+              <tr>
+                <td class="fw-bold border border-primary">{{ keyword }}</td>
+                {% for year in years %}
+                  {% with year_data=data|get_item:year %}
+                    <td class="text-success border border-primary">
+                      ${{ year_data.income|default:0|floatformat:2 }}
+                    </td>
+                    <td class="text-danger border border-primary">
+                      ${{ year_data.expense|default:0|floatformat:2 }}
+                    </td>
+                    <td class="border border-primary fw-bold {% if year_data.net < 0 %}text-danger{% else %}text-primary{% endif %}">
+                      ${{ year_data.net|default:0|floatformat:2 }}
+                    </td>
+                  {% endwith %}
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Table Sorter Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+    // Sort table
+    $("#summaryTable").tablesorter();
+
+    // Export button
+    $(".export-btn").click(function () {
+      $("#summaryTable").tableExport({
+        formats: ["csv"],
+        filename: "invoice_summary",
+        exportButtons: false
+      });
+    });
+  });
+</script>
+{% endblock %}

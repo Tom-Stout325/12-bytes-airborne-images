@@ -1,0 +1,71 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}Documents{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active" aria-current="page">Home</li>
+    <li class="breadcrumb-item"><a href="{% url 'equipment_list' %}">Equipment</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'incident_reporting_system' %}">Incident Reporting System</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'sop_list' %}">SOPs</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'general_document_list' %}">General Documents</a></li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-primary mb-0">📂 Drone Operations Portal</h2>
+    <a href="{% url 'pilot_profile' %}" class="btn btn-outline-primary">👤 My Profile</a>
+  </div>
+
+  <div class="row g-4">
+    <!-- Incident Reporting -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm h-100 border-primary">
+        <div class="card-body">
+          <h5 class="card-title text-primary">🚨 Incident Reporting</h5>
+          <p class="card-text">Submit, review, and manage drone-related incident reports.</p>
+          <a href="{% url 'incident_reporting_system' %}" class="btn btn-primary w-100">View Incidents</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- General Documents -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm h-100 border-secondary">
+        <div class="card-body">
+          <h5 class="card-title text-secondary">📑 General Documents</h5>
+          <p class="card-text">Access uploaded reference docs, guides, and checklists.</p>
+          <a href="{% url 'general_document_list' %}" class="btn btn-secondary w-100">Browse Documents</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOPs -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm h-100 border-success">
+        <div class="card-body">
+          <h5 class="card-title text-success">📝 SOPs</h5>
+          <p class="card-text">View and manage your standard operating procedures.</p>
+          <a href="{% url 'sop_list' %}" class="btn btn-success w-100">View SOPs</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Equipment Inventory -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm h-100 border-warning">
+        <div class="card-body">
+          <h5 class="card-title text-warning">🛠️ Equipment</h5>
+          <p class="card-text">Track drones, batteries, controllers, and firmware versions.</p>
+          <a href="{% url 'equipment_list' %}" class="btn btn-warning w-100 text-dark">View Equipment</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

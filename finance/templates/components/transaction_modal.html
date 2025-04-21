@@ -1,0 +1,62 @@
+<div class="modal fade" id="dtlModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Transaction Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if transaction %}
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Date</th>
+                        <td>{{ transaction.date }}</td>
+                    </tr>
+                    <tr>
+                        <th>Type</th>
+                        <td>{{ transaction.trans_type }}</td>
+                    </tr>
+                    <tr>
+                        <th>Category</th>
+                        <td>{{ transaction.category }}</td>
+                    </tr>
+                    <tr>
+                        <th>Subcategory</th>
+                        <td>{{ transaction.sub_cat }}</td>
+                    </tr>
+                    <tr>
+                        <th>Amount</th>
+                        <td>$ {{ transaction.amount }}</td>
+                    </tr>
+                    <tr>
+                        <th>Invoice #</th>
+                        <td>{{ transaction.invoice_numb }}</td>
+                    </tr>
+                    <tr>
+                        <th>Paid</th>
+                        <td>{{ transaction.paid }}</td>
+                    </tr>
+                    <tr>
+                        <th>Team</th>
+                        <td>{{ transaction.team }}</td>
+                    </tr>
+                    <tr>
+                        <th>Description</th>
+                        <td>{{ transaction.transaction }}</td>
+                    </tr>
+                    <tr>
+                        <th>Keyword</th>
+                        <td>{{ transaction.keyword }}</td>
+                    </tr>
+                </table>
+            
+                {% else %}
+                    <p>No transaction details available.</p>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+{% extends 'index.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3 class="mb-4">{{ view.object.pk|yesno:"Edit Mileage,Add Mileage" }}</h3>
+    <form method="post" class="card p-4 shadow-sm">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-success">
+            <i class="fa-solid fa-save"></i> Save
+        </button>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>
+{% endblock %}

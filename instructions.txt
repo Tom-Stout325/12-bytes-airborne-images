@@ -1,0 +1,51 @@
+Replace the following images:
+    favicon.ico
+    logo.png
+
+
+In needed:  Setup a new venv
+            Install Requirements
+Run:
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install Django
+    pip install --upgrade pip
+    pip install -r requirements.txt 
+
+
+
+
+
+Base requirements.txt:
+
+asgiref
+beautifulsoup4
+Brotli
+cffi
+crispy-bootstrap5
+cssselect2
+Django==4.2.20
+django-bootstrap-v5
+django-crispy-forms
+django-environ
+django-jazzmin
+fontawesomefree
+fonttools
+pillow
+psycopg2-binary
+pycparser
+pydyf
+pyphen
+soupsieve
+sqlparse
+tinycss2
+tinyhtml5
+typing_extensions
+weasyprint==59.0
+webencodings
+whitenoise
+zopfli
+
+
+
+

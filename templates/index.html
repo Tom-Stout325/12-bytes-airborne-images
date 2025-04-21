@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+
+
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %}{{ page_title|default:'12bucks' }}{% endblock %}</title>
+    <meta name="description" content="Track your finances and manage expenses with 12bucks — a clean, fast financial tracking tool.">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ page_title|default:'12ytes' }}">
+    <meta property="og:description" content="Django boilerplate setup.">
+    <meta property="og:image" content="{% static 'images/share-image.png' %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png">
+
+    <link rel="stylesheet" href="https://bootswatch.com/5/flatly/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'styles/index.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
+    <script src="{% static 'js/index.js' %}" defer></script>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+    <div class="container mt-4">
+      {% if messages %}
+      <div class="mt-3">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    
+      {% block breadcrumbs %}     {% endblock %}
+
+      {% block content %}         {% endblock %}
+    </div>
+</body>
+</html>

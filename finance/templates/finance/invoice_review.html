@@ -1,0 +1,87 @@
+{% extends "index.html" %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %}Invoice #{{ invoice.invoice_numb }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Invoice Details</h4>
+    </div>
+    <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <p><strong>Invoice #:</strong> {{ invoice.invoice_numb }}</p>
+          <p><strong>Client:</strong> {{ invoice.client }}</p>
+          <p><strong>Event:</strong> {{ invoice.event }}</p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Service:</strong> {{ invoice.service }}</p>
+          <p><strong>Invoice Amount:</strong> ${{ invoice.amount|floatformat:2|intcomma }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mt-4">
+    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Associated Transactions</h5>
+      <a href="{% url 'add_transaction' %}" class="btn btn-light btn-sm">Add Transaction</a>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped table-sm mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Sub-Category</th>
+              <th>Amount</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for transaction in transactions %}
+            <tr>
+              <td>{{ transaction.date }}</td>
+              <td>{{ transaction.category }}</td>
+              <td>{{ transaction.sub_cat }}</td>
+              <td>${{ transaction.amount|floatformat:2 }}</td>
+              <td class="text-center">
+                <a href="{% url 'transaction_detail' transaction.id %}" class="text-info me-2"><i class="fa-solid fa-eye"></i></a>
+                <a href="{% url 'edit_transaction' transaction.id %}" class="text-warning me-2"><i class="fa-solid fa-pencil"></i></a>
+                <a href="{% url 'delete_transaction' transaction.id %}?next={{ request.path }}" class="text-danger"><i class="fa-solid fa-trash-can"></i></a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center text-muted">No transactions found for this invoice.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-end fw-bold">Invoice Amount:</td>
+              <td colspan="2" class="fw-bold">${{ invoice_amount|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="text-end fw-bold">Total Expenses:</td>
+              <td colspan="2" class="fw-bold text-danger">-${{ total_expenses|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="text-end fw-bold">Net Amount:</td>
+              <td colspan="2" class="fw-bold text-success">${{ net_amount|floatformat:2|intcomma }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-end mt-4">
+    <a href="{% url 'invoice_list' %}" class="btn btn-outline-primary">Back to Invoices</a>
+  </div>
+</div>
+{% endblock %}

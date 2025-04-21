@@ -1,0 +1,72 @@
+body {
+    font-optical-sizing: auto;
+    padding: 2rem;
+    background: #f4f8fb;
+    color: #333;
+  }
+  
+  h1 {
+    color: #003366;
+  }
+  
+  body {
+    font-family: "Montserrat", sans-serif;
+    padding: 20px;
+  }
+  .section {
+    margin-top: 30px;
+    border-top: 2px solid #ccc;
+    padding-top: 20px;
+  }
+  .field {
+    margin-bottom: 15px;
+  }
+  .field label {
+    display: block;
+    font-weight: bold;
+  }
+  .field input,
+  .field textarea,
+  .field select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+  }
+  .field .errorlist {
+    color: red;
+    font-size: 0.9em;
+  }
+  button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+
+
+  /* -=-=-=-=-=-=-=-=-=-  Navbar Logo -=-=-=-=-=-=-=-=-=-  */
+
+  .App-logo {
+    height: 60px;
+    pointer-events: none;
+  }
+  
+  @media (prefers-reduced-motion: no-preference) {
+    .App-logo {
+      animation: App-logo-spin infinite 5s linear;
+    }
+  }
+  
+  @keyframes App-logo-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  

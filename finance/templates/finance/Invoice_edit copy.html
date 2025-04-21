@@ -1,0 +1,34 @@
+{% extends "index.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Edit Invoice{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh; padding-top: 60px;">
+    <div class="bg-light p-4 shadow-lg rounded col-12 col-md-8 col-lg-6">
+        <div class="text-center mb-3">
+            <h2>Edit Invoice Number: {{ invoice.invoice_numb }}</h2>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+
+            <div class="d-grid gap-2 mt-3">
+                <button type="submit" class="btn btn-success w-100">Save Changes</button>
+                <a href="{% url 'invoice_list' %}" class="btn btn-secondary w-100">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    @media (max-width: 768px) {
+        .container {
+            padding: 15px; /* Adds padding to prevent edge collision */
+        }
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "index.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %} Edit{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh; padding-top: 60px;">
+    <div class="bg-light p-4 shadow-lg rounded col-12 col-md-8 col-lg-6">
+        <div class="text-center mb-3">
+            <h2>Edit Transaction</h2>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }} <!-- Using crispy forms to render the form with better styling -->
+
+            <div class="d-grid gap-2 mt-3">
+                <button type="submit" class="btn btn-success w-100">Save Changes</button>
+                <a href="{% url 'transactions' %}" class="btn btn-secondary w-100">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    @media (max-width: 768px) {
+        .container {
+            padding: 15px; /* Adds padding to prevent edge collision */
+        }
+    }
+</style>
+
+{% endblock %}
