@@ -9,10 +9,14 @@ from .forms import *
 
 from django.http import HttpResponse
 
-def test_session(request):
-    request.session['test_key'] = 'Session is working'
-    return HttpResponse(request.session.get('test_key', 'Session failed'))
+# def test_session(request):
+#     request.session['test_key'] = 'Session is working'
+#     return HttpResponse(request.session.get('test_key', 'Session failed'))
 
+
+def test_session(request):
+    request.session['test_key'] = 'Redis session working'
+    return HttpResponse(request.session.get('test_key', 'Session failed'))
 
 
 

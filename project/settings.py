@@ -1,18 +1,24 @@
 from pathlib import Path
 import os
 import environ
-import secrets
 import dj_database_url
 from django.contrib.messages import constants as messages
+from django.core.exceptions import ImproperlyConfigured
 
 # Load .env
 env = environ.Env()
 environ.Env.read_env()
 
+# Validate required environment variables
+required_env_vars = ['DJANGO_SECRET_KEY', 'ALLOWED_HOSTS', 'DATABASE_URL', 'REDIS_URL']
+for var in required_env_vars:
+    if not env(var, default=None):
+        raise ImproperlyConfigured(f"Environment variable {var} is not set")
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
-SECRET_KEY = env("DJANGO_SECRET_KEY")  # No default
+SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
@@ -73,7 +79,7 @@ TEMPLATES = [
 # Database
 DATABASES = {
     'default': dj_database_url.config(
-        default=env("DATABASE_URL", default=f'sqlite:///{BASE_DIR}/db.sqlite3'),
+        default=env("DATABASE_URL"),
         conn_max_age=600
     )
 }
@@ -110,7 +116,16 @@ LOGOUT_REDIRECT_URL = '/login/'
 LOGIN_URL = '/login/'
 
 # Sessions
-SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': env('REDIS_URL'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 days
 SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_HTTPONLY = True
@@ -118,10 +133,6 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_DOMAIN = 'airborne-images-12bytes-5d4382c082a9.herokuapp.com'
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-SESSION_COOKIE_DOMAIN = 'airborne-images-12bytes-5d4382c082a9.herokuapp.com'
-CSRF_COOKIE_DOMAIN = 'airborne-images-12bytes-5d4382c082a9.herokuapp.com'
-
-CSRF_COOKIE_DOMAIN = 'airborne-images-12bytes-5d4382c082a9.herokuapp.com'
 
 # CSRF
 CSRF_COOKIE_SECURE = not DEBUG
