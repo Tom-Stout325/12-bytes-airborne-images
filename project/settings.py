@@ -12,7 +12,7 @@ environ.Env.read_env()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
-SECRET_KEY = env("DJANGO_SECRET_KEY", default=secrets.token_urlsafe(nbytes=64))
+SECRET_KEY = env("DJANGO_SECRET_KEY")  # No default
 DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
@@ -115,12 +115,16 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 days
 SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_DOMAIN = 'airborne-images-12bytes-5d4382c082a9.herokuapp.com'
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+CSRF_COOKIE_DOMAIN = 'airborne-images-12bytes-5d4382c082a9.herokuapp.com'
 
 # CSRF
 CSRF_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_DOMAIN = 'airborne-images-12bytes-5d4382c082a9.herokuapp.com'
 CSRF_TRUSTED_ORIGINS = [
     'https://airborne-images-12bytes-5d4382c082a9.herokuapp.com',
     'https://*.herokuapp.com'
