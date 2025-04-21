@@ -104,7 +104,7 @@ if USE_S3:
     AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default=None)
     AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default=None)
     AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default=None)
-    AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME', default='us-east-1')
+    AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME', default='us-east-2')
     AWS_QUERYSTRING_AUTH = False
     AWS_DEFAULT_ACL = None
 else:
