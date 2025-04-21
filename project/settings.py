@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security
 SECRET_KEY = env("DJANGO_SECRET_KEY", default=secrets.token_urlsafe(nbytes=64))
 DEBUG = env.bool("DEBUG", default=False)
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1"])
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
 # Installed apps
 INSTALLED_APPS = [
