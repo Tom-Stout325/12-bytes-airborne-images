@@ -5,7 +5,6 @@ import secrets
 import dj_database_url
 from django.contrib.messages import constants as messages
 
-
 env = environ.Env()
 environ.Env.read_env()
 
@@ -27,11 +26,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'whitenoise.runserver_nostatic',
-
     'app.apps.AppConfig',
     'drone.apps.DroneConfig',
     'finance',
-
     'crispy_forms',
     'crispy_bootstrap5',
     'bootstrap5',
@@ -68,15 +65,12 @@ TEMPLATES = [
     },
 ]
 
-
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get('DATABASE_URL', f'sqlite:///{BASE_DIR}/db.sqlite3'),
         conn_max_age=600
     )
 }
-
-
 
 LOGIN_REDIRECT_URL = '/home/'
 LOGOUT_REDIRECT_URL = '/login/'
@@ -97,7 +91,6 @@ else:
 WHITENOISE_USE_FINDERS = True
 
 USE_S3 = env.bool("USE_S3", default=False)
-
 if USE_S3:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
@@ -121,23 +114,18 @@ SESSION_COOKIE_AGE = 86400  # 1 day
 SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
-
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = not DEBUG
-SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SAMESITE = 'Lax'
+SECURE_SSL_REDIRECT = not DEBUG
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 CSRF_TRUSTED_ORIGINS = [
     'https://airborne-images-12bytes-5d4382c082a9.herokuapp.com',
     'https://*.herokuapp.com'
 ]
-CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SAMESITE = 'Lax'
-
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 DATE_INPUT_FORMATS = ['%d-%m-%Y']
@@ -158,6 +146,7 @@ JAZZMIN_SETTINGS = {
         {"name": "Site Home", "url": "/admin/logout", "redirect": "/home/"}
     ]
 }
+
 JAZZMIN_UI_TWEAKS = {
     "theme": "lux",
     "dark_mode_theme": "darkly",
