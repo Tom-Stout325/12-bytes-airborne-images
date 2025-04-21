@@ -1,0 +1,53 @@
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+.Python
+env/
+venv/
+ENV/
+.venv/
+*.sqlite3
+
+# macOS
+.DS_Store
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+
+# VSCode
+.vscode/
+
+# Heroku / virtualenv
+*.env
+.env.*
+.envrc
+
+# Node modules (if used)
+node_modules/
+
+# Compiled / cache
+*.egg-info/
+.eggs/
+dist/
+build/
+.cache/
+
+# IDEs
+.idea/
+*.swp
+
+# PDFs / generated files
+*.pdf
+README copy.md
+
+# System
+Thumbs.db
+ehthumbs.db
