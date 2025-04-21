@@ -63,6 +63,7 @@ class GeneralDocument(models.Model):
     CATEGORY_CHOICES = [
         ('Insurance', 'Insurance'),
         ('FAA', 'FAA Waivers'),
+        ('Registrations', 'Drone Registrations'),
         ('Event', 'Event Instructions'),
         ('Policies', 'Policies'),
         ('Compliance', 'Compliance'),
