@@ -25,6 +25,8 @@ from .models import *
 def documents(request):
     return render(request, 'drones/documents.html')
 
+
+@login_required
 def home(request):
     return render(request, 'home.html')
 
@@ -77,11 +79,6 @@ def incident_report_pdf(request, pk):
     return response
 
 
-
-
-
-
-
 FORMS = [
     ("general", GeneralInfoForm),
     ("event", EventDetailsForm),
@@ -102,11 +99,12 @@ TEMPLATES = {
     "followup": "drones/wizard_form.html",
 }
 
+
+
 class IncidentReportWizard(LoginRequiredMixin, SessionWizardView):
     template_name = 'drones/incident_report_form.html'
 
     def get(self, request, *args, **kwargs):
-        self._storage = self.get_wizard_storage()
         self._storage.reset()
         return super().get(request, *args, **kwargs)
 
@@ -172,10 +170,6 @@ def incident_report_list(request):
         'incident_reports': reports.order_by('-report_date'),
         'search_query': query
     }
-    def incident_report_list(request):
-        print("DB path (view):", settings.DATABASES['default']['NAME'])
-        reports = DroneIncidentReport.objects.all()
-        print("From view:", reports.count())
 
     return render(request, 'drones/incident_list.html', context)
 
