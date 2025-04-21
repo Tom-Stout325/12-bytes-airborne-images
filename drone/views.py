@@ -35,14 +35,12 @@ def home(request):
 def incident_reporting_system(request):
     query = request.GET.get('q', '').strip()
     reports = DroneIncidentReport.objects.all().order_by('-report_date')
-
     if query:
         reports = reports.filter(
             Q(reported_by__icontains=query) |
             Q(location__icontains=query) |
             Q(description__icontains=query)
         )
-
     context = {
         'incident_reports': reports,
         'search_query': query,
@@ -53,11 +51,7 @@ def incident_reporting_system(request):
 @login_required
 def incident_report_pdf(request, pk):
     report = get_object_or_404(DroneIncidentReport, pk=pk)
-
-    # Full path to static logo for PDF rendering
     logo_path = request.build_absolute_uri(static("images/logo2.png"))
-
-    # Render the HTML template to a string
     html_string = render_to_string(
         'drones/incident_report_pdf.html',
         {
@@ -69,10 +63,8 @@ def incident_report_pdf(request, pk):
     )
     print("USING HTML CONSTRUCTOR:", HTML.__init__)
     print("USING MODULE:", HTML.__module__)
-
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
     pdf_content = html.write_pdf()
-
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="incident_report_{pk}.pdf"'
     response.write(pdf_content)
@@ -129,7 +121,6 @@ class IncidentReportWizard(LoginRequiredMixin, SessionWizardView):
         data = {}
         for form in form_list:
             data.update(form.cleaned_data)
-
         report = DroneIncidentReport.objects.create(**data)
         html_string = render_to_string('drones/incident_report_pdf.html', {'report': report}, request=self.request)
         html = HTML(string=html_string, base_url=self.request.build_absolute_uri())
@@ -138,16 +129,14 @@ class IncidentReportWizard(LoginRequiredMixin, SessionWizardView):
         filename = f'reports/incident_report_{report.pk}_{unique_id}.pdf'
         filepath = os.path.join(settings.MEDIA_ROOT, filename)
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
-
         with open(filepath, 'wb') as f:
             f.write(pdf_content)
-
         pdf_url = os.path.join(settings.MEDIA_URL, filename)
-
         return render(self.request, 'drones/incident_report_success.html', {
             'form_data': data,
             'pdf_url': pdf_url,
         })
+
 
 @login_required
 def incident_report_success(request):
@@ -187,9 +176,9 @@ def sop_upload(request):
         if form.is_valid():
             form.save()
             messages.success(request, "SOP added successfully.")
+            messages.error(request, "There was a problem uploading the document.")
             return redirect('sop_list')
     else:
-        messages.error(request, "There was a problem uploading the document.")
         form = SOPDocumentForm()
     return render(request, 'sop_manager/sop_upload.html', {'form': form})
 
@@ -237,10 +226,10 @@ def upload_general_document(request):
         form = GeneralDocumentForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, "Equipment added successfully.")
+            messages.success(request, "File added successfully.")
+            messages.error(request, "There was a problem uploading the document.")
             return redirect('general_document_list')
     else:
-        messages.error(request, "There was a problem uploading the document.")
         form = GeneralDocumentForm()
     return render(request, 'drones/upload_general.html', {'form': form})
 
@@ -258,9 +247,9 @@ def equipment_create(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Equipment added successfully.")
+            messages.error(request, "There was a problem adding your equipment.")
             return redirect('equipment_list')
     else:
-        messages.error(request, "There was a problem uploading the document.")
         form = EquipmentForm()
     return render(request, 'drones/equipment_form.html', {'form': form, 'title': 'Add Equipment'})
 
@@ -272,11 +261,11 @@ def equipment_edit(request, pk):
         form = EquipmentForm(request.POST, instance=item)
         if form.is_valid():
             form.save()
-            messages.success(request, "Equipment added successfully.")
+            messages.success(request, "Equipment updated successfully.")
+            messages.error(request, "There was a problem updating the equipment.")
 
             return redirect('equipment_list')
     else:
-        messages.error(request, "There was a problem adding the equipment.")
         form = EquipmentForm(instance=item)
     return render(request, 'drones/equipment_form.html', {'form': form, 'title': 'Edit Equipment'})
 
