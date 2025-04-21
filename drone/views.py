@@ -5,6 +5,7 @@ from django.templatetags.static import static
 from django.core.paginator import Paginator
 from django.template import RequestContext
 from django.http import HttpResponse
+from django.contrib import messages
 from django.utils import timezone
 from django.conf import settings
 from operator import attrgetter
@@ -18,7 +19,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import *
 from .models import *
-
 
 
 @login_required
@@ -186,8 +186,10 @@ def sop_upload(request):
         form = SOPDocumentForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
+            messages.success(request, "SOP added successfully.")
             return redirect('sop_list')
     else:
+        messages.error(request, "There was a problem uploading the document.")
         form = SOPDocumentForm()
     return render(request, 'sop_manager/sop_upload.html', {'form': form})
 
@@ -227,14 +229,18 @@ def general_document_list(request):
     }
     return render(request, 'drones/general_list.html', context)
 
+
+
 @login_required
 def upload_general_document(request):
     if request.method == 'POST':
         form = GeneralDocumentForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
+            messages.success(request, "Equipment added successfully.")
             return redirect('general_document_list')
     else:
+        messages.error(request, "There was a problem uploading the document.")
         form = GeneralDocumentForm()
     return render(request, 'drones/upload_general.html', {'form': form})
 
@@ -244,16 +250,20 @@ def equipment_list(request):
     equipment = Equipment.objects.all().order_by('-purchase_date')
     return render(request, 'drones/equipment_list.html', {'equipment': equipment})
 
+
 @login_required
 def equipment_create(request):
     if request.method == 'POST':
         form = EquipmentForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Equipment added successfully.")
             return redirect('equipment_list')
     else:
+        messages.error(request, "There was a problem uploading the document.")
         form = EquipmentForm()
     return render(request, 'drones/equipment_form.html', {'form': form, 'title': 'Add Equipment'})
+
 
 @login_required
 def equipment_edit(request, pk):
@@ -262,16 +272,22 @@ def equipment_edit(request, pk):
         form = EquipmentForm(request.POST, instance=item)
         if form.is_valid():
             form.save()
+            messages.success(request, "Equipment added successfully.")
+
             return redirect('equipment_list')
     else:
+        messages.error(request, "There was a problem adding the equipment.")
         form = EquipmentForm(instance=item)
     return render(request, 'drones/equipment_form.html', {'form': form, 'title': 'Edit Equipment'})
+
+
 
 @login_required
 def equipment_delete(request, pk):
     item = get_object_or_404(Equipment, pk=pk)
     if request.method == 'POST':
         item.delete()
+        messages.success(request, "Equipment was deleted.")
         return redirect('equipment_list')
     return render(request, 'drones/equipment_confirm_delete.html', {'item': item})
 

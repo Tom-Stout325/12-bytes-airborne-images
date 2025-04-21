@@ -1,4 +1,5 @@
-from django.http import HttpResponseForbidden
+
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.shortcuts import render, redirect, get_object_or_404
@@ -6,8 +7,27 @@ from django.contrib import messages
 from .models import *
 from .forms import *
 
+
+from django.http import HttpResponseForbidden
+
 def register(request):
-    return HttpResponseForbidden("Public registration is disabled. Please contact the administrator.")
+    return HttpResponseForbidden("Registration is closed. Contact 12bytes.")
+
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            PilotProfile.objects.create(user=user)
+            login(request, user)
+            messages.success(request, "Registration successful. You can now log in.")
+            return redirect('edit_pilot_profile')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
+
 
 @login_required
 def pilot_profile(request):
@@ -17,25 +37,28 @@ def pilot_profile(request):
         return redirect('edit_pilot_profile')
     return render(request, 'app/pilot_profile.html', {'profile': profile})
 
+
 @login_required
 def edit_pilot_profile(request):
     profile, _ = PilotProfile.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
         form = PilotProfileForm(request.POST, request.FILES, instance=profile)
+
+        # Update user info
         request.user.first_name = request.POST.get('first_name')
         request.user.last_name = request.POST.get('last_name')
         request.user.email = request.POST.get('email')
         request.user.save()
 
         if form.is_valid():
+            # If no new file is uploaded, don't overwrite the existing image
             if 'license_image' not in request.FILES:
                 form.cleaned_data['license_image'] = profile.license_image
             form.save()
             messages.success(request, "Profile updated successfully.")
-            return redirect('pilot_profile')
-        else:
             messages.error(request, "There was an error updating your profile.")
+            return redirect('pilot_profile')
     else:
         form = PilotProfileForm(instance=profile)
 
@@ -43,6 +66,7 @@ def edit_pilot_profile(request):
         'profile_form': form,
         'user': request.user
     })
+
 
 @login_required
 def delete_pilot_profile(request):
@@ -55,9 +79,11 @@ def delete_pilot_profile(request):
         return redirect('login')
     return render(request, 'app/pilot_profile_delete.html', {'profile': profile})
 
+
 @login_required
 def add_training_record(request):
     profile = get_object_or_404(PilotProfile, user=request.user)
+
     if request.method == 'POST':
         form = TrainingRecordForm(request.POST, request.FILES)
         if form.is_valid():
@@ -65,12 +91,13 @@ def add_training_record(request):
             training.pilot = profile
             training.save()
             messages.success(request, "Training record added.")
-            return redirect('pilot_profile')
-        else:
             messages.error(request, "Could not save training record.")
+            return redirect('pilot_profile')
     else:
         form = TrainingRecordForm()
+
     return render(request, 'app/training_add.html', {'form': form})
+
 
 @login_required
 def edit_training_record(request, pk):
@@ -87,6 +114,7 @@ def edit_training_record(request, pk):
         form = TrainingRecordForm(instance=training)
 
     return render(request, 'app/training_edit.html', {'form': form, 'training': training})
+
 
 @login_required
 def delete_training_record(request, pk):
