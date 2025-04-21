@@ -3,8 +3,15 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import render
+from app.views import test_session
+
+
 
 urlpatterns = [
+    
+    path('test-session/', test_session, name='test_session'),
+
+
     path('admin/', admin.site.urls),
     path('', include('app.urls')),
     path('', include('finance.urls')),

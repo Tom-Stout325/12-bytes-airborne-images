@@ -6,6 +6,16 @@ from django.contrib import messages
 from .models import *
 from .forms import *
 
+
+from django.http import HttpResponse
+
+def test_session(request):
+    request.session['test_key'] = 'Session is working'
+    return HttpResponse(request.session.get('test_key', 'Session failed'))
+
+
+
+
 def register(request):
     return HttpResponseForbidden("Public registration is disabled. Please contact the administrator.")
 
