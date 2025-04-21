@@ -8,6 +8,12 @@ from .models import *
 from .forms import *
 
 
+from django.http import HttpResponseForbidden
+
+def register(request):
+    return HttpResponseForbidden("Registration is closed. Contact 12bytes.")
+
+
 
 def register(request):
     if request.method == 'POST':
