@@ -10,7 +10,7 @@ env = environ.Env()
 environ.Env.read_env()
 
 # Validate required environment variables
-required_env_vars = ['DJANGO_SECRET_KEY', 'ALLOWED_HOSTS', 'DATABASE_URL', 'REDIS_URL']
+required_env_vars = ['DJANGO_SECRET_KEY', 'ALLOWED_HOSTS', 'DATABASE_URL']
 for var in required_env_vars:
     if not env(var, default=None):
         raise ImproperlyConfigured(f"Environment variable {var} is not set")
@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security settings
 SECRET_KEY = env("DJANGO_SECRET_KEY")
-DEBUG = env.bool("DEBUG", default=False)
+DEBUG = env.bool("DEBUG", default=False)  # Ensure False in production
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
 # Installed apps
@@ -46,7 +46,7 @@ INSTALLED_APPS = [
 
 # Middleware
 MIDDLEWARE = [
-    'project.middleware.ForceHTTPSMiddleware',  # Custom middleware to enforce HTTPS
+    'project.middleware.ForceHTTPSMiddleware',  # Enforce HTTPS
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -99,7 +99,7 @@ STATICFILES_STORAGE = (
     'django.contrib.staticfiles.storage.StaticFilesStorage'
 )
 
-# S3 configuration (optional)
+# S3 configuration
 USE_S3 = env.bool("USE_S3", default=False)
 if USE_S3:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
@@ -118,25 +118,30 @@ LOGOUT_REDIRECT_URL = '/login/'
 LOGIN_URL = '/login/'
 
 # Session and CSRF settings
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': env('REDIS_URL'),
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+redis_url = env('REDISCLOUD_URL', default=env('REDIS_URL', default=None))
+if redis_url:
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': redis_url,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
         }
     }
-}
+else:
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 days
-SESSION_COOKIE_SECURE = not DEBUG  # True in production
+SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_DOMAIN = '.airborne-images.net'
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
-CSRF_COOKIE_SECURE = not DEBUG  # True in production
+CSRF_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_DOMAIN = '.airborne-images.net'
 CSRF_TRUSTED_ORIGINS = [
@@ -146,7 +151,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # Security headers
-SECURE_SSL_REDIRECT = not DEBUG  # True in production
+SECURE_SSL_REDIRECT = not DEBUG
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
@@ -169,7 +174,7 @@ MESSAGE_TAGS = {
 # Jazzmin Admin UI
 JAZZMIN_SETTINGS = {
     'site_title': 'App',
-    'site_header': '/static/images/logo.png',  # Use static path
+    'site_header': '/static/images/logo.png',
     'site_brand': 'App',
     'site_logo': '/static/images/logo.png',
     'login_logo': '/static/images/logo.png',
@@ -187,3 +192,12 @@ JAZZMIN_UI_TWEAKS = {
     'theme': 'lux',
     'dark_mode_theme': 'darkly',
 }
+
+# Email settings
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.office365.com')
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default=None)
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default=None)
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
