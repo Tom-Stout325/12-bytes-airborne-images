@@ -6,8 +6,20 @@ from django.shortcuts import render
 from app.views import test_session
 
 
+from django.http import JsonResponse
+def debug_csrf(request):
+    return JsonResponse({
+        'csrf_cookie': request.COOKIES.get('csrftoken', 'Not set'),
+        'is_secure': request.is_secure(),
+        'host': request.get_host(),
+        'scheme': request.scheme,
+        'x_forwarded_proto': request.META.get('HTTP_X_FORWARDED_PROTO'),
+    })
+
 
 urlpatterns = [
+
+    path('debug-csrf/', debug_csrf, name='debug-csrf'),
     
     path('test-session/', test_session, name='test_session'),
 
