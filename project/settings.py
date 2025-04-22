@@ -5,7 +5,7 @@ import dj_database_url
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 
-# Load .env
+# Load environment variables
 env = environ.Env()
 environ.Env.read_env()
 
@@ -15,9 +15,10 @@ for var in required_env_vars:
     if not env(var, default=None):
         raise ImproperlyConfigured(f"Environment variable {var} is not set")
 
+# Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Security
+# Security settings
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
@@ -45,12 +46,13 @@ INSTALLED_APPS = [
 
 # Middleware
 MIDDLEWARE = [
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'project.middleware.ForceHTTPSMiddleware',  # Custom middleware to enforce HTTPS
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -84,7 +86,7 @@ DATABASES = {
     )
 }
 
-# Static and media
+# Static and media files
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -97,7 +99,7 @@ STATICFILES_STORAGE = (
     'django.contrib.staticfiles.storage.StaticFilesStorage'
 )
 
-# S3 optional config
+# S3 configuration (optional)
 USE_S3 = env.bool("USE_S3", default=False)
 if USE_S3:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
@@ -110,12 +112,12 @@ if USE_S3:
 else:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
-# Login
+# Authentication
 LOGIN_REDIRECT_URL = '/home/'
 LOGOUT_REDIRECT_URL = '/login/'
 LOGIN_URL = '/login/'
 
-# Sessions
+# Session and CSRF settings
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 CACHES = {
     'default': {
@@ -127,42 +129,38 @@ CACHES = {
     }
 }
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 days
-SESSION_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG  # True in production
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_DOMAIN = '.airborne-images.net'
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
-# CSRF
-CSRF_COOKIE_DOMAIN = '.airborne-images.net'
-SESSION_COOKIE_DOMAIN = '.airborne-images.net'
 CSRF_COOKIE_SECURE = not DEBUG  # True in production
 CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SECURE = not DEBUG  # True in production
-SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_DOMAIN = '.airborne-images.net'
 CSRF_TRUSTED_ORIGINS = [
     'https://airborne-images-12bytes-5d4382c082a9.herokuapp.com',
     'https://*.herokuapp.com',
-    'https://12bytes.airborne-images.net'
+    'https://12bytes.airborne-images.net',
 ]
 
 # Security headers
-SECURE_SSL_REDIRECT = not DEBUG
+SECURE_SSL_REDIRECT = not DEBUG  # True in production
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = "DENY"
+X_FRAME_OPTIONS = 'DENY'
 
-# Misc
+# Miscellaneous
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 DATE_INPUT_FORMATS = ['%d-%m-%Y']
 
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"
+CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
@@ -170,22 +168,22 @@ MESSAGE_TAGS = {
 
 # Jazzmin Admin UI
 JAZZMIN_SETTINGS = {
-    'site_title': "App",
-    'site_header': "images/logo.png",
+    'site_title': 'App',
+    'site_header': '/static/images/logo.png',  # Use static path
     'site_brand': 'App',
-    'site_logo': "images/logo.png",
-    'login_logo': "images/logo.png",
-    'site_icon': "images/logo.png",
-    'login_logo_dark': "images/logo.png",
-    "copyright": "12bytes",
-    "user_avatar": "images/logo.png",
-    "topmenu_links": [
-        {"name": "Admin Home", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "auth.user"},
-        {"name": "Site Home", "url": "/admin/logout", "redirect": "/home/"}
-    ]
+    'site_logo': '/static/images/logo.png',
+    'login_logo': '/static/images/logo.png',
+    'site_icon': '/static/images/logo.png',
+    'login_logo_dark': '/static/images/logo.png',
+    'copyright': '12bytes',
+    'user_avatar': '/static/images/logo.png',
+    'topmenu_links': [
+        {'name': 'Admin Home', 'url': 'admin:index', 'permissions': ['auth.view_user']},
+        {'name': 'auth.user'},
+        {'name': 'Site Home', 'url': '/admin/logout', 'redirect': '/home/'},
+    ],
 }
 JAZZMIN_UI_TWEAKS = {
-    "theme": "lux",
-    "dark_mode_theme": "darkly",
+    'theme': 'lux',
+    'dark_mode_theme': 'darkly',
 }
