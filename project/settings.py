@@ -135,12 +135,16 @@ SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 # CSRF
-CSRF_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_DOMAIN = '.airborne-images.net'
+SESSION_COOKIE_DOMAIN = '.airborne-images.net'
+CSRF_COOKIE_SECURE = not DEBUG  # True in production
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = not DEBUG  # True in production
+SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_TRUSTED_ORIGINS = [
     'https://airborne-images-12bytes-5d4382c082a9.herokuapp.com',
-    'https://*.herokuapp.com'
+    'https://*.herokuapp.com',
+    'https://12bytes.airborne-images.net'
 ]
 
 # Security headers
