@@ -63,7 +63,7 @@
             <span class="badge {% if invoice.paid == 'Yes' %}bg-success{% else %}bg-danger{% endif %}">{{ invoice.paid }}</span>
           </td>
           <td>
-            <a href="{% url 'invoice_detail' invoice.pk %}"><i class="fa-solid fa-eye"></i>&nbsp;</a>
+            <a href="{% url 'invoice_detail' invoice.pk %}" target="_blank"><i class="fa-solid fa-eye"></i>&nbsp;</a>
         
             <a href="{% url 'update_invoice' invoice.pk %}"><i class="fa-solid fa-pencil"></i>&nbsp;</a>
          
@@ -76,7 +76,7 @@
           </td>
         </tr>
         {% endfor %}
-      </tbody>
+      </tbody>  
     </table>
   </div>
 
