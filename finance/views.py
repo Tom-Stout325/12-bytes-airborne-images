@@ -273,7 +273,7 @@ def update_invoice(request, pk):
         form = InvoiceForm(instance=invoice)
         formset = InvoiceItemFormSet(instance=invoice)
 
-    return render(request, 'finance/invoice_edit.html', {
+    return render(request, 'finance/invoice_update.html', {
         'form': form,
         'formset': formset,
         'invoice': invoice
