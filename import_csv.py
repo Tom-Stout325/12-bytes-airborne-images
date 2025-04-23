@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.core.management.base import BaseCommand
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
-from your_app.models import (
+from finance.models import (
     Type, Category, SubCategory, Keyword, Team, Client, Service,
     Transaction, Invoice, InvoiceItem, MileageRate, Miles
 )
