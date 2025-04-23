@@ -280,8 +280,10 @@ def update_invoice(request, pk):
     })
 
 
+
 def create_invoice_success(request):
     return render(request, 'finance/invoice_add_success.html')
+
 
 
 class InvoiceListView(LoginRequiredMixin, ListView):

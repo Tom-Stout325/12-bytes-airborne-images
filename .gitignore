@@ -51,6 +51,11 @@ build/
 README copy.md
 set_email_config.sh
 set_config.sh
+.sql
+set_config.sh
+set_email_config.sh
+rebuild_venv.sh
+
 
 # System
 Thumbs.db
