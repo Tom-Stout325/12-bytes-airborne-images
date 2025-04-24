@@ -176,8 +176,9 @@ def sop_upload(request):
         if form.is_valid():
             form.save()
             messages.success(request, "SOP added successfully.")
-            messages.error(request, "There was a problem uploading the document.")
             return redirect('sop_list')
+        else:
+            messages.error(request, "There was a problem uploading the document.")
     else:
         form = SOPDocumentForm()
     return render(request, 'sop_manager/sop_upload.html', {'form': form})
@@ -227,8 +228,9 @@ def upload_general_document(request):
         if form.is_valid():
             form.save()
             messages.success(request, "File added successfully.")
-            messages.error(request, "There was a problem uploading the document.")
             return redirect('general_document_list')
+        else:
+            messages.error(request, "There was a problem uploading the document.")
     else:
         form = GeneralDocumentForm()
     return render(request, 'drones/upload_general.html', {'form': form})
@@ -247,8 +249,9 @@ def equipment_create(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Equipment added successfully.")
-            messages.error(request, "There was a problem adding your equipment.")
             return redirect('equipment_list')
+        else:
+            messages.error(request, "There was a problem adding the equipment.")
     else:
         form = EquipmentForm()
     return render(request, 'drones/equipment_form.html', {'form': form, 'title': 'Add Equipment'})
@@ -262,9 +265,9 @@ def equipment_edit(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, "Equipment updated successfully.")
-            messages.error(request, "There was a problem updating the equipment.")
-
             return redirect('equipment_list')
+        else:
+            messages.error(request, "There was a problem adding the equipment.")
     else:
         form = EquipmentForm(instance=item)
     return render(request, 'drones/equipment_form.html', {'form': form, 'title': 'Edit Equipment'})
