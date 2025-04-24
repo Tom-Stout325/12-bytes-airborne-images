@@ -220,6 +220,7 @@ def edit_transaction(request, transaction_id):
 
 # Invoices   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+
 @login_required
 def create_invoice(request):
     if request.method == 'POST':
@@ -249,6 +250,7 @@ def create_invoice(request):
         'form': form,
         'formset': formset
     })
+
 
 @login_required
 def update_invoice(request, pk):
@@ -280,10 +282,8 @@ def update_invoice(request, pk):
     })
 
 
-
 def create_invoice_success(request):
     return render(request, 'finance/invoice_add_success.html')
-
 
 
 class InvoiceListView(LoginRequiredMixin, ListView):
@@ -345,6 +345,7 @@ def unpaid_invoices(request):
 
 # Categories    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
     template_name = "components/category_list.html"
@@ -385,6 +386,7 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
 
 
 # Sub-Categories  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 
 class SubCategoryListView(LoginRequiredMixin, ListView):
     model = SubCategory
