@@ -19,80 +19,89 @@
       }
     }
   </style>
-
-<nav class="navbar navbar-expand-lg bg-light sticky-top" data-bs-theme="light">
-    <div class="container-fluid">
+  <body>
+    <nav
+      class="navbar navbar-expand-lg bg-light sticky-top"
+      data-bs-theme="light">
+      <div class="container-fluid">
         <a
           class="navbar-brand d-flex align-items-center"
           href="{% url 'home' %}"
           style="margin-left: 5rem; margin-right: 3rem; height: 75px">
           <img
-            src="{% static 'images/logo.png' %}" height="60px"
-            class="App-logo" alt="logo"
-            alt="Logo"/> <h5 style="color: #0840d6; font-size: 2rem;">&nbsp;&nbsp;&nbsp;&nbsp;Airborne Images</h5> 
-      </a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarColor01"
-        aria-controls="navbarColor01"
-        aria-expanded="false"
-        aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarColor01">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item">
-            <a class="dropdown-item" href="{% url 'dashboard' %}">Dashboard</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'transactions' %}">Transactions</a>
-          </li>
-          <li class="nav-item">
-            <a class="dropdown-item" href="{% url 'invoice_list' %}">Invoices</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'documents'%}">Drones</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              data-bs-toggle="dropdown"
-              href="#"
-              role="button"
-              aria-haspopup="true"
-              aria-expanded="false">
-              Financial Reports
-            </a>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="{% url 'financial_statement' %}">Income Statement</a>
-              <a class="dropdown-item" href="{% url 'category_summary' %}">Category Review</a>
-              <a class="dropdown-item" href="{% url 'keyword_financial_summary' %}">NHRA Review</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Separated link</a>
-            </div>
-          </li>
-        </ul>
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'login' %}">
-              <i class="fa-solid fa-right-to-bracket"></i> Sign In
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'logout' %}">
-              Sign Out &nbsp;&nbsp;<i class="fa-solid fa-right-from-bracket"></i>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="https://thomass333.sg-host.com">
-              Back to Airborne Images <i class="fa-solid fa-house"></i>
-            </a>
-          </li>
-        </ul>
-       
+            src="{% static 'images/logo.png' %}"
+            height="60px"
+            class="App-logo"
+            alt="logo"
+            alt="Logo"/>
+          <h5 style="color: #0840d6; font-size: 2rem">
+            &nbsp;&nbsp;&nbsp;&nbsp;Airborne Images
+          </h5>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarColor01"
+          aria-controls="navbarColor01"
+          aria-expanded="false"
+          aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarColor01">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="dropdown-item" href="{% url 'dashboard' %}">Dashboard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'transactions' %}">Transactions</a>
+            </li>
+            <li class="nav-item">
+              <a class="dropdown-item" href="{% url 'invoice_list' %}">Invoices</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'documents'%}">Drones</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                data-bs-toggle="dropdown"
+                href="#"
+                role="button"
+                aria-haspopup="true"
+                aria-expanded="false">
+                Financial Reports
+              </a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'financial_statement' %}">Income Statement</a>
+                <a class="dropdown-item" href="{% url 'category_summary' %}">Category Review</a>
+                <a class="dropdown-item" href="{% url 'keyword_financial_summary' %}">NHRA Review</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#">Separated link</a>
+              </div>
+            </li>
+          </ul>
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}">
+                <i class="fa-solid fa-right-to-bracket"></i> Sign In
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">
+                Sign Out &nbsp;&nbsp;<i
+                  class="fa-solid fa-right-from-bracket"
+                ></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://thomass333.sg-host.com">
+                Back to Airborne Images <i class="fa-solid fa-house"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
-  </nav>
+    </nav>
+  </body>
 </html>
