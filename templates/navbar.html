@@ -49,24 +49,31 @@
     <div class="collapse navbar-collapse" id="navbarColor01">
       <ul class="navbar-nav me-auto">
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Finance</a>
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Finance Reports</a>
           <div class="dropdown-menu">
-            <a class="dropdown-item" href="{% url 'dashboard' %}">Dashboard</a>
-            <a class="dropdown-item" href="{% url 'transactions' %}">Transactions</a>
-            <a class="dropdown-item" href="{% url 'invoice_list' %}">Invoices</a>
-            <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="{% url 'financial_statement' %}">Income Statement</a>
             <a class="dropdown-item" href="{% url 'category_summary' %}">Category Review</a>
             <a class="dropdown-item" href="{% url 'keyword_financial_summary' %}">NHRA Review</a>
           </div>
         </li>
+      </ul>
+
+        </li>
+        <li class="nav-item">
+          <a class="dropdown-item" href="{% url 'dashboard' %}">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'transactions' %}">Transactions</a>
+        </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'documents'%}">Drones</a>
         </li>
         <li class="nav-item">
+          <a class="dropdown-item" href="{% url 'invoice_list' %}">Invoices</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="{% url 'mission_plan'%}">Mission Plan</a>
         </li>
-      </ul>
 
       <!-- Sign In/Out Links -->
       <ul class="navbar-nav ms-auto">
