@@ -366,12 +366,18 @@ def invoice_delete(request, pk):
 
 
 
-
 # Categories    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 
 def category_page(request):
-    return render(request, 'finance/category_page.html')
+    category = Category.objects.all()
+    sub_cat = SubCategory.objects.all()
+
+    context = {
+        'category': category,
+        'sub_cat': sub_cat,
+    }
+    return render(request, 'finance/category_page.html', context)
 
 
 class CategoryListView(LoginRequiredMixin, ListView):
