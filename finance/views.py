@@ -370,6 +370,9 @@ def invoice_delete(request, pk):
 # Categories    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 
+def category_page(request):
+    return render(request, 'finance/category_page.html')
+
 
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category

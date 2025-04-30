@@ -5,6 +5,19 @@
 
 {% block title %}Invoices{% endblock %}
 
+{% block breadcrumbs %}
+<h3>Finance Portal</h3>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"> <a href="{% url 'dashboard' %}"></a> Dashboard</li>
+        <li class="breadcrumb-item"><a href="{% url 'transaction' %}">Transactions</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Invoices</li>
+        <li class="breadcrumb-item"><a href="{% url 'mileage_list' %}">Mileage Log</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Categories</li>
+      </ol>
+</nav>
+{% endblock %}
+
 {% block content %}
 <div class="containerbg-light border rounded p-4">
   <div>

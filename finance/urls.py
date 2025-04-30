@@ -26,6 +26,8 @@ urlpatterns = [
   path('invoice/success', create_invoice_success, name='create_invoice_success'),    
   path('invoice/<int:invoice_id>/email/', send_invoice_email, name='send_invoice_email'),
 
+  path('tax-categories/', category_page, name='category_page'),
+
   path('categories/', CategoryListView.as_view(), name='category_list'),
   path('category/add/', CategoryCreateView.as_view(), name='add_category'),
   path('category/edit/<int:pk>/', CategoryUpdateView.as_view(), name='edit_category'),
