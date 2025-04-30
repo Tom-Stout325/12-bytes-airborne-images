@@ -14,7 +14,6 @@
             {% csrf_token %}
             {{ form.non_field_errors }}
             {{ form.media }}
-        
             {{ form.date|as_crispy_field }}
             {{ form.trans_type|as_crispy_field }}
             {{ form.category|as_crispy_field }}
@@ -43,7 +42,7 @@
         
             <div class="d-grid gap-2 mt-3">
                 <button type="submit" class="btn btn-primary w-100">Save</button>
-                <a href="{% url 'add_transaction' %}" class="btn btn-secondary w-100">Cancel</a>
+                <a href="{% url 'transactions' %}" class="btn btn-secondary w-100">Cancel</a>
             </div>
         </form>
         
