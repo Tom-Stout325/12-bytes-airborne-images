@@ -218,6 +218,19 @@ def edit_transaction(request, transaction_id):
     return render(request, 'finance/transaction_edit.html', {'transaction': transaction, 'form': form})
 
 
+@login_required
+def transaction_delete(request, pk):
+    transaction = get_object_or_404(Transaction, pk=pk)
+    if request.method == 'POST':
+        transaction.delete()
+        messages.success(request, "Transaction was deleted.")
+        return redirect('transactions')
+    return render(request, 'finance/transaction_confirm_delete.html', {'item': transaction})
+
+
+
+
+
 # Invoices   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 
@@ -342,8 +355,20 @@ def unpaid_invoices(request):
     invoices = Invoice.objects.filter(paid__iexact="No").order_by('due_date')
     return render(request, 'components/unpaid_invoices.html', {'invoices': invoices})
 
+@login_required
+def invoice_delete(request, pk):
+    invoice = get_object_or_404(Invoice, pk=pk)
+    if request.method == 'POST':
+        invoice.delete()
+        messages.success(request, "Invoice was deleted.")
+        return redirect('invoice_list')
+    return render(request, 'finance/invoice_confirm_delete.html', {'item': invoice})
+
+
+
 
 # Categories    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 
 
 class CategoryListView(LoginRequiredMixin, ListView):

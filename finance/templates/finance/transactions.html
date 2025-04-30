@@ -63,6 +63,7 @@
             <th class="sortable-header" onclick="sortTable(5)"> Inv. # &nbsp;<i class="sort-icon fa-solid fa-sort"></i></th>
             <th scope="col">View</th>
             <th scope="col">Edit</th>
+            <th scope="col">Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -70,24 +71,20 @@
           <tr>
             <td>{{ x.date }}</td>
             <td>
-              <span class="badge {% if x.trans_type.trans_type == 'Income' %}bg-success{% else %}bg-danger{% endif %}">
-                {{ x.trans_type }}
-              </span>
+              <span class="badge {% if x.trans_type.trans_type == 'Income' %}bg-success{% else %}bg-danger{% endif %}">{{ x.trans_type }}</span>
             </td>
             <td class="text-start ps-2">{{ x.transaction }}</td>
             <td>{{ x.keyword }}</td>
             <td><strong>${{ x.amount|floatformat:2|intcomma }}</strong></td>
             <td>{{ x.invoice_numb }}</td>
             <td>
-              <a href="{% url 'transaction_detail' x.id %}">
-                <i class="fa-solid fa-eye text-success"></i>
-            </a>
-               
+              <a href="{% url 'transaction_detail' x.id %}" class="text-decoration-none"><i class="fa-solid fa-eye text-success"></i></a>   
             </td>
             <td>
-              <a href="{% url 'edit_transaction' x.id %}" class="text-decoration-none">
-                <i class="fa-solid fa-pencil text-warning"></i>
-              </a>
+              <a href="{% url 'edit_transaction' x.id %}" class="text-decoration-none"><i class="fa-solid fa-pencil text-warning"></i></a>
+            </td>
+            <td>
+              <a href="{% url 'transaction_delete' x.id %}" class="text-decoration-none"><i class="fa-solid fa-trash-can"></i></a>   
             </td>
           </tr>
           {% empty %}

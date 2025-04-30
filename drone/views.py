@@ -283,3 +283,7 @@ def equipment_delete(request, pk):
         return redirect('equipment_list')
     return render(request, 'drones/equipment_confirm_delete.html', {'item': item})
 
+
+
+def mission_plan(request):
+    return render(request, 'drones/mission_plan.html')

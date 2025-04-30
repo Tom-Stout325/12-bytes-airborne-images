@@ -37,6 +37,8 @@ urlpatterns = [
     path('equipment/add/', equipment_create, name='equipment_create'),
     path('equipment/<int:pk>/edit/', equipment_edit, name='equipment_edit'),
     path('equipment/<int:pk>/delete/', equipment_delete, name='equipment_delete'),
+
+    path('mission-plan', mission_plan, name='mission_plan'),
 ] 
 
 if settings.DEBUG:
