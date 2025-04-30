@@ -18,12 +18,14 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="col-6">
-        {% include 'finance/category_list.html' %}
-    </div>
-    <div class="col-6">
-        {% include 'finance/sub_category_list.html' %}
-    </div>
+<div class="container">
+  <div class="row">
+      <div class="col-sm-6">
+          {% include 'finance/category_list.html' %}
+      </div>
+      <div class="col-sm-6">
+          {% include 'finance/sub_category_list.html' %}
+      </div>
+  </div>
 </div>
 {% endblock %}
