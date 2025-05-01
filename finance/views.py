@@ -678,6 +678,7 @@ def mileage_list(request):
         'mileage_rate': mileage_rate,
     })
 
+
 @login_required
 def mileage_log(request):
     try:

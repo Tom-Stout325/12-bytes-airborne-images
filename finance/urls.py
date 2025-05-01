@@ -48,7 +48,7 @@ urlpatterns = [
   path('print-category-summary/', print_category_summary, name='print_category_summary'),
   path('keyword-financial-summary/', keyword_financial_summary, name='keyword_financial_summary'),
 
-  path('mileage-log', mileage_log, name='mileage_log'),
+  path('mileage-log/', mileage_log, name='mileage_log'),
   path('mileage/', mileage_list, name='mileage_list'),
   path('mileage/add/', MileageCreateView.as_view(), name='mileage_create'),
   path('mileage/<int:pk>/edit/', MileageUpdateView.as_view(), name='mileage_update'),
