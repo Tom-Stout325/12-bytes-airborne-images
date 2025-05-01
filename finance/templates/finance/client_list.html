@@ -4,17 +4,19 @@
 {% block title %}Clients{% endblock %}
 
 {% block breadcrumbs %}
-    <h3>Finance Portal</h3>
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"> <a href="{% url 'dashboard' %}"></a> Dashboard</li>
-            <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'category_page' %}"></a> Categories</li>
-        </ol>
-    </nav>
+<h3>Finance Portal</h3>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'transactions'%}"></a>Transactions</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'category_page' %}">Categories</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Clients</li>
+  </ol>
+</nav>
 {% endblock %}
+
 {% block content %}
     <div class="container w-50 justify-content-center bg-light border rounded">
         <div class="py-4 text-center">
