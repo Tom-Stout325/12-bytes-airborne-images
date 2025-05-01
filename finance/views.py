@@ -564,13 +564,25 @@ def financial_statement(request):
     })
 
 
+# @login_required
+# def print_category_summary(request):
+#     year = request.GET.get('year')
+#     transactions = Transaction.objects.select_related('trans_type', 'category', 'sub_cat')
+#     context = get_summary_data(transactions, year)
+#     return render(request, 'finance/category_summary_print.html', context)
+
 @login_required
 def print_category_summary(request):
     year = request.GET.get('year')
-    transactions = Transaction.objects.select_related('trans_type', 'category', 'sub_cat')
+
+    transactions = (
+        Transaction.objects
+        .filter(user=request.user)
+        .select_related('trans_type', 'category', 'sub_cat')
+    )
+
     context = get_summary_data(transactions, year)
     return render(request, 'finance/category_summary_print.html', context)
-
 
 
 @login_required
@@ -638,7 +650,6 @@ def reports_page(request):
 
 
 @require_POST
-
 def send_invoice_email(request, invoice_id):
     invoice = get_object_or_404(Invoice, pk=invoice_id)
     html_string = render_to_string('finance/invoice_detail.html', {'invoice': invoice})
