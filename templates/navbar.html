@@ -22,32 +22,24 @@
   <body>
     <nav class="navbar navbar-expand-lg bg-light" data-bs-theme="light">
       <div class="container-fluid">
-        <a
-        class="navbar-brand d-flex align-items-center"
-        href="{% url 'home' %}"
-        style="margin-left: 5rem; margin-right: 3rem; height: 75px">
-        <img
-          src="{% static 'images/logo.png' %}"
-          height="60px"
-          class="App-logo"
-          alt="logo"
-          alt="Logo"/>
-        <h5 style="color: #0840d6; font-size: 2rem">
-          &nbsp;&nbsp;&nbsp;&nbsp;Airborne Images
-        </h5>
-      </a>
+        <a class="navbar-brand" href="#">Navbar</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor03" aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarColor03">
           <ul class="navbar-nav me-auto">
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'dashboard' %}">Finance</a>
+              <a class="dropdown-item" href="{% url 'documents' %}">Drone Portal</a>
             </li>
             <li class="nav-item">
-              <a class="dropdown-item" href="{% url 'documents' %}">Drone</a>
+              <a class="nav-link" href="{% url 'dashboard' %}">Finance Portal</a>
             </li>
-  
+            <li class="nav-item">
+              <a class="nav-link" href="#">Pricing</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">About</a>
+            </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
               <div class="dropdown-menu">
@@ -59,20 +51,10 @@
               </div>
             </li>
           </ul>
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">
-                <i class="fa-solid fa-right-to-bracket"></i> Sign In
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">
-                Sign Out &nbsp;&nbsp;<i
-                  class="fa-solid fa-right-from-bracket"
-                ></i>
-              </a>
-            </li>
-          </ul>
+          <form class="d-flex">
+            <input class="form-control me-sm-2" type="search" placeholder="Search">
+            <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+          </form>
         </div>
       </div>
     </nav>
