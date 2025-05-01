@@ -165,7 +165,9 @@ def add_transaction(request):
     if request.method == "POST":
         form = TransForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            transaction = form.save(commit=False)
+            transaction.user = request.user
+            transaction.save()
             messages.success(request, 'Transaction added successfully!')
             return redirect('add_transaction_success')
         else:
