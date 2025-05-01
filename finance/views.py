@@ -98,7 +98,7 @@ class Dashboard(LoginRequiredMixin, ListView):
 
         return context
 
-# Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 class Transactions(LoginRequiredMixin, ListView):
     model = Transaction
@@ -231,7 +231,7 @@ def transaction_delete(request, pk):
 
 
 
-# Invoices   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Invoices   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
 @login_required
@@ -366,7 +366,7 @@ def invoice_delete(request, pk):
 
 
 
-# Categories    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Categories    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
 def category_page(request):
@@ -419,7 +419,7 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-# Sub-Categories  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Sub-Categories  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
 class SubCategoryListView(LoginRequiredMixin, ListView):
@@ -464,7 +464,7 @@ class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-# Clients   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Clients   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 class ClientListView(LoginRequiredMixin, ListView):
     model = Client
@@ -505,7 +505,7 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-# Financial Reports  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Financial Reports  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 @login_required
 def get_summary_data(transactions, year):
@@ -570,13 +570,27 @@ def print_category_summary(request):
     return render(request, 'finance/category_summary_print.html', context)
 
 
+
 @login_required
 def category_summary(request):
     year = request.GET.get('year', str(timezone.now().year))
-    transactions = Transaction.objects.select_related('trans_type', 'category', 'sub_cat')
+
+    # Filter by logged-in user's transactions
+    transactions = (
+        Transaction.objects
+        .filter(user=request.user)
+        .select_related('trans_type', 'category', 'sub_cat')
+    )
+
     context = get_summary_data(transactions, year)
-    context['available_years'] = Transaction.objects.dates('date', 'year').distinct()
+    context['available_years'] = (
+        Transaction.objects.filter(user=request.user)
+        .dates('date', 'year')
+        .distinct()
+    )
+
     return render(request, 'finance/category_summary.html', context)
+
 
 
 @login_required
@@ -618,7 +632,7 @@ def reports_page(request):
 
 
 
-# Emails =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Emails =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
 @require_POST
@@ -657,7 +671,7 @@ def send_invoice_email(request, invoice_id):
 
 
 
-# Mileage =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Mileage =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 @login_required
 def mileage_list(request):
