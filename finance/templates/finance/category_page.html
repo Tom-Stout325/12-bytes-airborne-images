@@ -8,6 +8,9 @@
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
     <li class="breadcrumb-item active" aria-current="page">Categories</li>
   </ol>
 </nav>
@@ -15,31 +18,52 @@
 
 {% block content %}
 <div class="container mt-4">
-  {% for category in categories %}
-    <div class="card mb-3">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <strong>{{ category.category }}</strong>
-        <div>
-          <a href="{% url 'category_edit' category.id %}" class="btn btn-sm btn-primary">Edit</a>
-          <a href="{% url 'category_delete' category.id %}" class="btn btn-sm btn-danger">Delete</a>
+  <div class="row">
+    <!-- Categories Column -->
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Categories</h5>
+          <a href="{% url 'category_create' %}" class="btn btn-sm btn-success">+ Add</a>
         </div>
+        <ul class="list-group list-group-flush">
+          {% for cat in category %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              {{ cat.category }}
+              <span>
+                <a href="{% url 'category_edit' cat.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                <a href="{% url 'category_delete' cat.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+              </span>
+            </li>
+          {% empty %}
+            <li class="list-group-item text-muted">No categories found.</li>
+          {% endfor %}
+        </ul>
       </div>
-      <ul class="list-group list-group-flush">
-        {% for sub in category.subcategories.all %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            {{ sub.sub_cat }}
-            <span>
-              <a href="{% url 'subcategory_edit' sub.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
-              <a href="{% url 'subcategory_delete' sub.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
-            </span>
-          </li>
-        {% empty %}
-          <li class="list-group-item text-muted">No sub-categories</li>
-        {% endfor %}
-      </ul>
     </div>
-  {% empty %}
-    <p>No categories found.</p>
-  {% endfor %}
+
+    <!-- Sub-Categories Column -->
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Sub-Categories</h5>
+          <a href="{% url 'subcategory_create' %}" class="btn btn-sm btn-success">+ Add</a>
+        </div>
+        <ul class="list-group list-group-flush">
+          {% for sub in sub_cat %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              {{ sub.sub_cat }}
+              <span>
+                <a href="{% url 'subcategory_edit' sub.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                <a href="{% url 'subcategory_delete' sub.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+              </span>
+            </li>
+          {% empty %}
+            <li class="list-group-item text-muted">No sub-categories found.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
