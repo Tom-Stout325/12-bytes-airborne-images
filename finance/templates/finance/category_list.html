@@ -1,45 +1,32 @@
-{% extends 'index.html' %}
-{% load static %}
 
-{% block title %}Tax Categories{% endblock %}
-
-{% block breadcrumbs %}
-<h3>Finance Portal</h3>
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Categories</li>
-  </ol>
-</nav>
-{% endblock %}
-
-{% block content %}
-<div class="container mt-4">
-  <div class="row">
-    <div class="col-md-6">
-      <h4>Categories</h4>
-      <ul class="list-group">
-        {% for cat in category %}
-          <li class="list-group-item">{{ cat.category }}</li>
-        {% empty %}
-          <li class="list-group-item">No categories found.</li>
-        {% endfor %}
-      </ul>
+    <div class="container w-50 justify-content-center bg-light border rounded">
+        <div class="py-4 text-center">
+            <h2 class="text-center">Categories</h2>
+            <a href="{% url 'add_category' %}" class="btn btn-success px-5 my-3">Add A New Category</a>
+       </div>
+        <table class="table table-striped bg-light">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                    <tr>
+                        <td>{{ category.category }}</td>
+                        <td>
+                            <a href="{% url 'edit_category' category.id %}" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="{% url 'delete_category' category.id %}" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="2" class="text-center text-muted">No categories available.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-
-    <div class="col-md-6">
-      <h4>Sub-Categories</h4>
-      <ul class="list-group">
-        {% for sub in sub_cat %}
-          <li class="list-group-item">{{ sub.sub_cat }}</li>
-        {% empty %}
-          <li class="list-group-item">No sub-categories found.</li>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
 </div>
-{% endblock %}
+

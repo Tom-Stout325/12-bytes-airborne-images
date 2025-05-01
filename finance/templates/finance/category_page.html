@@ -1,31 +1,45 @@
 {% extends 'index.html' %}
 {% load static %}
 
-{% block title %}Tax Categories {% endblock %}
+{% block title %}Tax Categories{% endblock %}
 
 {% block breadcrumbs %}
 <h3>Finance Portal</h3>
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}"></a>Mileage Log</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Categories</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Categories</li>
   </ol>
 </nav>
 {% endblock %}
 
 {% block content %}
-
-
-  <div class="row">
-      <div class="col-sm-6">
-          {% include 'finance/category_list.html' %}
+<div class="container mt-4">
+  {% for category in categories %}
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>{{ category.category }}</strong>
+        <div>
+          <a href="{% url 'category_edit' category.id %}" class="btn btn-sm btn-primary">Edit</a>
+          <a href="{% url 'category_delete' category.id %}" class="btn btn-sm btn-danger">Delete</a>
+        </div>
       </div>
-      <div class="col-sm-6">
-          {% include 'finance/sub_category_list.html' %}
-      </div>
-  </div>
-
+      <ul class="list-group list-group-flush">
+        {% for sub in category.subcategories.all %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ sub.sub_cat }}
+            <span>
+              <a href="{% url 'subcategory_edit' sub.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+              <a href="{% url 'subcategory_delete' sub.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+            </span>
+          </li>
+        {% empty %}
+          <li class="list-group-item text-muted">No sub-categories</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% empty %}
+    <p>No categories found.</p>
+  {% endfor %}
+</div>
 {% endblock %}
