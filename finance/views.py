@@ -100,6 +100,7 @@ class Dashboard(LoginRequiredMixin, ListView):
 
 # Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+
 class Transactions(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "finance/transactions.html"
@@ -356,6 +357,7 @@ def invoice_review(request, pk):
 def unpaid_invoices(request):
     invoices = Invoice.objects.filter(paid__iexact="No").order_by('due_date')
     return render(request, 'components/unpaid_invoices.html', {'invoices': invoices})
+
 
 @login_required
 def invoice_delete(request, pk):

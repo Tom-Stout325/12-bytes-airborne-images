@@ -74,7 +74,7 @@
           <td>{{ invoice.date }}</td>
           <td>{{ invoice.due }}</td>
           <td class="px-3">
-            <span class="badge {% if invoice.paid == 'Yes' %}bg-success{% else %}bg-danger{% endif %}">{{ invoice.paid }}</span>
+            <span class="badge {% if invoice.paid == !'No' %}bg-success{% else %}bg-danger{% endif %}">{{ invoice.paid }}</span>
           </td>
           <td>
             <a href="{% url 'invoice_detail' invoice.pk %}" target="_blank"><i class="fa-solid fa-eye"></i>&nbsp;</a>
