@@ -8,13 +8,13 @@
 {% block breadcrumbs %}
 <h3>Finance Portal</h3>
 <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"> <a href="{% url 'dashboard' %}"></a> Dashboard</li>
-        <li class="breadcrumb-item"> <a href="{% url 'transactions' %}"></a>Transactions</a></li>
-        <li class="breadcrumb-item"> <a href="{% url 'invoice_list' %}"></a>Invoices</li>
-        <li class="breadcrumb-item active" aria-current="page">Mileage Log</a></li>
-        <li class="breadcrumb-item"> <a href="{% url 'category_page' %}"></a>Categories</li>
-      </ol>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Mileage Log</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'category_page' %}">Categories</a></li>
+  </ol>
 </nav>
 {% endblock %}
 
@@ -31,7 +31,7 @@
             </a>  
         </div>
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover mb-4">
                     <thead class="table-light">
                         <tr>
                             <th>Date</th>
@@ -69,9 +69,9 @@
                     </tbody>
                 </table>
                 <hr>
-                <!-- Total Miles and Taxable Dollar Amount for Current Year -->
+
                 <div class="mt-4 text-center">
-                    <h3 class="section-heading">Yearly Mileage Summary</h3>
+                    <h3 class="section-heading mb-2">Yearly Mileage Summary</h3>
                     <div class="row">
                         <div class="col-md-6">
                             <p>Total Taxable Miles for {{ current_year }}:&nbsp;   <span class="strong fs-5 text-success"> {{ total_miles }}</span></p>
