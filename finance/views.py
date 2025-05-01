@@ -678,6 +678,30 @@ def mileage_list(request):
         'mileage_rate': mileage_rate,
     })
 
+@login_required
+def mileage_log(request):
+    try:
+        mileage_rate = MileageRate.objects.get(id=1).rate
+    except MileageRate.DoesNotExist:
+        mileage_rate = 0.70
+
+    current_year = datetime.now().year
+    mileage_entries = Miles.objects.filter(date__year=current_year)
+
+    taxable_miles = mileage_entries.filter(mileage_type='Taxable')
+    total_miles = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
+
+    taxable_miles_total = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
+    taxable_dollars = taxable_miles_total * mileage_rate
+
+    return render(request, 'finance/mileage_log.html', {
+        'mileage_list': mileage_entries,
+        'total_miles': total_miles,
+        'taxable_dollars': taxable_dollars,
+        'current_year': current_year,
+        'mileage_rate': mileage_rate,
+    })
+
 
 class MileageCreateView(LoginRequiredMixin, CreateView):
     model = Miles
@@ -711,10 +735,9 @@ def add_mileage(request):
         
     context = {
         'form': form,
-        
     }
-    
     return render(request, 'finance/mileage_form.html', context)
+
 
 @login_required
 def update_mileage_rate(request):
