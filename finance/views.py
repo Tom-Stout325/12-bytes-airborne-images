@@ -612,6 +612,11 @@ def keyword_financial_summary(request):
     })
 
 
+@login_required
+def reports_page(request):
+    return render(request, 'finance/reports.html')
+
+
 
 # Emails =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

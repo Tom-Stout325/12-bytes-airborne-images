@@ -43,6 +43,7 @@ urlpatterns = [
   path('clients/edit/<int:pk>/', ClientUpdateView.as_view(), name='edit_client'),
   path('client/delete/<int:pk>/',ClientDeleteView.as_view(), name='delete_client'),
 
+  path('reports/', reports_page, name='reports'),
   path('financial-statement/', financial_statement, name='financial_statement'),
   path('category-summary/', category_summary, name='category_summary'),
   path('print-category-summary/', print_category_summary, name='print_category_summary'),

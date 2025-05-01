@@ -1,0 +1,64 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load l10n %}
+{% load humanize %}
+
+
+{% block title %} Transactions {% endblock %}
+
+{% block breadcrumbs %}
+<h3>Finance Portal</h3>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'category_page' %}">Categories</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Financial Reports</li>
+  </ol>
+</nav>
+{% endblock %}
+
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row g-4">
+    <!-- Financial Statement -->
+    <div class="col-md-4">
+      <a href="{% url 'financial_statement' %}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body text-center">
+            <h5 class="card-title">Financial Statement</h5>
+            <p class="card-text text-muted">View income, expenses, and net profit by sub-category.</p>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Category Summary -->
+    <div class="col-md-4">
+      <a href="{% url 'category_summary' %}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body text-center">
+            <h5 class="card-title">Category Summary</h5>
+            <p class="card-text text-muted">Summary of income and expenses by category and sub-category.</p>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Keyword Financial Summary -->
+    <div class="col-md-4">
+      <a href="{% url 'keyword_financial_summary' %}" class="text-decoration-none">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body text-center">
+            <h5 class="card-title">Keyword Financial Summary</h5>
+            <p class="card-text text-muted">Compare keyword-based income and expenses across multiple years.</p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
