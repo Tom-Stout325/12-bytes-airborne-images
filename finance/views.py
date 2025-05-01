@@ -509,7 +509,7 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
 
 # Financial Reports  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-@login_required
+
 def get_summary_data(transactions, year):
     if year:
         transactions = transactions.filter(date__year=year)
@@ -564,45 +564,34 @@ def financial_statement(request):
     })
 
 
-# @login_required
-# def print_category_summary(request):
-#     year = request.GET.get('year')
-#     transactions = Transaction.objects.select_related('trans_type', 'category', 'sub_cat')
-#     context = get_summary_data(transactions, year)
-#     return render(request, 'finance/category_summary_print.html', context)
 
 @login_required
 def print_category_summary(request):
     year = request.GET.get('year')
-
     transactions = (
         Transaction.objects
         .filter(user=request.user)
         .select_related('trans_type', 'category', 'sub_cat')
     )
-
     context = get_summary_data(transactions, year)
     return render(request, 'finance/category_summary_print.html', context)
+
 
 
 @login_required
 def category_summary(request):
     year = request.GET.get('year', str(timezone.now().year))
-
-    # Filter by logged-in user's transactions
     transactions = (
         Transaction.objects
         .filter(user=request.user)
         .select_related('trans_type', 'category', 'sub_cat')
     )
-
     context = get_summary_data(transactions, year)
     context['available_years'] = (
         Transaction.objects.filter(user=request.user)
         .dates('date', 'year')
         .distinct()
     )
-
     return render(request, 'finance/category_summary.html', context)
 
 
