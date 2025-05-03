@@ -16,7 +16,7 @@ class UserRegisterForm(UserCreationForm):
 class PilotProfileForm(forms.ModelForm):
     class Meta:
         model = PilotProfile
-        fields = ['license_number', 'license_date', 'license_image']
+        fields = ['license_number', 'license_image']
         widgets = {
             'license_date': forms.DateInput(attrs={'type': 'date'}),
             'license_image': forms.ClearableFileInput(attrs={
@@ -38,7 +38,7 @@ class PilotProfileForm(forms.ModelForm):
 
 class TrainingRecordForm(forms.ModelForm):
     class Meta:
-        model = TrainingRecord
+        model = Training
         fields = ['title', 'date_completed', 'required', 'certificate']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),

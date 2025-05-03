@@ -30,6 +30,7 @@ def license_upload_path(instance, filename):
 class PilotProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     license_number = models.CharField(max_length=100)
+    license_date = models.DateField()
     license_image = models.ImageField(upload_to=license_upload_path, blank=True, null=True)
 
     def flights_this_year(self):
