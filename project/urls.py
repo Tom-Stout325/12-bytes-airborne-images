@@ -18,18 +18,13 @@ def debug_csrf(request):
 
 
 urlpatterns = [
-
     path('debug-csrf/', debug_csrf, name='debug-csrf'),
-    
     path('test-session/', test_session, name='test_session'),
-
-
     path('admin/', admin.site.urls),
     path('', include('app.urls')),
     path('', include('finance.urls')),
     path('', include('drone.urls')),
 ]
-
 # Only serve media locally if not using S3
 if not settings.USE_S3:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
