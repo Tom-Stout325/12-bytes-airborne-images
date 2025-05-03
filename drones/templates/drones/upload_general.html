@@ -1,0 +1,37 @@
+{% extends 'index.html' %}
+{% load crispy_forms_tags %}
+
+{% block breadcrumbs %}
+<h3>Drone Portal</h3>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'documents' %}">Home</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'equipment_list' %}">Equipment</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'incident_reporting_system' %}">Incident Reporting System</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'sop_list' %}">SOPs</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'general_document_list' %}">General Documents</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Upload Document</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Upload General Document</h4>
+    </div>
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <div class="d-flex justify-content-between mt-4">
+          <button type="submit" class="btn btn-success">Upload</button>
+          <a href="{% url 'general_document_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

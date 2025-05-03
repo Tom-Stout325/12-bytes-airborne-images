@@ -5,22 +5,17 @@ from django.contrib.auth.decorators import login_required
 from .views import *
 
 urlpatterns = [
+    path('', drone_views.drone_portal, name='drone_portal'),
+    path('profile/', profile, name='profile'),
+    path('profile/edit/', edit_profile, name='edit_profile'),
+    path('training/add/', training_create, name='training_create'),
+    path('training/<int:pk>/edit/', training_edit, name='training_edit'),
+    path('training/<int:pk>/delete/', training_delete, name='training_delete'),
 
 
+    path('register/', register, name='register'),
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('', login_required(TemplateView.as_view(template_name='home.html')), name='home'),
-    path('home/', login_required(TemplateView.as_view(template_name='home.html')), name='home'),
-    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-
-    path('profile/', pilot_profile, name='pilot_profile'),
-
-    path('profile/edit/', edit_pilot_profile, name='edit_pilot_profile'),
-    path('profile/delete/', delete_pilot_profile, name='delete_pilot_profile'),
-
-    path('profile/training/add/', add_training_record, name='add_training_record'),
-    path('profile/training/edit/<int:pk>/', edit_training_record, name='edit_training_record'),
-    path('profile/training/delete/<int:pk>/', delete_training_record, name='delete_training_record'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout')
 
     path('password_reset/', auth_views.PasswordResetView.as_view(template_name='registration/password_reset_form.html'), name='password_reset'),
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'), name='password_reset_done'),

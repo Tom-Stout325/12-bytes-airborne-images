@@ -13,10 +13,6 @@ class UserRegisterForm(UserCreationForm):
         fields = ['username', 'email', 'password1', 'password2']
 
 
-
-from django import forms
-from .models import PilotProfile
-
 class PilotProfileForm(forms.ModelForm):
     class Meta:
         model = PilotProfile
@@ -43,9 +39,11 @@ class PilotProfileForm(forms.ModelForm):
 class TrainingRecordForm(forms.ModelForm):
     class Meta:
         model = TrainingRecord
-        fields = ['training_name', 'date_completed', 'location', 'certificate', 'is_annual', 'notes']
+        fields = ['title', 'date_completed', 'required', 'certificate']
         widgets = {
-            'date_completed': forms.DateInput(attrs={'type': 'date'}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'date_completed': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'required': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'certificate': forms.ClearableFileInput(attrs={
                 'accept': '.pdf,.png,.jpg,.jpeg'
             }),

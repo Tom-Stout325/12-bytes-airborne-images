@@ -1,0 +1,63 @@
+from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
+
+from .views import *
+from .forms import *
+
+wizard_forms = [
+    ("event", EventDetailsForm),
+    ("general", GeneralInfoForm),
+    ("equipment", EquipmentDetailsForm),
+    ("environment", EnvironmentalConditionsForm),
+    ("witness", WitnessForm),
+    ("action", ActionTakenForm),
+    ("followup", FollowUpForm),
+]
+
+
+urlpatterns = [
+
+
+    path('docs', documents, name='documents'),
+    path('incident-reporting', incident_reporting_system, name='incident_reporting_system'),
+    path('incidents/', incident_report_list, name='incident_report_list'),
+    path('incidents/<int:pk>/', incident_report_detail, name='incident_detail'),
+    path('report/new/', IncidentReportWizard.as_view(wizard_forms), name='submit_incident_report'),
+    path('report/success/', incident_report_success, name='incident_report_success'),
+    path('report/pdf/<int:pk>/', incident_report_pdf, name='incident_report_pdf'),
+
+    path('sops/', sop_list, name='sop_list'),
+    path('sops/upload/', sop_upload, name='sop_upload'),
+
+    path('documents/', general_document_list, name='general_document_list'),
+    path('documents/upload/', upload_general_document, name='upload_general_document'),
+
+    path('equipment/', equipment_list, name='equipment_list'),
+    path('equipment/create/', equipment_create, name='equipment_create'),
+    path('equipment/<int:pk>/edit/', equipment_edit, name='equipment_edit'),
+    path('equipment/<int:pk>/delete/', equipment_delete, name='equipment_delete'),
+
+    path('drones/', drone_list, name='drone_list'),
+    path('<int:pk>/', drone_detail, name='drone_detail'),
+    path('<int:pk>/pdf/', drone_detail_pdf, name='drone_detail_pdf'),
+    path('drones/create/', drone_create, name='drone_create'),
+    path('drones/<int:pk>/edit/', drone_edit, name='drone_edit'),
+    path('drones/<int:pk>/delete/', drone_delete, name='drone_delete'),
+
+    path('flightlogs/', flightlog_list, name='flightlog_list'),
+    path('flightlogs/<int:pk>/', flightlog_detail, name='flightlog_detail'),
+    path('flight-upload/', upload_flightlog_csv, name='flightlog_upload'),
+
+    path('flightlogs/<int:pk>/edit/', flightlog_edit, name='flightlog_edit'),
+    path('flightlogs/<int:pk>/delete/', flightlog_delete, name='flightlog_delete'),
+    path('flightlogs/<int:pk>/', flightlog_detail, name='flightlog_detail'),
+    path('flightlogs/<int:pk>/pdf/', flightlog_pdf, name='flightlog_pdf'),
+
+]
+
+if settings.DEBUG:
+    from django.conf.urls.static import static
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+

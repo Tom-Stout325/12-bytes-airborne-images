@@ -1,0 +1,33 @@
+{% extends 'index.html' %}
+{% load static %}
+
+
+
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4">Drone Flight Log Dashboard</h2>
+  <ul class="list-group">
+    <li class="list-group-item">
+      <a href="{% url 'drone_list' %}">📦 Manage Drone Inventory</a>
+    </li>
+    <li class="list-group-item">
+      <a href="{% url 'flightlog_list' %}">📋 View Flight Logs</a>
+    </li>
+    <li class="list-group-item">
+      <a href="{% url 'flightlog_upload' %}">⬆️ Upload Flight Log (CSV)</a>
+    </li>
+    <li class="list-group-item">
+      <a href="{% url 'drone_create' %}">➕ Register New Drone</a>
+    </li>
+    <li class="list-group-item">
+      <a href="{% url 'equipment_list' %}">🧰 Manage Other Equipment</a>
+    </li>
+    <a href="{% url 'profile' %}" class="list-group-item list-group-item-action">
+      View Pilot Profile
+    </a>
+    <a href="{% url 'edit_profile' %}" class="list-group-item list-group-item-action">
+      Edit Pilot Profile
+    </a>
+  </ul>
+</div>
+{% endblock %}
