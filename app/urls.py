@@ -6,7 +6,10 @@ from .views import *
 from drones import views as drone_views
 
 urlpatterns = [
-    path('', drone_views.drone_portal, name='drone_portal'),
+
+    path('', home, name="home"),
+
+    path('drone-portal/', drone_views.drone_portal, name='drone_portal'),
     path('profile/', profile, name='profile'),
     path('profile/edit/', edit_profile, name='edit_profile'),
     path('training/add/', training_create, name='training_create'),

@@ -8,6 +8,9 @@ from .forms import *
 from django.http import HttpResponse
 
 
+@login_required
+def home(request):
+    return render(request, 'documents.html')
 
 def register(request):
     if request.method == 'POST':
