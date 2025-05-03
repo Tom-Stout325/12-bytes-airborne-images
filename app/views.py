@@ -10,7 +10,7 @@ from django.http import HttpResponse
 
 @login_required
 def home(request):
-    return render(request, 'documents.html')
+    return render(request, 'home.html')
 
 def register(request):
     if request.method == 'POST':
