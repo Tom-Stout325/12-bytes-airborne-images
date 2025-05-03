@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'whitenoise.runserver_nostatic',
     'app.apps.AppConfig',
-    'drone.apps.DroneConfig',
+    'drones.apps.DronesConfig',
     'finance',
     'crispy_forms',
     'crispy_bootstrap5',
