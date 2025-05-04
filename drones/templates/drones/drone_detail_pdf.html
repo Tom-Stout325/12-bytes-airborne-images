@@ -50,9 +50,8 @@
     <div class="header">
        
             <img src="{% static 'images/logo2.png' %}" class="logo" alt="Airborne Images Logo">
-            <!-- <img src="{{ STATIC_ROOT }}/images/logo2.png" alt="Logo" class="logo"> -->
-      
 
+    
         <h1>Drone Report</h1>
         <p>{{ drone.model }}</p>
         <p><strong>Date Purchased:</strong> {{ drone.date_purchased|date:"F j, Y" }}</p>
