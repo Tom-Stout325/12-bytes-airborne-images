@@ -11,11 +11,13 @@ from django.utils.timezone import now
 from .models import FlightLog, Drone
 from django.http import HttpResponse
 from django.contrib import messages
+from django.shortcuts import render
 from django.utils import timezone
 from django.db.models import Sum
 from django.conf import settings
 from operator import attrgetter
 from django.db.models import Q
+from datetime import timedelta
 from itertools import groupby
 from weasyprint import HTML 
 import os
@@ -26,15 +28,9 @@ import tempfile
 import re
 from .forms import *
 from .models import *
-
-from django.shortcuts import render
 from datetime import timedelta
 from drones.models import Drone, FlightLog
 
-
-from django.shortcuts import render
-from datetime import timedelta
-from drones.models import Drone, FlightLog
 
 
 
@@ -128,10 +124,6 @@ def drone_detail(request, pk):
     })
 
 
-
-
-
-
 def drone_detail_pdf(request, pk):
     drone = get_object_or_404(Drone, pk=pk)
 
@@ -153,7 +145,6 @@ def drone_detail_pdf(request, pk):
         tmp_file.seek(0)
         response.write(tmp_file.read())
     return response
-
 
 
 def export_drones_csv(request):
@@ -194,7 +185,6 @@ def incident_reporting_system(request):
         'search_query': query,
     }
     return render(request, 'drones/incident_reporting_system.html', context)
-
 
 
 def incident_report_pdf(request, pk):
@@ -240,7 +230,6 @@ TEMPLATES = {
 }
 
 
-
 class IncidentReportWizard(SessionWizardView):
     template_name = 'drones/incident_report_form.html'
 
@@ -283,7 +272,6 @@ class IncidentReportWizard(SessionWizardView):
             'form_data': data,
             'pdf_url': pdf_url,
         })
-
 
 
 
@@ -343,7 +331,6 @@ def sop_list(request):
         'sops': page_obj,
         'page_obj': page_obj,
     })
-
 
 
 def general_document_list(request):
