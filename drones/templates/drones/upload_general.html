@@ -33,12 +33,12 @@
         <div id="dropzone" class="border rounded p-5 text-center" style="background-color: #f8f9fa;">
           <p class="mb-2">Drag & drop your document here, or click to browse.</p>
           <input type="file" name="file" id="fileInput" class="form-control d-none">
-          <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('fileInput').click();">Browse</button>
+          <button type="button" class="btn btn-outline-primary" onclick="fileInput.click();">Browse</button>
         </div>
 
         <div class="d-flex justify-content-between mt-4">
-          <button type="submit" class="btn btn-warning">Upload</button>
-          <a href="{% url 'general_document_list' %}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">Upload</button>
+          <a href="{% url 'general_document_list' %}" class="btn btn-warning">Cancel</a>
         </div>
       </form>
     </div>
@@ -50,25 +50,27 @@
   const dropzone = document.getElementById("dropzone");
   const fileInput = document.getElementById("fileInput");
 
-  dropzone.addEventListener("dragover", function(e) {
+  dropzone.addEventListener("dragover", function (e) {
     e.preventDefault();
     dropzone.classList.add("bg-light", "border-primary");
   });
 
-  dropzone.addEventListener("dragleave", function() {
+  dropzone.addEventListener("dragleave", function () {
     dropzone.classList.remove("bg-light", "border-primary");
   });
 
-  dropzone.addEventListener("drop", function(e) {
+  dropzone.addEventListener("drop", function (e) {
     e.preventDefault();
     dropzone.classList.remove("bg-light", "border-primary");
 
-    if (e.dataTransfer.files.length) {
-      fileInput.files = e.dataTransfer.files;
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      fileInput.files = files;
+      dropzone.querySelector("p").textContent = `Selected: ${files[0].name}`;
     }
   });
 
-  dropzone.addEventListener("click", function() {
+  dropzone.addEventListener("click", function () {
     fileInput.click();
   });
 </script>
