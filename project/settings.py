@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security settings
 SECRET_KEY = env("DJANGO_SECRET_KEY")
-DEBUG = env.bool("DEBUG", default=False)  # Ensure False in production
+DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
 # Installed apps
