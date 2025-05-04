@@ -1,17 +1,17 @@
 from django import template
+from datetime import timedelta
 
 register = template.Library()
 
 @register.filter
 def duration_display(value):
-    if value is None:
+    if not isinstance(value, timedelta):
         return "0 minutes"
 
     total_seconds = int(value.total_seconds())
-    hours = total_seconds // 3600
-    minutes = (total_seconds % 3600) // 60
+    h = total_seconds // 3600
+    m = (total_seconds % 3600) // 60
 
-    if hours > 0:
-        return f"{hours}h {minutes}m"
-    else:
-        return f"{minutes}m"
+    if h > 0:
+        return f"{h}h {m}m"
+    return f"{m}m"
