@@ -23,7 +23,8 @@
       <p><strong>Number of Flights:</strong> {{ flight_count }}</p>
       <p><strong>Total Flight Time:</strong>
         {% if total_time %}
-          {{ total_time|timesince:"0" }}
+        <p>{{ hours }}h {{ minutes }}m</p>
+
         {% else %}
           0 minutes
         {% endif %}

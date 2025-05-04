@@ -125,7 +125,11 @@ def drone_detail(request, pk):
         'drone': drone,
         'flight_count': flight_count,
         'total_time': total_time,
+        'hours': hours,
+        'minutes': minutes,
     })
+
+
 
 
 
