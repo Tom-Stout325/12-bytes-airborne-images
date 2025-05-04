@@ -36,7 +36,7 @@ class PilotProfileForm(forms.ModelForm):
 
 
 
-class TrainingRecordForm(forms.ModelForm):
+class TrainingForm(forms.ModelForm):
     class Meta:
         model = Training
         fields = ['title', 'date_completed', 'required', 'certificate']
