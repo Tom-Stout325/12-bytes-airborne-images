@@ -116,12 +116,32 @@ def drone_delete(request, pk):
 
 def drone_detail(request, pk):
     drone = get_object_or_404(Drone, pk=pk)
-    return render(request, 'drones/drone_detail.html', {'drone': drone})
+
+    flights = FlightLog.objects.filter(drone_serial=drone.serial_number)
+    flight_count = flights.count()
+    total_time = flights.aggregate(total=Sum('air_time'))['total'] or timedelta()
+
+    return render(request, 'drones/drone_detail.html', {
+        'drone': drone,
+        'flight_count': flight_count,
+        'total_time': total_time,
+    })
+
 
 
 def drone_detail_pdf(request, pk):
     drone = get_object_or_404(Drone, pk=pk)
-    html_string = render_to_string('drones/drone_detail_pdf.html', {'drone': drone})
+
+    flights = FlightLog.objects.filter(drone_serial=drone.serial_number)
+    flight_count = flights.count()
+    total_time = flights.aggregate(total=Sum('air_time'))['total'] or timedelta()
+
+    html_string = render_to_string('drones/drone_detail_pdf.html', {
+        'drone': drone,
+        'flight_count': flight_count,
+        'total_time': total_time,
+    })
+
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="drone_{drone.pk}_report.pdf"'
 
@@ -130,6 +150,7 @@ def drone_detail_pdf(request, pk):
         tmp_file.seek(0)
         response.write(tmp_file.read())
     return response
+
 
 
 def export_drones_csv(request):

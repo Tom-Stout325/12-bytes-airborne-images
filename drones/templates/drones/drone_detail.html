@@ -19,6 +19,16 @@
           —
         {% endif %}
       </p>
+        <hr>
+      <p><strong>Number of Flights:</strong> {{ flight_count }}</p>
+      <p><strong>Total Flight Time:</strong>
+        {% if total_time %}
+          {{ total_time|timesince:"0" }}
+        {% else %}
+          0 minutes
+        {% endif %}
+      </p>
+
     </div>
     <div class="card-footer d-flex justify-content-between">
       <a href="{% url 'drone_edit' drone.pk %}" class="btn btn-warning">Edit</a>
