@@ -16,29 +16,30 @@ class Command(BaseCommand):
         with open(csv_file, newline='') as f:
             reader = csv.DictReader(f)
 
-            # Fix BOM issue
+            # Strip BOM if present in first header
             if reader.fieldnames and '\ufeffdate' in reader.fieldnames:
                 reader.fieldnames = [field.lstrip('\ufeff') for field in reader.fieldnames]
 
             for row in reader:
                 try:
-                    trans_type, _ = Type.objects.get_or_create(name=row['trans_type'])
-                    category, _ = Category.objects.get_or_create(name=row['category'])
-                    sub_cat, _ = SubCategory.objects.get_or_create(name=row['sub_cat'])
+                    # Lookup or create related fields using correct model fields
+                    trans_type, _ = Type.objects.get_or_create(trans_type=row['trans_type'])
+                    category, _ = Category.objects.get_or_create(category=row['category'])
+                    sub_cat, _ = SubCategory.objects.get_or_create(sub_cat=row['sub_cat'])
+
                     team = None
                     if row['team']:
-                        team, _ = Team.objects.get_or_create(name=row['team'])
+                        team, _ = Team.objects.get_or_create(name=row['team'])  # Adjust field name if different
 
-                    # Handle missing or fallback keyword
-                    keyword = Keyword.objects.get_or_create(name=row['keyword'])[0] if row['keyword'] else Keyword.objects.get(pk=1)
+                    keyword = (
+                        Keyword.objects.get_or_create(name=row['keyword'])[0]
+                        if row['keyword'] and row['keyword'].lower() != 'none'
+                        else Keyword.objects.get(pk=1)
+                    )
 
-                    # Resolve user from username
                     user = User.objects.get(username=row['user'])
 
-                    # Handle receipt field — just save as string placeholder (optional)
-                    receipt = None
-                    if row['receipt'] and row['receipt'].lower() != 'na':
-                        receipt = row['receipt']  # This does not upload a file, just stores the path/label
+                    receipt = row['receipt'] if row['receipt'] and row['receipt'].lower() != 'na' else None
 
                     transaction = Transaction(
                         date=datetime.datetime.strptime(row['date'], '%m/%d/%y').date(),
@@ -54,9 +55,10 @@ class Command(BaseCommand):
                         tax=row['tax'] or "Yes",
                         keyword=keyword,
                         user=user,
-                        receipt=receipt
+                        receipt=receipt  # Just sets the field; does not upload a file
                     )
                     transaction.save()
                     self.stdout.write(self.style.SUCCESS(f"Imported: {transaction.transaction}"))
+
                 except Exception as e:
                     self.stderr.write(f"Error importing row: {row}\n{e}")
