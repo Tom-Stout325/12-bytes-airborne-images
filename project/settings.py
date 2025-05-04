@@ -171,28 +171,6 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-# Jazzmin Admin UI
-JAZZMIN_SETTINGS = {
-    'site_title': 'App',
-    'site_header': '/static/images/logo.png',
-    'site_brand': 'App',
-    'site_logo': '/static/images/logo.png',
-    'login_logo': '/static/images/logo.png',
-    'site_icon': '/static/images/logo.png',
-    'login_logo_dark': '/static/images/logo.png',
-    'copyright': '12bytes',
-    'user_avatar': '/static/images/logo.png',
-    'topmenu_links': [
-        {'name': 'Admin Home', 'url': 'admin:index', 'permissions': ['auth.view_user']},
-        {'name': 'auth.user'},
-        {'name': 'Site Home', 'url': '/admin/logout', 'redirect': '/home/'},
-    ],
-}
-JAZZMIN_UI_TWEAKS = {
-    'theme': 'lux',
-    'dark_mode_theme': 'darkly',
-}
-
 # Email settings
 EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = env('EMAIL_HOST', default='smtp.office365.com')

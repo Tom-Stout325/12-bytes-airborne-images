@@ -1,0 +1,5 @@
+﻿date,trans_type,category,sub_cat,date_created,amount,invoice_numb,paid,team,transaction,tax,keyword,receipt,user
+10/02/23,Expense,Equipment,Equipment: Computer,10/02/00,82.08,23002,yes,"TSP, LLC",Samsung,yes,None,NA,tomstout
+02/04/22,Expense,Equipment,Equipment: Computer,02/04/01,128.00,23002,yes,"TSP, LLC",Leaseville,yes,None,NA,tomstout
+01/23/22,Expense,Travel,Travel: Misc,01/23/00,36.00,22001,yes,Airborne Images,Epping - Parking,yes,Epping,Volumes/Business/TSP/_FINANCIAL//2023/2022_Receipts/IMG_0659 3.jpeg,tomstout
+03/08/22,Income,Services,Services: Drone,03/08/22,1400.00,22001,yes,Airborne Images,Fatheadz Pay,yes,NHRA,Check to PNC,tomstout
