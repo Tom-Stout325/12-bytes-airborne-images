@@ -12,6 +12,7 @@ from .models import FlightLog, Drone
 from django.http import HttpResponse
 from django.contrib import messages
 from django.utils import timezone
+from django.db.models import Sum
 from django.conf import settings
 from operator import attrgetter
 from django.db.models import Q
@@ -23,7 +24,6 @@ import subprocess
 import uuid
 import tempfile
 import re
-
 from .forms import *
 from .models import *
 
