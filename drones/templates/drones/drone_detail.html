@@ -1,4 +1,8 @@
 {% extends 'index.html' %}
+{% load drone_extras %}
+
+
+
 {% block content %}
 <div class="container mt-4">
   <div class="card shadow-sm">
@@ -21,14 +25,8 @@
       </p>
         <hr>
       <p><strong>Number of Flights:</strong> {{ flight_count }}</p>
-      <p><strong>Total Flight Time:</strong>
-        {% if total_time %}
-        <p>{{ hours }}h {{ minutes }}m</p>
+      <p><strong>Total Flight Time:</strong> {{ total_time|duration_display }}</p>
 
-        {% else %}
-          0 minutes
-        {% endif %}
-      </p>
 
     </div>
     <div class="card-footer d-flex justify-content-between">

@@ -1,4 +1,8 @@
 {% load static %}
+{% load drone_extras %}
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -64,13 +68,7 @@
     <div class="section">
         <h2>Flight Summary</h2>
         <p class="value"><span class="field-label">Number of Flights:</span> {{ flight_count }}</p>
-        <p class="value"><span class="field-label">Total Flight Time:</span>
-          {% if total_time %}
-            {{ total_time }}
-          {% else %}
-            0:00:00
-          {% endif %}
-        </p>
+        <p><strong>Total Flight Time:</strong> {{ total_time|duration_display }}</p>
       </div>
       
 
