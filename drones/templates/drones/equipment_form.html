@@ -21,7 +21,7 @@
 <div class="container mt-5">
   <div class="card shadow-sm border-0">
     <div class="card-header bg-primary text-white py-3">
-      <h4 class="mb-0 fw-bold">{{ title }}</h4>
+      <h4 class="mb-0 fw-bold">Add Equipment</h4>
     </div>
     <div class="card-body p-4">
       <form method="post" enctype="multipart/form-data">
@@ -43,8 +43,8 @@
           {% endfor %}
         </div>
         <div class="mt-5 text-end">
-          <button type="submit" class="btn btn-success btn-lg px-4">Save</button>
-          <a href="{% url 'equipment_list' %}" class="btn btn-secondary btn-lg px-4">Cancel</a>
+          <button type="submit" class="btn btn-primary btn-lg px-4">Save</button>
+          <a href="{% url 'equipment_list' %}" class="btn btn-danger btn-lg px-4">Cancel</a>
         </div>
       </form>
     </div>
