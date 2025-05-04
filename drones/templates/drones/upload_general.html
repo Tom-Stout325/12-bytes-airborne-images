@@ -22,23 +22,24 @@
       <h4 class="mb-0">Upload General Document</h4>
     </div>
     <div class="card-body">
-      <form method="post" enctype="multipart/form-data">
+      <form method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
 
         {{ form.non_field_errors }}
         {{ form.title|as_crispy_field }}
+        {{ form.category|as_crispy_field }}
         {{ form.description|as_crispy_field }}
 
         <!-- Drag and Drop Area -->
-        <div id="dropzone" class="border rounded p-5 text-center" style="background-color: #f8f9fa;">
-          <p class="mb-2">Drag & drop your document here, or click to browse.</p>
+        <div id="dropzone" class="border rounded p-5 text-center mb-4" style="background-color: #f8f9fa; cursor: pointer;">
+          <p id="dropzone-text" class="mb-2">Drag & drop your document here, or click to browse.</p>
           <input type="file" name="file" id="fileInput" class="form-control d-none">
-          <button type="button" class="btn btn-outline-primary" onclick="fileInput.click();">Browse</button>
+          <button type="button" class="btn btn-outline-primary mt-2" onclick="fileInput.click();">Browse</button>
         </div>
 
-        <div class="d-flex justify-content-between mt-4">
-          <button type="submit" class="btn btn-primary">Upload</button>
-          <a href="{% url 'general_document_list' %}" class="btn btn-warning">Cancel</a>
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-success">Upload</button>
+          <a href="{% url 'general_document_list' %}" class="btn btn-secondary">Cancel</a>
         </div>
       </form>
     </div>
@@ -49,6 +50,7 @@
 <script>
   const dropzone = document.getElementById("dropzone");
   const fileInput = document.getElementById("fileInput");
+  const dropzoneText = document.getElementById("dropzone-text");
 
   dropzone.addEventListener("dragover", function (e) {
     e.preventDefault();
@@ -66,7 +68,7 @@
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       fileInput.files = files;
-      dropzone.querySelector("p").textContent = `Selected: ${files[0].name}`;
+      dropzoneText.textContent = `Selected: ${files[0].name}`;
     }
   });
 
