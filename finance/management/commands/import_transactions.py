@@ -17,7 +17,7 @@ class Command(BaseCommand):
         with open(csv_file, newline='') as f:
             reader = csv.DictReader(f)
             if reader.fieldnames and '\ufeffdate' in reader.fieldnames:
-            reader.fieldnames = [field.lstrip('\ufeff') for field in reader.fieldnames]
+                reader.fieldnames = [field.lstrip('\ufeff') for field in reader.fieldnames]
             for row in reader:
                 try:
                     trans_type, _ = Type.objects.get_or_create(name=row['Transaction Type'])
