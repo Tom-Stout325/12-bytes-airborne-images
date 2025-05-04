@@ -1,3 +1,9 @@
+Add flight statistics to drones in Drone Detail
+
+
+
+
+
 Replace the following images:
     favicon.ico
     logo.png
