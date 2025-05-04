@@ -75,10 +75,10 @@
                     <h3 class="section-heading mb-2">Yearly Mileage Summary</h3>
                     <div class="row">
                         <div class="col-md-6">
-                            <p>Total Taxable Miles for {{ current_year }}:&nbsp;   <span class="strong fs-5 text-success"> {{ total_miles }}</span></p>
+                            <p>Total Taxable Miles for {{ current_year }}:&nbsp;   <span class="strong fs-5 text-primary"> {{ total_miles }}</span></p>
                         </div>
                         <div class="col-md-6">
-                            <p>Total Taxable Mileage Amount ($ .{{ mileage_rate }} per mile): &nbsp; <span class="strong fs-5 text-warning">$ {{ taxable_dollars|floatformat:2|intcomma }}</span></p>
+                            <p>Total Taxable Mileage Amount ($ .{{ mileage_rate }} per mile): &nbsp; <span class="strong fs-5 text-primary">$ {{ taxable_dollars|floatformat:2|intcomma }}</span></p>
                         </div>
                     </div>
                 </div>
