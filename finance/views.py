@@ -387,7 +387,7 @@ def category_page(request):
 
 # class CategoryListView(LoginRequiredMixin, ListView):
 #     model = Category
-#     template_name = "components/category_list.html"
+#     template_name = "components/category_page.html"
 #     context_object_name = "categories"
 #     ordering = ['category']
 
@@ -429,7 +429,7 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
 
 # class SubCategoryListView(LoginRequiredMixin, ListView):
 #     model = SubCategory
-#     template_name = "finance/sub_category_list.html"
+#     template_name = "finance/sub_category_page.html"
 #     context_object_name = "sub_cat"
 
 #     def get_queryset(self):
@@ -462,7 +462,7 @@ class SubCategoryUpdateView(LoginRequiredMixin, UpdateView):
 class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
     model = SubCategory
     template_name = "components/sub_category_confirm_delete.html"
-    success_url = reverse_lazy('category_list')
+    success_url = reverse_lazy('category_page')
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, "Sub-Category deleted successfully!")
