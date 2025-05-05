@@ -395,7 +395,7 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = Category 
     form_class = CategoryForm
     template_name = "components/category_form.html"
-    success_url = reverse_lazy('category_list')
+    success_url = reverse_lazy('category_page')
 
     def form_valid(self, form):
         messages.success(self.request, "Category added successfully!")
@@ -406,7 +406,7 @@ class CategoryUpdateView(LoginRequiredMixin, UpdateView):
     model = Category
     form_class = CategoryForm
     template_name = "components/category_form.html"
-    success_url = reverse_lazy('category_list')
+    success_url = reverse_lazy('category_page')
 
     def form_valid(self, form):
         messages.success(self.request, "Category updated successfully!")
