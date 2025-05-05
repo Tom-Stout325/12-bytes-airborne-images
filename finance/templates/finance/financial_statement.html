@@ -122,13 +122,18 @@
 
             <!-- Net Profit/Loss -->
             <div class="card bg-light p-3">
-                <div class="d-flex justify-content-end align-items-center">
-                    <h4 class="fw-bold me-3 mb-0">Net Profit/Loss:</h4>
-                    <h4 class="mb-0 {% if net_profit >= 0 %}text-success{% else %}text-danger{% endif %}">
-                        $ {{ net_profit|floatformat:2|intcomma }}
+                <div class="row align-items-center text-center text-md-end">
+                  <div class="col-12 col-md-auto">
+                    <h4 class="fw-bold mb-2 mb-md-0">Net Profit/Loss:</h4>
+                  </div>
+                  <div class="col-12 col-md">
+                    <h4 class="{% if net_profit >= 0 %}text-success{% else %}text-danger{% endif %} mb-0">
+                      $ {{ net_profit|floatformat:2|intcomma }}
                     </h4>
+                  </div>
                 </div>
-            </div>
+              </div>
+              
         </div>
     </div>
 </div>

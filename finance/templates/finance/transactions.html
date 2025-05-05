@@ -28,43 +28,61 @@
 </style>
 
 <div class="container-fluid py-4">
-
   <div class="p-4 shadow-sm rounded bg-white dark-toggle-container">
     <h2 class="mb-0 text-center">Transactions</h2>
     <div class="d-flex justify-content-between align-items-center mb-3"></div>
 
     <!-- Download and Filter Controls -->
-    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4">
-      <form class="d-flex flex-wrap gap-3" action="{% url 'transactions' %}" method="get">
-        <div>
-          <label for="year" class="form-label mb-0 fw-semibold">Year</label>
-          <select name="year" id="year" class="form-select">
-            <option value="">All</option>
-            {% for year in years %}
-              <option value="{{ year.year }}" {% if selected_year == year.year|stringformat:'s' %}selected{% endif %}>{{ year.year }}</option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <div>
-          <label for="type" class="form-label mb-0 fw-semibold">Type</label>
-          <select name="type" id="type" class="form-select">
-            <option value="">All</option>
-            <option value="Income" {% if selected_type == "Income" %}selected{% endif %}>Income</option>
-            <option value="Expense" {% if selected_type == "Expense" %}selected{% endif %}>Expense</option>
-          </select>
-        </div>
-
-        <button type="submit" class="btn btn-primary align-self-end">Filter</button>
-      </form>
-      <div>
-        <a href="{% url 'add_transaction' %}" class="btn btn-outline-primary text-center"><i class="fa-solid fa-plus"></i> Add Transaction</a>
+    <div class="row g-3 align-items-end mb-4">
+      <!-- Filter Form -->
+      <div class="col-12 col-md-6 col-lg-7">
+        <form class="row g-2" action="{% url 'transactions' %}" method="get">
+          <div class="col-6 col-sm-4">
+            <label for="year" class="form-label fw-semibold">Year</label>
+            <select name="year" id="year" class="form-select">
+              <option value="">All</option>
+              {% for year in years %}
+                <option value="{{ year.year }}" {% if selected_year == year.year|stringformat:'s' %}selected{% endif %}>
+                  {{ year.year }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+    
+          <div class="col-6 col-sm-4">
+            <label for="type" class="form-label fw-semibold">Type</label>
+            <select name="type" id="type" class="form-select">
+              <option value="">All</option>
+              <option value="Income" {% if selected_type == "Income" %}selected{% endif %}>Income</option>
+              <option value="Expense" {% if selected_type == "Expense" %}selected{% endif %}>Expense</option>
+            </select>
+          </div>
+    
+          <div class="col-12 col-sm-4 d-grid">
+            <label class="form-label invisible">Submit</label>
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+          </div>
+        </form>
       </div>
-      <div class="d-flex gap-2 mt-3 mt-md-0">
-        <a href="{% url 'download_transactions' %}" class="btn btn-outline-success"><i class="fa-solid fa-circle-chevron-down"></i> Download All</a>
-        <a href="{% url 'download_transactions' %}?year={{ selected_year }}" class="btn btn-outline-info"><i class="fa-solid fa-chevron-down"></i> Download {{ selected_year|default:"Year" }}</a>
+    
+      <!-- Add Transaction Button -->
+      <div class="col-12 col-md-3 col-lg-2 d-grid">
+        <a href="{% url 'add_transaction' %}" class="btn btn-outline-primary w-100">
+          <i class="fa-solid fa-plus"></i> Add Transaction
+        </a>
+      </div>
+    
+      <!-- Download Buttons -->
+      <div class="col-12 col-md-3 col-lg-3 d-grid gap-2">
+        <a href="{% url 'download_transactions' %}" class="btn btn-outline-success w-100">
+          <i class="fa-solid fa-circle-chevron-down"></i> Download All
+        </a>
+        <a href="{% url 'download_transactions' %}?year={{ selected_year }}" class="btn btn-outline-info w-100">
+          <i class="fa-solid fa-chevron-down"></i> Download {{ selected_year|default:"Year" }}
+        </a>
       </div>
     </div>
+    
 
     <!-- Desktop Table View -->
     <div class="table-responsive d-none d-md-block">
