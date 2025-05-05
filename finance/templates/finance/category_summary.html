@@ -35,10 +35,10 @@
     </div>
 
     <!-- Shared Category Block -->
-    {% include "finance/category_block.html" with title="Income Categories" data=income_category_totals total=income_category_total color="success" %}
-    {% include "finance/category_block.html" with title="Income Sub-Categories" data=income_subcategory_totals total=income_subcategory_total color="success" %}
-    {% include "finance/category_block.html" with title="Expense Categories" data=expense_category_totals total=expense_category_total color="danger" %}
-    {% include "finance/category_block.html" with title="Expense Sub-Categories" data=expense_subcategory_totals total=expense_subcategory_total color="danger" %}
+    {% include "components/category_block.html" with title="Income Categories" data=income_category_totals total=income_category_total color="success" %}
+    {% include "components/category_block.html" with title="Income Sub-Categories" data=income_subcategory_totals total=income_subcategory_total color="success" %}
+    {% include "components/category_block.html" with title="Expense Categories" data=expense_category_totals total=expense_category_total color="danger" %}
+    {% include "components/category_block.html" with title="Expense Sub-Categories" data=expense_subcategory_totals total=expense_subcategory_total color="danger" %}
 
     <!-- Final Totals -->
     <div class="card shadow-sm mb-5">
