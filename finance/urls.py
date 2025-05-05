@@ -28,12 +28,10 @@ urlpatterns = [
 
   path('tax-categories/', category_page, name='category_page'),
 
-  path('categories/', CategoryListView.as_view(), name='category_list'),
   path('category/add/', CategoryCreateView.as_view(), name='add_category'),
   path('category/edit/<int:pk>/', CategoryUpdateView.as_view(), name='edit_category'),
   path('category/delete/<int:pk>/',CategoryDeleteView.as_view(), name='delete_category'),
 
-  path('sub_categories/', SubCategoryListView.as_view(), name='sub_category_list'),
   path('sub_category/add/', SubCategoryCreateView.as_view(), name='add_sub_category'),
   path('sub_category/edit/<int:pk>/', SubCategoryUpdateView.as_view(), name='edit_sub_category'),
   path('sub_category/delete/<int:pk>/',SubCategoryDeleteView.as_view(), name='delete_sub_category'),
