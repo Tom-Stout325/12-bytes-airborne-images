@@ -48,7 +48,18 @@
               {% endfor %}
             </select>
           </div>
-    
+          <div class="col-6 col-sm-4">
+            <label for="sub_cat" class="form-label fw-semibold">Sub-Category</label>
+            <select name="sub_cat" id="sub_cat" class="form-select">
+              <option value="">All</option>
+              {% for sub in sub_categories %}
+                <option value="{{ sub.id }}" {% if selected_sub_cat == sub.id|stringformat:'s' %}selected{% endif %}>
+                  {{ sub.sub_cat }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          
           <div class="col-6 col-sm-4">
             <label for="type" class="form-label fw-semibold">Type</label>
             <select name="type" id="type" class="form-select">
@@ -166,7 +177,11 @@
       <nav>
         <ul class="pagination">
           {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page=1{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">First</a></li>
+          <a class="page-link" href="?page=1
+          {% if selected_year %}&year={{ selected_year }}{% endif %}
+          {% if selected_type %}&type={{ selected_type }}{% endif %}
+          {% if selected_sub_cat %}&sub_cat={{ selected_sub_cat }}{% endif %}">
+        
             <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">Previous</a></li>
           {% endif %}
           <li class="page-item active">
