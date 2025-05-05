@@ -384,11 +384,11 @@ def category_page(request):
     return render(request, 'finance/category_page.html', context)
 
 
-class CategoryListView(LoginRequiredMixin, ListView):
-    model = Category
-    template_name = "components/category_list.html"
-    context_object_name = "categories"
-    ordering = ['category']
+# class CategoryListView(LoginRequiredMixin, ListView):
+#     model = Category
+#     template_name = "components/category_list.html"
+#     context_object_name = "categories"
+#     ordering = ['category']
 
 
 class CategoryCreateView(LoginRequiredMixin, CreateView):
@@ -416,7 +416,7 @@ class CategoryUpdateView(LoginRequiredMixin, UpdateView):
 class CategoryDeleteView(LoginRequiredMixin, DeleteView):
     model = Category
     template_name = "components/category_confirm_delete.html"
-    success_url = reverse_lazy('category_list')
+    success_url = reverse_lazy('category_page')
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, "Category deleted successfully!")
@@ -426,20 +426,20 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
 # Sub-Categories  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
-class SubCategoryListView(LoginRequiredMixin, ListView):
-    model = SubCategory
-    template_name = "finance/sub_category_list.html"
-    context_object_name = "sub_cat"
+# class SubCategoryListView(LoginRequiredMixin, ListView):
+#     model = SubCategory
+#     template_name = "finance/sub_category_list.html"
+#     context_object_name = "sub_cat"
 
-    def get_queryset(self):
-        return SubCategory.objects.order_by('sub_cat')
+#     def get_queryset(self):
+#         return SubCategory.objects.order_by('sub_cat')
 
 
 class SubCategoryCreateView(LoginRequiredMixin, CreateView):
     model = SubCategory
     form_class = SubCategoryForm
     template_name = "components/sub_category_form.html"
-    success_url = reverse_lazy('sub_category_list')
+    success_url = reverse_lazy('category_page')
 
     def form_valid(self, form):
         messages.success(self.request, "Sub-Category added successfully!")
@@ -450,7 +450,7 @@ class SubCategoryUpdateView(LoginRequiredMixin, UpdateView):
     model = SubCategory
     form_class = SubCategoryForm
     template_name = "components/sub_category_form.html"
-    success_url = reverse_lazy('sub_category_list')
+    success_url = reverse_lazy('category_page')
     context_object_name = "sub_cat"
 
     def form_valid(self, form):
@@ -461,7 +461,7 @@ class SubCategoryUpdateView(LoginRequiredMixin, UpdateView):
 class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
     model = SubCategory
     template_name = "components/sub_category_confirm_delete.html"
-    success_url = reverse_lazy('sub_category_list')
+    success_url = reverse_lazy('category_list')
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, "Sub-Category deleted successfully!")
