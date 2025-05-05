@@ -110,19 +110,7 @@ def drone_delete(request, pk):
     return render(request, 'drones/drone_confirm_delete.html', {'drone': drone})
 
 
-def drone_detail(request, pk):
-    drone = get_object_or_404(Drone, pk=pk)
-
-    flights = FlightLog.objects.filter(drone_serial=drone.serial_number)
-    flight_count = flights.count()
-    total_time = flights.aggregate(total=Sum('air_time'))['total'] or timedelta()
-
-    return render(request, 'drones/drone_detail.html', {
-        'drone': drone,
-        'flight_count': flight_count,
-        'total_time': total_time,
-    })
-
+from django.utils.http import url_has_allowed_host_and_scheme
 
 def drone_detail_pdf(request, pk):
     drone = get_object_or_404(Drone, pk=pk)
@@ -138,13 +126,20 @@ def drone_detail_pdf(request, pk):
     })
 
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="drone_{drone.pk}_report.pdf"'
+
+    # Switch between inline (preview) and attachment (download)
+    if request.GET.get("preview") == "1":
+        response['Content-Disposition'] = f'inline; filename="drone_{drone.pk}_report.pdf"'
+    else:
+        response['Content-Disposition'] = f'attachment; filename="drone_{drone.pk}_report.pdf"'
 
     with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
         HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(tmp_file.name)
         tmp_file.seek(0)
         response.write(tmp_file.read())
+
     return response
+
 
 
 def export_drones_csv(request):
