@@ -46,7 +46,7 @@ INSTALLED_APPS = [
 
 # Middleware
 MIDDLEWARE = [
-    'project.middleware.ForceHTTPSMiddleware',  # Enforce HTTPS
+    'project.middleware.ForceHTTPSMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
