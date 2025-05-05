@@ -12,7 +12,7 @@
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
     <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</a></li>
     <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Mileage Log</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Mileage Log</li>
     <li class="breadcrumb-item"><a href="{% url 'category_page' %}">Categories</a></li>
     <li class="breadcrumb-item"><a href="{% url 'reports' %}">Financial Reports</a></li>
   </ol>
@@ -20,70 +20,86 @@
 {% endblock %}
 
 {% block content %}
-<body> 
-    <div class="container">
-        <h3 class="section-heading text-center mt-2">Mileage Log</h3>
-        <div class="row px-3 text-center mb-3">
-            <a href="{% url 'mileage_create' %}" class="btn btn-success my-2">
-                <i class="fa-solid fa-plus"></i> Add Mileage
-            </a>
-            <a href="{% url 'update_mileage_rate' %}" class="btn btn-warning">
-                <i class="fa-solid fa-plus"></i> Update Mileage Rate
-            </a>  
-        </div>
-            <div class="table-responsive">
-                <table class="table table-hover mb-4">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Date</th>
-                            <th>Client</th>
-                            <th>Vehicle</th>
-                            <th>Start</th>
-                            <th>End</th>
-                            <th>Total</th>
-                            <th>Type</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for mile in mileage_list %}
-                        <tr>
-                            <td>{{ mile.date }}</td>
-                            <td>{{ mile.client }}</td>
-                            <td>{{ mile.vehicle }}</td>
-                            <td>{{ mile.begin }}</td>
-                            <td>{{ mile.end }}</td>
-                            <td>{{ mile.total }}</td>
-                            <td>{{ mile.mileage_type }}</td>
-                            <td>
-                                <a href="{% url 'mileage_update' mile.id %}">
-                                    <i class="fa-solid fa-pen text-success"></i>
-                                </a>&nbsp;
-                                <a href="{% url 'mileage_delete' mile.id %}">
-                                    <i class="fa-solid fa-trash text-warning"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr><td colspan="8" class="text-center text-muted">No mileage entries.</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <hr>
+<div class="container my-4">
+  <h3 class="text-center mb-4">Mileage Log</h3>
 
-                <div class="mt-4 text-center">
-                    <h3 class="section-heading mb-2">Yearly Mileage Summary</h3>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p>Total Taxable Miles for {{ current_year }}:&nbsp;   <span class="strong fs-5 text-primary"> {{ total_miles }}</span></p>
-                        </div>
-                        <div class="col-md-6">
-                            <p>Total Taxable Mileage Amount ($ .{{ mileage_rate }} per mile): &nbsp; <span class="strong fs-5 text-primary">$ {{ taxable_dollars|floatformat:2|intcomma }}</span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>  
-        </div>
+  <div class="row g-2 justify-content-center mb-3">
+    <div class="col-12 col-sm-auto">
+      <a href="{% url 'mileage_create' %}" class="btn btn-success w-100">
+        <i class="fa-solid fa-plus"></i> Add Mileage
+      </a>
     </div>
-</body>
+    <div class="col-12 col-sm-auto">
+      <a href="{% url 'update_mileage_rate' %}" class="btn btn-warning w-100">
+        <i class="fa-solid fa-pen-to-square"></i> Update Mileage Rate
+      </a>
+    </div>
+  </div>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-hover align-middle text-center">
+      <thead class="table-light">
+        <tr>
+          <th>Date</th>
+          <th>Client</th>
+          <th>Vehicle</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Total</th>
+          <th>Type</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for mile in mileage_list %}
+        <tr>
+          <td>{{ mile.date }}</td>
+          <td>{{ mile.client }}</td>
+          <td>{{ mile.vehicle }}</td>
+          <td>{{ mile.begin }}</td>
+          <td>{{ mile.end }}</td>
+          <td>{{ mile.total }}</td>
+          <td>{{ mile.mileage_type }}</td>
+          <td>
+            <a href="{% url 'mileage_update' mile.id %}" class="text-success me-2">
+              <i class="fa-solid fa-pen"></i>
+            </a>
+            <a href="{% url 'mileage_delete' mile.id %}" class="text-danger">
+              <i class="fa-solid fa-trash"></i>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center text-muted">No mileage entries.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <hr>
+
+  <div class="text-center my-4">
+    <h4 class="mb-3">Yearly Mileage Summary</h4>
+    <div class="row justify-content-center text-start">
+      <div class="col-12 col-md-6 mb-2">
+        <div class="card p-3 shadow-sm">
+          <p class="mb-0">
+            <strong>Total Taxable Miles for {{ current_year }}:</strong><br>
+            <span class="fs-5 text-primary">{{ total_miles }}</span>
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 mb-2">
+        <div class="card p-3 shadow-sm">
+          <p class="mb-0">
+            <strong>Total Taxable Mileage Amount (${{ mileage_rate }} per mile):</strong><br>
+            <span class="fs-5 text-primary">${{ taxable_dollars|floatformat:2|intcomma }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
