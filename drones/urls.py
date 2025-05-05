@@ -2,8 +2,37 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from .views import *
 from .forms import *
+
+from .views import (
+    documents,
+    incident_reporting_system,
+    incident_report_list,
+    incident_report_detail,
+    IncidentReportWizard,
+    incident_report_success,
+    incident_report_pdf,
+    sop_list,
+    sop_upload,
+    general_document_list,
+    upload_general_document,
+    equipment_list,
+    equipment_create,
+    equipment_edit,
+    equipment_delete,
+    drone_list,
+    drone_detail,     
+    drone_detail_pdf,
+    drone_create,
+    drone_edit,
+    drone_delete,
+    flightlog_list,
+    flightlog_detail,
+    upload_flightlog_csv,
+    flightlog_edit,
+    flightlog_delete,
+    flightlog_pdf,
+)
 
 wizard_forms = [
     ("event", EventDetailsForm),
