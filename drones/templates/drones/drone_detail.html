@@ -1,8 +1,6 @@
 {% extends 'index.html' %}
 {% load drone_extras %}
 
-
-
 {% block content %}
 <div class="container mt-4">
   <div class="card shadow-sm">
@@ -18,27 +16,33 @@
       <p>
         <strong>FAA Certificate:</strong>
         {% if drone.faa_certificate %}
-          <a href="{{ drone.faa_certificate.url }}" target="_blank">View Certificate</a>
+          <a href="{{ drone.faa_certificate.url }}" target="_blank" class="text-decoration-none">
+            <i class="fa-solid fa-file-lines"></i> View Certificate
+          </a>
         {% else %}
           —
         {% endif %}
       </p>
-        <hr>
+      <hr>
       <p><strong>Number of Flights:</strong> {{ flight_count }}</p>
-
-
       <p><strong>Total Flight Time:</strong> {{ total_time|duration_display }}</p>
-      
-
-
     </div>
-    <div class="card-footer d-flex justify-content-between">
+
+    <div class="card-footer d-flex flex-wrap justify-content-between gap-2">
       <a href="{% url 'drone_edit' drone.pk %}" class="btn btn-warning">Edit</a>
       <a href="{% url 'drone_delete' drone.pk %}" class="btn btn-danger">Delete</a>
       <a href="{% url 'drone_list' %}" class="btn btn-secondary">Back to List</a>
-      <a href="{% url 'drone_detail_pdf' drone.pk %}" class="btn btn-outline-primary">Export PDF</a>
-
+      <a href="{% url 'drone_detail_pdf' drone.pk %}" class="btn btn-outline-primary">
+        <i class="fa-solid fa-file-pdf"></i> Export PDF
+      </a>
     </div>
+  </div>
+
+  <!-- Preview PDF Button -->
+  <div class="text-center mt-4">
+    <a href="{% url 'drone_detail_pdf' drone.pk %}?preview=1" target="_blank" class="btn btn-primary">
+      <i class="fa-solid fa-eye"></i> Preview PDF Online
+    </a>
   </div>
 </div>
 {% endblock %}
