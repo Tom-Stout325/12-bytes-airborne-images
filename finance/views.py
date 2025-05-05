@@ -374,14 +374,15 @@ def invoice_delete(request, pk):
 
 
 def category_page(request):
-    category = Category.objects.all()
-    sub_cat = SubCategory.objects.all()
+    category = Category.objects.order_by('category')        
+    sub_cat = SubCategory.objects.order_by('sub_cat')   
 
     context = {
         'category': category,
         'sub_cat': sub_cat,
     }
     return render(request, 'finance/category_page.html', context)
+
 
 
 # class CategoryListView(LoginRequiredMixin, ListView):
