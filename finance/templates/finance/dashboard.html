@@ -292,10 +292,10 @@
                             </tbody>
                             <tfoot>
                                 {% if ytd_subcategory_totals %}
-                                    <tr class="fw-bold">
-                                        <td colspan="2" class="text-end fs-4">Total:</td>
-                                        <td class="fs-4 text-success strong">$ {{ ytd_subcategory_grand_total|floatformat:2|intcomma }}</td>
-                                    </td>
+                                    <p><strong>YTD Income:</strong> ${{ ytd_income_total|floatformat:2|intcomma }}</p>
+                                    <p><strong>YTD Expenses:</strong> ${{ ytd_expense_total|floatformat:2|intcomma }}</p>
+                                    <p><strong>YTD Net Profit:</strong> ${{ ytd_net_profit|floatformat:2|intcomma }}</p>
+
                                 {% endif %}
                             </tfoot>
                         </table>

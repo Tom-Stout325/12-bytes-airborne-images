@@ -60,7 +60,9 @@ class Dashboard(LoginRequiredMixin, ListView):
                 .annotate(total=Sum('amount'))
                 .order_by('sub_cat__sub_cat', 'trans_type__trans_type')
             )
-            ytd_subcategory_grand_total = sum(item['total'] for item in ytd_subcategory_totals)
+            ytd_income_total = sum(item['total'] for item in ytd_subcategory_totals if item['trans_type__trans_type'] == 'Income')
+            ytd_expense_total = sum(item['total'] for item in ytd_subcategory_totals if item['trans_type__trans_type'] == 'Expense')
+
         except Exception as e:
             logger.error(f"Error fetching YTD subcategory totals: {e}")
             ytd_subcategory_totals = []
@@ -87,14 +89,20 @@ class Dashboard(LoginRequiredMixin, ListView):
             total_miles = 0
             taxable_dollars = 0
 
+        ytd_net_profit = ytd_income_total - ytd_expense_total
+        
+        context['ytd_net_profit'] = ytd_net_profit
+
         context.update({
             'ytd_subcategory_totals': ytd_subcategory_totals,
             'current_year': current_year,
-            'ytd_subcategory_grand_total': ytd_subcategory_grand_total,
+            'ytd_income_total': ytd_income_total,
+            'ytd_expense_total': ytd_expense_total,
             'total_miles': total_miles,
             'taxable_dollars': taxable_dollars,
             'mileage_rate': mileage_rate,
         })
+
 
         return context
 
