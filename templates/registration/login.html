@@ -1,30 +1,31 @@
 {% extends 'index.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card mt-5">
+            <div class="card mt-5 shadow-sm">
                 <div class="card-body">
                     <h2 class="card-title text-center">Login</h2>
+
                     {% if form.errors %}
                         <div class="alert alert-danger">
                             Invalid username or password.
                         </div>
                     {% endif %}
+
                     <form method="post" action="{% url 'login' %}">
-
-
                         {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
-                            <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
-                            <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                        {{ form|crispy }}
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Login</button>
                     </form>
+
+                    <div class="text-center mt-3">
+                        <a href="{% url 'password_reset' %}">Forgot password?</a>
+                    </div>
                 </div>
             </div>
         </div>
