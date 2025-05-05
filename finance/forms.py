@@ -21,13 +21,15 @@ class TransForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
 
-    def clean_receipt(self):
-        receipt = self.cleaned_data.get('receipt')
-        if receipt:
-            content_type = receipt.content_type
-            if content_type not in ['application/pdf', 'image/jpeg', 'image/png']:
-                raise forms.ValidationError("Only PDF, JPG, or PNG files are allowed.")
-        return receipt
+def clean_receipt(self):
+    receipt = self.cleaned_data.get('receipt')
+
+    if receipt and hasattr(receipt, 'content_type'):
+        content_type = receipt.content_type
+        if content_type not in ['application/pdf', 'image/jpeg', 'image/png']:
+            raise forms.ValidationError("Only PDF, JPG, or PNG files are allowed.")
+    return receipt
+
 
 
 class InvoiceForm(forms.ModelForm):

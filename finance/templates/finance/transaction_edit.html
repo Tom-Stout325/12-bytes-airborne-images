@@ -4,6 +4,22 @@
 
 {% block title %} Edit{% endblock %}
 
+{% block breadcrumbs %}
+<h3>Finance Portal</h3>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+    <li class="breadcrumb-item>"><a href="{% url 'transactions' %}"></a>Transactions</li>
+    <li class="breadcrumb-item active" aria-current="page">Edit Transactions</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'category_page' %}">Categories</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'reports' %}">Financial Reports</a></li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
 {% block content %}
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh; padding-top: 60px;">
     <div class="bg-light p-4 shadow-lg rounded col-12 col-md-8 col-lg-6">

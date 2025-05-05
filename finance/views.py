@@ -219,7 +219,7 @@ class TransactionDeleteView(LoginRequiredMixin, DeleteView):
 def edit_transaction(request, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id)
     if request.method == 'POST':
-        form = TransForm(request.POST, instance=transaction)
+        form = TransForm(request.POST, request.FILES, instance=transaction)
         if form.is_valid():
             form.save()
             messages.success(request, 'Transaction updated successfully!')
@@ -230,6 +230,7 @@ def edit_transaction(request, transaction_id):
     else:
         form = TransForm(instance=transaction)
     return render(request, 'finance/transaction_edit.html', {'transaction': transaction, 'form': form})
+
 
 
 @login_required
