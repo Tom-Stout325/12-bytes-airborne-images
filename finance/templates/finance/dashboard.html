@@ -292,11 +292,10 @@
                             </tbody>
                             <tfoot>
                                 {% if ytd_subcategory_totals %}
-                                    <p><strong>YTD Income:</strong> ${{ ytd_income_total|floatformat:2|intcomma }}</p>
-                                    <p><strong>YTD Expenses:</strong> ${{ ytd_expense_total|floatformat:2|intcomma }}</p>
-                                    <p><strong>YTD Net Profit:</strong> ${{ ytd_net_profit|floatformat:2|intcomma }}</p>
-
-                                {% endif %}
+                                <p><strong>YTD Income:</strong> ${{ ytd_income_total|floatformat:2|intcomma }}</p>
+                                <p><strong>YTD Expenses:</strong> ${{ ytd_expense_total|floatformat:2|intcomma }}</p>
+                                <p><strong>YTD Net Profit:</strong> ${{ ytd_net_profit|floatformat:2|intcomma }}</p>
+                            {% endif %}
                             </tfoot>
                         </table>
                     </div>

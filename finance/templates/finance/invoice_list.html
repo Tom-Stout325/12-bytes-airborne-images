@@ -77,13 +77,13 @@
             <span class="badge {% if invoice.paid == 'No' %}bg-danger{% else %}bg-success{% endif %}">{{ invoice.paid }}</span>
           </td>
           <td>
-            <a href="{% url 'invoice_detail' invoice.pk %}" target="_blank"><i class="fa-solid fa-eye"></i>&nbsp;</a>
+            <a href="{% url 'invoice_detail' invoice.pk %}" target="_blank" class=" text-decoration-none"></a>"><i class="fa-solid fa-eye"></i>&nbsp;</a>
         
-            <a href="{% url 'update_invoice' invoice.pk %}"><i class="fa-solid fa-pencil"></i>&nbsp;</a>
+            <a href="{% url 'update_invoice' invoice.pk %}" class=" text-decoration-none"><i class="fa-solid fa-pencil"></i>&nbsp;</a>
          
-            <a href="{% url 'invoice_review' invoice.pk %}"><i class="fa-regular fa-file"></i>&nbsp;</a>
+            <a href="{% url 'invoice_review' invoice.pk %}" class=" text-decoration-none"><i class="fa-regular fa-file"></i>&nbsp;</a>
 
-            <a href="{% url 'invoice_delete' invoice.pk %}"><i class="fa-solid fa-trash-can"></i>&nbsp;</a>
+            <a href="{% url 'invoice_delete' invoice.pk %}" class=" text-decoration-none"><i class="fa-solid fa-trash-can"></i>&nbsp;</a>
           
             <a href="#" class="send-email" data-invoice-id="{{ invoice.id }}"> <i class="fa-regular fa-paper-plane"></i> <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span></a>
 

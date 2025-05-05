@@ -61,10 +61,10 @@
           <td>{{ mile.total }}</td>
           <td>{{ mile.mileage_type }}</td>
           <td>
-            <a href="{% url 'mileage_update' mile.id %}" class="text-success me-2">
+            <a href="{% url 'mileage_update' mile.id %}" class="text-success me-2 text-decoration-none">
               <i class="fa-solid fa-pen"></i>
             </a>
-            <a href="{% url 'mileage_delete' mile.id %}" class="text-danger">
+            <a href="{% url 'mileage_delete' mile.id %}" class="text-danger text-decoration-none">
               <i class="fa-solid fa-trash"></i>
             </a>
           </td>
