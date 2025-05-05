@@ -75,9 +75,7 @@ urlpatterns = [
     path('drones/<int:pk>/delete/', drone_delete, name='drone_delete'),
 
     path('flightlogs/', flightlog_list, name='flightlog_list'),
-    path('flightlogs/<int:pk>/', flightlog_detail, name='flightlog_detail'),
     path('flight-upload/', upload_flightlog_csv, name='flightlog_upload'),
-
     path('flightlogs/<int:pk>/edit/', flightlog_edit, name='flightlog_edit'),
     path('flightlogs/<int:pk>/delete/', flightlog_delete, name='flightlog_delete'),
     path('flightlogs/<int:pk>/', flightlog_detail, name='flightlog_detail'),
