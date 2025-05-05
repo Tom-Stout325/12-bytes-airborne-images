@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from formtools.wizard.views import SessionWizardView
@@ -30,7 +31,6 @@ from .forms import *
 from .models import *
 from datetime import timedelta
 from drones.models import Drone, FlightLog
-
 
 
 
@@ -110,7 +110,19 @@ def drone_delete(request, pk):
     return render(request, 'drones/drone_confirm_delete.html', {'drone': drone})
 
 
-from django.utils.http import url_has_allowed_host_and_scheme
+def drone_detail(request, pk):
+    drone = get_object_or_404(Drone, pk=pk)
+
+    flights = FlightLog.objects.filter(drone_serial=drone.serial_number)
+    flight_count = flights.count()
+    total_time = flights.aggregate(total=Sum('air_time'))['total'] or timedelta()
+
+    return render(request, 'drones/drone_detail.html', {
+        'drone': drone,
+        'flight_count': flight_count,
+        'total_time': total_time,
+    })
+
 
 def drone_detail_pdf(request, pk):
     drone = get_object_or_404(Drone, pk=pk)
