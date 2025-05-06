@@ -217,14 +217,10 @@
                             <td>{{ invoice.event }}</td>
                             <td>$ {{ invoice.amount|floatformat:2|intcomma }}</td>
                             <td>{{ invoice.date }}</td>
-                            <td>{{ invoice.due }}</td>
-                            {% if invoice.paid == "No" %}
-                                <span class="badge bg-danger">No</span>
-                                {% else %}
-                                <span class="badge bg-success">{{ invoice.paid|date:"Y-m-d" }}</span>
-                            {% endif %}
                           
-                            </td>
+                            <td class="px-3">
+                                <span class="badge {% if invoice.paid == 'No' %}bg-danger{% else %}bg-success{% endif %}">{{ invoice.paid }}</span>
+                              </td>
                             <td>
                                 <a href="{% url 'invoice_detail' invoice.id %}">
                                     <i class="fa-solid fa-eye text-success"></i>
