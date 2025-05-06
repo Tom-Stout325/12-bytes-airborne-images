@@ -222,7 +222,7 @@
                                 {% if invoice.paid == "Yes" %}
                                   <span class="badge bg-success">Paid</span>
                                 {% else %}
-                                  <span class="badge bg-danger">Unpaid</span>
+                                  <span class="badge bg-danger">{{ invoice_due }}</span>
                                 {% endif %}
                             </td>
                             <td>
