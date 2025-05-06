@@ -219,10 +219,10 @@
                             <td>{{ invoice.date }}</td>
                             <td>{{ invoice.due }}</td>
                             <td>
-                                {% if invoice.paid == "Yes" %}
-                                  <span class="badge bg-success">Paid</span>
+                                {% if invoice.paid == "No" %}
+                                  <span class="badge bg-danger">Paid</span>
                                 {% else %}
-                                  <span class="badge bg-danger">{{ invoice_due }}</span>
+                                  <span class="badge bg-primary">{{ invoice_due }}</span>
                                 {% endif %}
                             </td>
                             <td>
