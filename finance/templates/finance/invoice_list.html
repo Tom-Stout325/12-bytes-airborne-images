@@ -95,13 +95,11 @@
           <td>{{ invoice.date }}</td>
           <td>{{ invoice.due }}</td>
           <td>
-            <span
-              class="badge {% if invoice.paid_date %}bg-success{% else %}bg-danger{% endif %}"
-            >
-              {% if invoice.paid_date %} {{ invoice.paid_date|date:"Y-m-d" }} {%
-              else %} No {% endif %}
+            <span class="badge {% if invoice.paid_date %}bg-success{% else %}bg-danger{% endif %}">
+              {% if invoice.paid_date %}{{ invoice.paid_date|date:"Y-m-d" }}{% else %}No{% endif %}
             </span>
           </td>
+          
           <td>
             {% if invoice.paid_date %} {{ invoice.days_to_pay }} days {% else %}
             <span class="text-muted">—</span>
