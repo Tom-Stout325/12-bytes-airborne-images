@@ -122,14 +122,16 @@ class Invoice(models.Model):
     amount = models.DecimalField(default=0.00, max_digits=12, decimal_places=2)
     date = models.DateField() 
     due = models.DateField()
+    paid = models.CharField(max_length=100, blank=True, null=True, default="No")  # temporary
+
     paid_date = models.DateField(null=True, blank=True)
 
-    STATUS_CHOICES = (
-        ('Unpaid', 'Unpaid'),
-        ('Paid', 'Paid'),
-        ('Partial', 'Partial'),
+    paid_date = models.DateField(null=True, blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[('Unpaid', 'Unpaid'), ('Paid', 'Paid'), ('Partial', 'Partial')],
+        default='Unpaid'
     )
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Unpaid')
 
     class Meta:
         ordering = ['invoice_numb']

@@ -218,9 +218,15 @@
                             <td>$ {{ invoice.amount|floatformat:2|intcomma }}</td>
                             <td>{{ invoice.date }}</td>                      
                             <td class="px-3">
-                                <span class="badge {% if paid_date == 'No' %}bg-danger{% else %}bg-success{% endif %}">{{ invoice.paid_date }}</span>
-                              </td>
-                            <td>
+                                <span class="badge {% if not invoice.paid_date %}bg-danger{% else %}bg-success{% endif %}">
+                                    {% if invoice.paid_date %}
+                                        {{ invoice.paid_date|date:"Y-m-d" }}
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </span>
+                            </td>
+                            
                                 <a href="{% url 'invoice_detail' invoice.id %}">
                                     <i class="fa-solid fa-eye text-success"></i>
                                 </a>
