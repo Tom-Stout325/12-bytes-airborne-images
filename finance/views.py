@@ -346,8 +346,18 @@ class InvoiceListView(LoginRequiredMixin, ListView):
         context["current_sort"] = self.request.GET.get('sort', 'invoice_numb')
         context["current_direction"] = self.request.GET.get('direction', 'desc')
         context["new_direction"] = "asc" if context["current_direction"] == "desc" else "desc"
+        context["invoice_headers"] = [
+            ("invoice_numb", "Invoice #"),
+            ("client__business", "Client"),
+            ("keyword", "Location"),
+            ("service__service", "Service"),
+            ("amount", "Amount"),
+            ("date", "Date"),
+            ("due", "Due"),
+            ("paid_date", "Paid"),
+            ("days_to_pay", "Days to Pay"),
+        ]
         return context
-
 
 
 
