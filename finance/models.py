@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
+from datetime import timedelta, date
 
 
 
@@ -108,17 +109,27 @@ class Transaction(models.Model):
 # -------------------------------------------------------------------------------------------
     
 
+from django.db import models
+from datetime import timedelta, date
+
 class Invoice(models.Model):
     invoice_numb = models.CharField(max_length=10, unique=True)
-    client = models.ForeignKey(Client, on_delete=models.PROTECT)
+    client = models.ForeignKey('Client', on_delete=models.PROTECT)
     event = models.CharField(max_length=500, blank=True, null=True)
     location = models.CharField(max_length=500, blank=True, null=True)
-    keyword = models.ForeignKey(Keyword, on_delete=models.PROTECT, default=1)
-    service = models.ForeignKey(Service, on_delete=models.PROTECT)
-    amount = models.DecimalField(default=0.00, max_digits=100, decimal_places=2)
-    date = models.DateField()
+    keyword = models.ForeignKey('Keyword', on_delete=models.PROTECT, default=1)
+    service = models.ForeignKey('Service', on_delete=models.PROTECT)
+    amount = models.DecimalField(default=0.00, max_digits=12, decimal_places=2)
+    date = models.DateField() 
     due = models.DateField()
-    paid = models.CharField(max_length=100, blank=True, null=True, default="No")
+    paid_date = models.DateField(null=True, blank=True)
+
+    STATUS_CHOICES = (
+        ('Unpaid', 'Unpaid'),
+        ('Paid', 'Paid'),
+        ('Partial', 'Partial'),
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Unpaid')
 
     class Meta:
         ordering = ['invoice_numb']
@@ -128,6 +139,17 @@ class Invoice(models.Model):
 
     def calculate_total(self):
         return sum(item.total for item in self.items.all())
+
+    @property
+    def is_paid(self):
+        return self.paid_date is not None
+
+    @property
+    def days_to_pay(self):
+        if self.paid_date:
+            return (self.paid_date - self.date).days
+        return None
+
 
 # -------------------------------------------------------------------------------------------
 

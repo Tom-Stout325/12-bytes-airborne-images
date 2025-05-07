@@ -59,6 +59,7 @@
           <th>Date</th>
           <th>Due</th>
           <th>Paid</th>
+          <th>Days to Pay</th>
           <th class="text-center">Actions</th>
          
         </tr>
@@ -74,8 +75,23 @@
           <td>{{ invoice.date }}</td>
           <td>{{ invoice.due }}</td>
           <td class="px-3">
-            <span class="badge {% if invoice.paid == 'No' %}bg-danger{% else %}bg-success{% endif %}">{{ invoice.paid }}</span>
+            <span class="badge {% if invoice.paid_date %}bg-success{% else %}bg-danger{% endif %}">
+              {% if invoice.paid_date %}
+                {{ invoice.paid_date|date:"Y-m-d" }}
+              {% else %}
+                No
+              {% endif %}
+            </span>
+            
           </td>
+          <td>
+            {% if invoice.paid_date %}
+              {{ invoice.days_to_pay }} days
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          
           <td>
             <a href="{% url 'invoice_detail' invoice.pk %}" target="_blank"></a><i class="fa-solid fa-eye text-decoration-none text-primary"></i>&nbsp;</a>
         

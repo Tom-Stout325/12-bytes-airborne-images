@@ -35,7 +35,14 @@ def clean_receipt(self):
 class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
-        fields = ['invoice_numb', 'client', 'event', 'location', 'keyword', 'service', 'date', 'due', 'paid']
+        fields = ['invoice_numb', 'client', 'event', 'location', 'keyword', 'service', 'amount', 'date', 'due', 'paid_date', 'status']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+            'due': forms.DateInput(attrs={'type': 'date'}),
+            'paid_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+
 
 
 class InvoiceItemForm(forms.ModelForm):
