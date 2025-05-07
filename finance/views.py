@@ -1,34 +1,27 @@
-import logging
-import os
-import csv
-import base64
-from datetime import datetime
-from pathlib import Path
-from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView, CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
-from django.core.mail import EmailMessage
-from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse_lazy, reverse
+from django.core.mail import EmailMessage
 from django.contrib import messages
 from django.db.models import Sum, Q
+from django.utils import timezone
 from django.conf import settings
+from django.db.models import Q
+from datetime import datetime
 from weasyprint import HTML
+from pathlib import Path
+import logging
+import base64
+import csv
+import os
+
 from .models import *
 from .forms import *
-from django.contrib.auth.mixins import LoginRequiredMixin
-logger = logging.getLogger(__name__)
-
-
-from django.utils import timezone
-from django.db.models import Sum
-from django.views.generic import ListView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from finance.models import Transaction, Invoice, Category, Miles, MileageRate
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -324,6 +317,7 @@ def create_invoice_success(request):
     return render(request, 'finance/invoice_add_success.html')
 
 
+
 class InvoiceListView(LoginRequiredMixin, ListView):
     model = Invoice
     template_name = "finance/invoices.html"
@@ -331,7 +325,12 @@ class InvoiceListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = Invoice.objects.order_by('-invoice_numb')
+        sort = self.request.GET.get('sort', 'invoice_numb')
+        direction = self.request.GET.get('direction', 'desc')
+        ordering = f"-{sort}" if direction == "desc" else sort
+
+        queryset = Invoice.objects.order_by(ordering)
+
         search_query = self.request.GET.get('search', '')
         if search_query:
             queryset = queryset.filter(
@@ -340,6 +339,17 @@ class InvoiceListView(LoginRequiredMixin, ListView):
                 Q(service__service__icontains=search_query)
             )
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_query"] = self.request.GET.get('search', '')
+        context["current_sort"] = self.request.GET.get('sort', 'invoice_numb')
+        context["current_direction"] = self.request.GET.get('direction', 'desc')
+        context["new_direction"] = "asc" if context["current_direction"] == "desc" else "desc"
+        return context
+
+
+
 
 
 class InvoiceDetailView(LoginRequiredMixin, DetailView):
@@ -390,6 +400,71 @@ def invoice_delete(request, pk):
         return redirect('invoice_list')
     return render(request, 'finance/invoice_confirm_delete.html', {'item': invoice})
 
+
+def export_invoices_pdf(request):
+    sort = request.GET.get('sort', 'invoice_numb')
+    direction = request.GET.get('direction', 'desc')
+    ordering = f"-{sort}" if direction == "desc" else sort
+    search = request.GET.get('search', '')
+
+    invoices = Invoice.objects.order_by(ordering)
+    if search:
+        invoices = invoices.filter(
+            Q(invoice_numb__icontains=search) |
+            Q(client__business__icontains=search) |
+            Q(service__service__icontains=search)
+        )
+
+    template = get_template('finance/invoice_pdf_export.html')
+    html_string = template.render({'invoices': invoices})
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="invoices.pdf"'
+
+    with tempfile.NamedTemporaryFile(delete=True) as output:
+        HTML(string=html_string).write_pdf(output.name)
+        output.seek(0)
+        response.write(output.read())
+
+    return response
+
+import csv
+from django.http import HttpResponse
+
+def export_invoices_csv(request):
+    sort = request.GET.get('sort', 'invoice_numb')
+    direction = request.GET.get('direction', 'desc')
+    ordering = f"-{sort}" if direction == "desc" else sort
+    search = request.GET.get('search', '')
+
+    invoices = Invoice.objects.order_by(ordering)
+    if search:
+        invoices = invoices.filter(
+            Q(invoice_numb__icontains=search) |
+            Q(client__business__icontains=search) |
+            Q(service__service__icontains=search)
+        )
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="invoices.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Invoice #', 'Client', 'Location', 'Service', 'Amount', 'Date', 'Due', 'Paid', 'Days to Pay'])
+
+    for invoice in invoices:
+        writer.writerow([
+            invoice.invoice_numb,
+            str(invoice.client),
+            invoice.keyword,
+            str(invoice.service),
+            invoice.amount,
+            invoice.date,
+            invoice.due,
+            invoice.paid_date or "No",
+            invoice.days_to_pay if invoice.paid_date else "—"
+        ])
+
+    return response
 
 
 # Categories    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
