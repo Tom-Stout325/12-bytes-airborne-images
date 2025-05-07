@@ -78,9 +78,11 @@
                 {% endif %}
               </a>
             </th>
-          <th>Actions</th>
+          {% endfor %}
+          <th>Actions</th>  <!-- Correctly placed outside the loop -->
         </tr>
       </thead>
+      
       <tbody>
         {% for invoice in invoices %}
         <tr class="text-center">
