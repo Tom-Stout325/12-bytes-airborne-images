@@ -1,6 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
-{% load crispy_forms_tags %} {# Only if crispy-forms is installed #}
+{% load crispy_forms_tags %}
 
 {% block content %}
 <div class="container mt-5">
@@ -32,13 +32,19 @@
             {{ form.service|as_crispy_field }}
           </div>
           <div class="col-md-6 mb-3">
+            {{ form.amount|as_crispy_field }}
+          </div>
+          <div class="col-md-6 mb-3">
             {{ form.date|as_crispy_field }}
           </div>
           <div class="col-md-6 mb-3">
             {{ form.due|as_crispy_field }}
           </div>
           <div class="col-md-6 mb-3">
-            {{ form.paid|as_crispy_field }}
+            {{ form.paid_date|as_crispy_field }}
+          </div>
+          <div class="col-md-6 mb-3">
+            {{ form.status|as_crispy_field }}
           </div>
         </div>
 

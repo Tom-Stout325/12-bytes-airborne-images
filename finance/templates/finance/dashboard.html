@@ -192,55 +192,57 @@
             </div>
         </div>
 
-        <!-- Recent Invoices -->
-        <div class="tab-pane fade" id="recent_invoices" role="tabpanel">
-            <h4 class="section-heading">Recent Invoices</h4>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr class="table-primary">
-                            <th>Invoice #</th>
-                            <th>Client</th>
-                            <th>Event</th>
-                            <th>Amount</th>
-                            <th>Date</th>
-                            <th>Due Date</th>
-                            <th>Paid</th>
-                            <th>View</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for invoice in recent_invoices %}
-                        <tr>
-                            <td>{{ invoice.invoice_numb }}</td>
-                            <td>{{ invoice.client }}</td>
-                            <td>{{ invoice.event }}</td>
-                            <td>$ {{ invoice.amount|floatformat:2|intcomma }}</td>
-                            <td>{{ invoice.date }}</td>                      
-                            <td class="px-3">
-                                <span class="badge {% if not invoice.paid_date %}bg-danger{% else %}bg-success{% endif %}">
-                                    {% if invoice.paid_date %}
-                                        {{ invoice.paid_date|date:"Y-m-d" }}
-                                    {% else %}
-                                        No
-                                    {% endif %}
-                                </span>
-                            </td>
-                            
-                                <a href="{% url 'invoice_detail' invoice.id %}">
-                                    <i class="fa-solid fa-eye text-success"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="8" class="text-center text-muted">No recent invoices found.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+       <!-- Recent Invoices -->
+<div class="tab-pane fade" id="recent_invoices" role="tabpanel">
+    <h4 class="section-heading">Recent Invoices</h4>
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr class="table-primary text-nowrap text-center">
+            <th>Invoice #</th>
+            <th>Client</th>
+            <th>Event</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Due Date</th>
+            <th>Paid</th>
+            <th>View</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for invoice in recent_invoices %}
+          <tr class="text-center">
+            <td>{{ invoice.invoice_numb }}</td>
+            <td>{{ invoice.client }}</td>
+            <td>{{ invoice.event }}</td>
+            <td>$ {{ invoice.amount|floatformat:2|intcomma }}</td>
+            <td>{{ invoice.date }}</td>
+            <td>{{ invoice.due }}</td>
+            <td>
+              <span class="badge {% if not invoice.paid_date %}bg-danger{% else %}bg-success{% endif %}">
+                {% if invoice.paid_date %}
+                  {{ invoice.paid_date|date:"Y-m-d" }}
+                {% else %}
+                  No
+                {% endif %}
+              </span>
+            </td>
+            <td>
+              <a href="{% url 'invoice_detail' invoice.id %}" class="text-decoration-none">
+                <i class="fa-solid fa-eye text-success"></i>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center text-muted">No recent invoices found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
 
         <!-- Revenue (Income & Expense) for Current Month -->
         <div class="tab-pane fade" id="revenue" role="tabpanel">
