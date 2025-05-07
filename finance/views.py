@@ -8,6 +8,7 @@ from django.http import JsonResponse, HttpResponse
 from django.template.loader import get_template
 from django.urls import reverse_lazy, reverse
 from django.core.mail import EmailMessage
+from django.utils.timezone import now
 from django.contrib import messages
 from django.db.models import Sum, Q
 from django.utils import timezone
@@ -16,6 +17,7 @@ from django.db.models import Q
 from datetime import datetime
 from weasyprint import HTML
 from pathlib import Path
+import tempfile
 import logging
 import base64
 import csv
