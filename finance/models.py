@@ -109,9 +109,6 @@ class Transaction(models.Model):
 # -------------------------------------------------------------------------------------------
     
 
-from django.db import models
-from datetime import timedelta, date
-
 class Invoice(models.Model):
     invoice_numb = models.CharField(max_length=10, unique=True)
     client = models.ForeignKey('Client', on_delete=models.PROTECT)
@@ -122,10 +119,6 @@ class Invoice(models.Model):
     amount = models.DecimalField(default=0.00, max_digits=12, decimal_places=2)
     date = models.DateField() 
     due = models.DateField()
-    paid = models.CharField(max_length=100, blank=True, null=True, default="No")  # temporary
-
-    paid_date = models.DateField(null=True, blank=True)
-
     paid_date = models.DateField(null=True, blank=True)
     status = models.CharField(
         max_length=20,
