@@ -308,12 +308,12 @@
         <!-- Mileage Log Table -->
         <div class="tab-pane fade" id="mileage_tab" role="tabpanel">
                 <hr>
-            <h3 class="section-heading text-center mt-2">Mileage Log</h3>
-            <div class="row px-3 text-center mb-3">
+            <h3 class="section-heading text-center mt-2 text-success">Mileage Log</h3>
+            <div class="row px-3 text-center mb-3">&nbsp;
                 <a href="{% url 'mileage_create' %}" class="btn btn-success">
                     <i class="fa-solid fa-plus"></i> Add Mileage
                 </a>
-                <a href="{% url 'update_mileage_rate' %}" class="btn btn-warning btn-sm">
+                <a href="{% url 'update_mileage_rate' %}" class="btn btn-warning">
                     <i class="fa-solid fa-plus"></i> Update Mileage Rate
                 </a>  
             </div>
@@ -342,10 +342,10 @@
                             <td>{{ mile.total }}</td>
                             <td>{{ mile.mileage_type }}</td>
                             <td>
-                                <a href="{% url 'mileage_update' mile.id %}">
+                                <a href="{% url 'mileage_update' mile.id %}" class="text-decoration-none">
                                     <i class="fa-solid fa-pen text-success"></i>
                                 </a>&nbsp;
-                                <a href="{% url 'mileage_delete' mile.id %}">
+                                <a href="{% url 'mileage_delete' mile.id %}" class="text-decoration-none">
                                     <i class="fa-solid fa-trash text-warning"></i>
                                 </a>
                             </td>
