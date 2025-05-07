@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
 from django.http import JsonResponse, HttpResponse
+from django.template.loader import get_template
 from django.urls import reverse_lazy, reverse
 from django.core.mail import EmailMessage
 from django.contrib import messages
