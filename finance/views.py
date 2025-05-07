@@ -23,6 +23,15 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 logger = logging.getLogger(__name__)
 
 
+from django.utils import timezone
+from django.db.models import Sum
+from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from finance.models import Transaction, Invoice, Category, Miles, MileageRate
+import logging
+
+logger = logging.getLogger(__name__)
+
 class Dashboard(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "finance/dashboard.html"
@@ -34,24 +43,27 @@ class Dashboard(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['unpaid_invoices'] = Invoice.objects.filter(paid__iexact="Unpaid")
-        context['recent_invoices'] = Invoice.objects.order_by('-date')[:20]
-        context['categories'] = Category.objects.all()
 
         now = timezone.now()
+        current_year = now.year
         start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        last_day = now.replace(day=28).replace(day=1).replace(month=now.month + 1) - timezone.timedelta(days=1)
-        end_of_month = last_day.replace(hour=23, minute=59, second=59, microsecond=999999)
+        end_of_month = now.replace(day=28).replace(day=1).replace(month=now.month + 1) - timezone.timedelta(days=1)
+        end_of_month = end_of_month.replace(hour=23, minute=59, second=59, microsecond=999999)
 
+        # Recent and unpaid invoices
+        context['recent_invoices'] = Invoice.objects.order_by('-date')[:20]
+        context['unpaid_invoices'] = Invoice.objects.filter(status='Unpaid')
+
+        # Categories
+        context['categories'] = Category.objects.all()
+
+        # Current month totals
         transactions_this_month = Transaction.objects.filter(date__gte=start_of_month, date__lte=end_of_month)
-        income_total = transactions_this_month.filter(trans_type__trans_type="Income").aggregate(Sum('amount'))['amount__sum'] or 0
-        expense_total = transactions_this_month.filter(trans_type__trans_type="Expense").aggregate(Sum('amount'))['amount__sum'] or 0
+        context['income_total'] = transactions_this_month.filter(trans_type__trans_type="Income").aggregate(Sum('amount'))['amount__sum'] or 0
+        context['expense_total'] = transactions_this_month.filter(trans_type__trans_type="Expense").aggregate(Sum('amount'))['amount__sum'] or 0
 
-        context['income_total'] = income_total
-        context['expense_total'] = expense_total
-
+        # YTD summary
         try:
-            current_year = now.year
             start_of_year = timezone.datetime(current_year, 1, 1, tzinfo=timezone.utc)
             ytd_subcategory_totals = (
                 Transaction.objects
@@ -62,49 +74,39 @@ class Dashboard(LoginRequiredMixin, ListView):
             )
             ytd_income_total = sum(item['total'] for item in ytd_subcategory_totals if item['trans_type__trans_type'] == 'Income')
             ytd_expense_total = sum(item['total'] for item in ytd_subcategory_totals if item['trans_type__trans_type'] == 'Expense')
-
+            ytd_net_profit = ytd_income_total - ytd_expense_total
         except Exception as e:
-            logger.error(f"Error fetching YTD subcategory totals: {e}")
+            logger.error(f"Error calculating YTD data: {e}")
             ytd_subcategory_totals = []
-            ytd_subcategory_grand_total = 0
-
-        context['mileage_list'] = Miles.objects.filter(date__year=current_year).order_by('-date')
-
-        try:
-            try:
-                mileage_rate = MileageRate.objects.get(id=1).rate
-            except MileageRate.DoesNotExist:
-                mileage_rate = 0.70
-
-            taxable_miles = Miles.objects.filter(
-                mileage_type='Taxable',
-                date__year=current_year
-            )
-
-            total_miles = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
-
-            taxable_dollars = total_miles * mileage_rate
-        except Exception as e:
-            logger.error(f"Error fetching or calculating mileage data: {e}")
-            total_miles = 0
-            taxable_dollars = 0
-
-        ytd_net_profit = ytd_income_total - ytd_expense_total
-        
-        context['ytd_net_profit'] = ytd_net_profit
+            ytd_income_total = ytd_expense_total = ytd_net_profit = 0
 
         context.update({
             'ytd_subcategory_totals': ytd_subcategory_totals,
             'current_year': current_year,
             'ytd_income_total': ytd_income_total,
             'ytd_expense_total': ytd_expense_total,
-            'total_miles': total_miles,
-            'taxable_dollars': taxable_dollars,
-            'mileage_rate': mileage_rate,
+            'ytd_net_profit': ytd_net_profit,
         })
 
+        # Mileage
+        try:
+            mileage_rate = MileageRate.objects.get(id=1).rate
+        except MileageRate.DoesNotExist:
+            mileage_rate = 0.70
+
+        taxable_miles = Miles.objects.filter(mileage_type='Taxable', date__year=current_year)
+        total_miles = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
+        taxable_dollars = total_miles * mileage_rate
+
+        context.update({
+            'mileage_list': Miles.objects.filter(date__year=current_year).order_by('-date'),
+            'mileage_rate': mileage_rate,
+            'total_miles': total_miles,
+            'taxable_dollars': taxable_dollars,
+        })
 
         return context
+
 
 # Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
