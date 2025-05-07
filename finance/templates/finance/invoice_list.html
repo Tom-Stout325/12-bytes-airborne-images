@@ -1,6 +1,5 @@
 {% extends "index.html" %}
 {% load static %}
-{% load l10n %}
 {% load humanize %}
 
 {% block title %}Invoices{% endblock %}
@@ -20,7 +19,7 @@
   <h2 class="text-center pb-3 text-primary">Invoices</h2>
   <hr class="w-50 mx-auto">
 
-  <!-- Search and Create -->
+  <!-- Search + Create -->
   <div class="row d-flex justify-content-between align-items-center mb-3">
     <div class="col-lg-8">
       <form method="get" class="d-flex flex-column flex-md-row align-items-center">
@@ -40,6 +39,16 @@
     </div>
   </div>
 
+  <!-- Export Buttons -->
+  <div class="col-12 text-center mb-3">
+    <a href="{% url 'export_invoices_csv' %}?search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}" class="btn btn-outline-success me-2">
+      <i class="fa-solid fa-file-csv"></i> Export CSV
+    </a>
+    <a href="{% url 'export_invoices_pdf' %}?search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}" class="btn btn-outline-danger">
+      <i class="fa-solid fa-file-pdf"></i> Export PDF
+    </a>
+  </div>
+
   <!-- Table -->
   <div class="table-responsive">
     <table class="table table-hover">
@@ -57,10 +66,15 @@
             ('days_to_pay', 'Days to Pay')
           ] %}
             <th>
-              <a href="?sort={{ field }}&direction={% if current_sort == field and current_direction == 'asc' %}desc{% else %}asc{% endif %}&search={{ search_query }}">
+              <a class="text-decoration-none text-dark"
+                 href="?sort={{ field }}&direction={% if current_sort == field and current_direction == 'asc' %}desc{% else %}asc{% endif %}&search={{ search_query }}">
                 {{ label }}
                 {% if current_sort == field %}
-                  <i class="fa-solid fa-sort-{{ 'up' if current_direction == 'asc' else 'down' }}"></i>
+                  {% if current_direction == "asc" %}
+                    <i class="fa-solid fa-arrow-up-wide-short"></i>
+                  {% else %}
+                    <i class="fa-solid fa-arrow-down-wide-short"></i>
+                  {% endif %}
                 {% endif %}
               </a>
             </th>
@@ -75,7 +89,7 @@
           <td>{{ invoice.client }}</td>
           <td>{{ invoice.keyword }}</td>
           <td>{{ invoice.service }}</td>
-          <td>$ {{ invoice.amount|floatformat:2|intcomma }}</td>
+          <td>${{ invoice.amount|floatformat:2|intcomma }}</td>
           <td>{{ invoice.date }}</td>
           <td>{{ invoice.due }}</td>
           <td>
@@ -95,22 +109,12 @@
             {% endif %}
           </td>
           <td class="text-nowrap">
-            <a href="{% url 'invoice_detail' invoice.pk %}" target="_blank" class="text-decoration-none">
-              <i class="fa-solid fa-eye text-primary"></i>
-            </a>
-            <a href="{% url 'update_invoice' invoice.pk %}" class="text-decoration-none">
-              <i class="fa-solid fa-pencil text-primary"></i>
-            </a>
-            <a href="{% url 'invoice_review' invoice.pk %}" class="text-decoration-none">
-              <i class="fa-regular fa-file text-primary"></i>
-            </a>
-            <a href="{% url 'invoice_delete' invoice.pk %}" class="text-decoration-none">
-              <i class="fa-solid fa-trash-can text-primary"></i>
-            </a>
-            <a href="#" class="send-email text-decoration-none" data-invoice-id="{{ invoice.id }}">
-              <i class="fa-regular fa-paper-plane text-primary"></i>
-              <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-            </a>
+            <a href="{% url 'invoice_detail' invoice.pk %}" target="_blank" class="text-decoration-none"><i class="fa-solid fa-eye text-primary"></i></a>
+            <a href="{% url 'update_invoice' invoice.pk %}" class="text-decoration-none"><i class="fa-solid fa-pencil text-primary"></i></a>
+            <a href="{% url 'invoice_review' invoice.pk %}" class="text-decoration-none"><i class="fa-regular fa-file text-primary"></i></a>
+            <a href="{% url 'invoice_delete' invoice.pk %}" class="text-decoration-none"><i class="fa-solid fa-trash-can text-primary"></i></a>
+            <a href="#" class="send-email text-decoration-none" data-invoice-id="{{ invoice.id }}"><i class="fa-regular fa-paper-plane text-primary"></i>
+              <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span></a>
           </td>
         </tr>
         {% empty %}
@@ -155,11 +159,11 @@ $(document).ready(function () {
         data: {
           'csrfmiddlewaretoken': '{{ csrf_token }}'
         },
-        success: function (response) {
+        success: function () {
           $spinner.addClass('d-none');
           alert('Invoice emailed successfully!');
         },
-        error: function (xhr, status, error) {
+        error: function (_, __, error) {
           $spinner.addClass('d-none');
           alert('Failed to send email: ' + error);
         }
