@@ -34,7 +34,7 @@ class Dashboard(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['unpaid_invoices'] = Invoice.objects.filter(paid__iexact="No")
+        context['unpaid_invoices'] = Invoice.objects.filter(paid__iexact="Unpaid")
         context['recent_invoices'] = Invoice.objects.order_by('-date')[:20]
         context['categories'] = Category.objects.all()
 
