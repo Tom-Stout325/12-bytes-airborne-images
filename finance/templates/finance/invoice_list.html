@@ -5,14 +5,18 @@
 {% block title%} Invoices {% endblock %} 
 
 {% block breadcrumbs %}
-<h3>Finance Portal</h3>
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Invoices</li>
-  </ol>
-</nav>
-{% endblock %} 
+  <h3>Finance Portal</h3>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% ulr 'transactions' %}"></a>Transactions</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Invoices</li>
+      <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'category_page' %}">Categories</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'reports' %}">Financial Reports</a></li>
+    </ol>
+  </nav>
+{% endblock %}
 
 {% block content %}
 <div class="container bg-light border rounded p-4">
@@ -48,6 +52,9 @@
   </div>
 
   <div class="col-12 text-center mb-3">
+    <a href="{% url 'create_invoice' %}" class="btn btn-outline-primary">
+      <i class="fas fa-plus"></i> Create A New Invoice
+    </a>
     <a
       href="{% url 'export_invoices_csv' %}?search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}"
       class="btn btn-outline-success me-2">
