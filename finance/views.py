@@ -480,7 +480,11 @@ def export_invoices_csv(request):
 
 def invoice_review_pdf(request, pk):
     invoice = Invoice.objects.get(pk=pk)
-    transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb)
+    transactions = Transaction.objects.filter(
+        invoice_numb=invoice.invoice_numb,
+        trans_type__name="Expense"
+    )
+
     
     context = {
         'invoice': invoice,
@@ -491,7 +495,11 @@ def invoice_review_pdf(request, pk):
     }
 
     template = get_template('finance/invoice_review_pdf.html')
-    html_string = template.render(context)
+    html_string = f"""
+        <style>@page {{ size: 8.5in 11in; margin: 1in; }}</style>
+        {html_string}
+        """ 
+
 
     if request.GET.get("preview") == "1":
         return HttpResponse(html_string)
