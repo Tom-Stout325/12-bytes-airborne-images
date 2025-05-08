@@ -482,7 +482,7 @@ def invoice_review_pdf(request, pk):
     invoice = Invoice.objects.get(pk=pk)
     transactions = Transaction.objects.filter(
         invoice_numb=invoice.invoice_numb,
-        trans_type__name__iexact="Expense"
+        trans_type__trans_type__iexact="Expense"
     )
 
     context = {
