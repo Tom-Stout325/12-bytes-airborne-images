@@ -7,17 +7,18 @@
 {% block title %}Income Statement{% endblock %}
 
 {% block breadcrumbs %}
-<h3>Finance Portal</h3>
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"> <a href="{% url 'dashboard' %}"></a> Dashboard</li>
-    <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'category_page' %}"></a> Categories</li>
-    <li class="breadcrumb-item"><a href="{% url 'reports' %}">Financial Reports</a></li>
-  </ol>
-</nav>
+    <h3>Finance Portal</h3>
+    <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"> <a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'category_page' %}">Categories</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'reports' %}">Financial Reports</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Income Statement</li>
+    </ol>
+    </nav>
 {% endblock %}
 
 
