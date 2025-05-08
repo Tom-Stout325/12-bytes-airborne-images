@@ -6,7 +6,7 @@ from .models import *
 
 class TransForm(forms.ModelForm):
     keyword = forms.ModelChoiceField(
-        queryset=Keyword.objects.all(),
+        queryset=Keyword.objects.order_by('name'),
         label='Keyword',
         widget=forms.Select(attrs={'class': 'form-control'})
     )
@@ -20,6 +20,7 @@ class TransForm(forms.ModelForm):
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
+
 
 def clean_receipt(self):
     receipt = self.cleaned_data.get('receipt')

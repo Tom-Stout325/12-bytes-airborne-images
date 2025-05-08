@@ -39,10 +39,14 @@ class SubCategory(models.Model):
 # -------------------------------------------------------------------------------------------
 
 class Keyword(models.Model):
-    name            = models.CharField(max_length=500)
+    name = models.CharField(max_length=500)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         return self.name
+
 
 # -------------------------------------------------------------------------------------------
 

@@ -5,6 +5,10 @@
 {% block title %}Invoice #{{ invoice.invoice_numb }}{% endblock %}
 
 {% block content %}
+
+<div class="text-end mt-4">
+  <a href="{% url 'invoice_list' %}" class="btn btn-outline-primary">Back to Invoices</a>
+</div>
 <div class="container mt-5">
   <div class="card shadow-sm">
     <div class="card-header bg-primary text-white">
@@ -80,8 +84,5 @@
     </div>
   </div>
 
-  <div class="text-end mt-4">
-    <a href="{% url 'invoice_list' %}" class="btn btn-outline-primary">Back to Invoices</a>
-  </div>
 </div>
 {% endblock %}
