@@ -435,7 +435,7 @@ def export_invoices_pdf(request):
     response['Content-Disposition'] = 'attachment; filename="invoices.pdf"'
 
     with tempfile.NamedTemporaryFile(delete=True) as output:
-        HTML(string=html_string).write_pdf(output.name)
+        HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(output.name)
         output.seek(0)
         response.write(output.read())
 
@@ -474,33 +474,6 @@ def export_invoices_csv(request):
             invoice.paid_date or "No",
             invoice.days_to_pay if invoice.paid_date else "—"
         ])
-    return response
-
-def export_invoices_pdf(request):
-    sort = request.GET.get('sort', 'invoice_numb')
-    direction = request.GET.get('direction', 'desc')
-    ordering = f"-{sort}" if direction == "desc" else sort
-    search = request.GET.get('search', '')
-
-    invoices = Invoice.objects.order_by(ordering)
-    if search:
-        invoices = invoices.filter(
-            Q(invoice_numb__icontains=search) |
-            Q(client__business__icontains=search) |
-            Q(service__service__icontains=search)
-        )
-
-    template = get_template('finance/invoice_pdf_export.html')
-    html_string = template.render({'invoices': invoices})
-
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="invoices.pdf"'
-
-    with tempfile.NamedTemporaryFile(delete=True) as output:
-        HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(output.name)
-        output.seek(0)
-        response.write(output.read())
-
     return response
 
 
