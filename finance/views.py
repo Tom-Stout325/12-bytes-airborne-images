@@ -497,7 +497,7 @@ def invoice_review_pdf(request, pk):
         'now': now(),
     }
 
-    template = get_template('finance/invoice_pdf.html')
+    template = get_template('finance/invoice_review_pdf.html')
     html_string = template.render(context) 
 
     html_string = "<style>@page { size: 8.5in 11in; margin: 1in; }</style>" + html_string
