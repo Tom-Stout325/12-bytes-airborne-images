@@ -23,21 +23,17 @@
   <h2 class="text-center pb-3 text-primary">Invoices</h2>
   <hr class="w-50 mx-auto" />
 
-  <div class="row d-flex justify-content-between align-items-center mb-3">
+  <div class="row justify-content-center mb-4">
     <div class="col-lg-8">
-      <form
-        method="get"
-        class="d-flex flex-column flex-md-row align-items-center">
-        <h4 class="mb-2 mb-md-0 me-md-3 text-center text-md-start">
-          Find an Invoice
-        </h4>
-        <div class="input-group w-100">
+      <form method="get" class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
+        <h4 class="mb-2 mb-md-0 text-center text-md-start">Find an Invoice</h4>
+        <div class="input-group" style="max-width: 100%;">
           <input
             type="text"
             name="search"
             class="form-control"
             placeholder="Search by Invoice, Client, or Service"
-            value="{{ search_query }}"/>
+            value="{{ search_query }}">
           <button type="submit" class="btn btn-outline-secondary">
             <i class="fa-solid fa-magnifying-glass-dollar"></i>
           </button>
@@ -82,8 +78,8 @@
             </th>
           {% endfor %}
           <th>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="View, edit, delete, or email the invoice.">
-              Actions <i class="fa-solid fa-circle-info text-secondary ms-1"></i>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="View, edit, delete, or email this invoice.">
+              Actions <i class="fa-solid fa-circle-info text-secondary ms-1 p-5"></i>
             </span>
           </th>
         </tr>
