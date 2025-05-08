@@ -482,10 +482,9 @@ def invoice_review_pdf(request, pk):
     invoice = Invoice.objects.get(pk=pk)
     transactions = Transaction.objects.filter(
         invoice_numb=invoice.invoice_numb,
-        trans_type__name="Expense"
+        trans_type__name__iexact="Expense"
     )
 
-    
     context = {
         'invoice': invoice,
         'transactions': transactions,
@@ -499,7 +498,6 @@ def invoice_review_pdf(request, pk):
         <style>@page {{ size: 8.5in 11in; margin: 1in; }}</style>
         {html_string}
         """ 
-
 
     if request.GET.get("preview") == "1":
         return HttpResponse(html_string)
