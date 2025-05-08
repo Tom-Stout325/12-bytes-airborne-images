@@ -26,8 +26,11 @@
     <!-- Financial Statement -->
     <div class="col-sm-12 col-md-6 col-lg-4">
       <a href="{% url 'financial_statement' %}" class="text-decoration-none">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body text-center py-4" style="background-color: #f0f8ff; border-radius: .5rem;">
+        <div class="card h-100 border-0 shadow-sm custom-hover" style="background-color: #f0f8ff;">
+          <div class="card-body text-center py-4" style="border-radius: .5rem;">
+            <div class="mb-3">
+              <i class="fa-solid fa-chart-line fa-2x text-primary"></i>
+            </div>
             <h5 class="card-title text-primary fw-bold">Financial Statement</h5>
             <p class="card-text text-secondary small">
               View income, expenses, and net profit by sub-category.
@@ -40,8 +43,11 @@
     <!-- Category Summary -->
     <div class="col-sm-12 col-md-6 col-lg-4">
       <a href="{% url 'category_summary' %}" class="text-decoration-none">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body text-center py-4" style="background-color: #eaf6ea; border-radius: .5rem;">
+        <div class="card h-100 border-0 shadow-sm custom-hover" style="background-color: #eaf6ea;">
+          <div class="card-body text-center py-4" style="border-radius: .5rem;">
+            <div class="mb-3">
+              <i class="fa-solid fa-folder-tree fa-2x text-success"></i>
+            </div>
             <h5 class="card-title text-success fw-bold">Category Summary</h5>
             <p class="card-text text-secondary small">
               Summary of income and expenses by category and sub-category.
@@ -54,8 +60,11 @@
     <!-- Keyword Financial Summary -->
     <div class="col-sm-12 col-md-6 col-lg-4">
       <a href="{% url 'keyword_financial_summary' %}" class="text-decoration-none">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body text-center py-4" style="background-color: #fff5f5; border-radius: .5rem;">
+        <div class="card h-100 border-0 shadow-sm custom-hover" style="background-color: #fff5f5;">
+          <div class="card-body text-center py-4" style="border-radius: .5rem;">
+            <div class="mb-3">
+              <i class="fa-solid fa-tags fa-2x text-danger"></i>
+            </div>
             <h5 class="card-title text-danger fw-bold">Keyword Summary</h5>
             <p class="card-text text-secondary small">
               Compare keyword-based income and expenses across years.
@@ -70,13 +79,17 @@
 
 <style>
 .card {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.25s ease-in-out;
 }
 
 .card:hover {
   box-shadow: 0 0.75rem 1.25rem rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
-  border: 1px solid black;
+  border: 1px solid #ccc;
+}
+
+.custom-hover:hover {
+  background-color: #f8f9fa !important;
 }
 </style>
 {% endblock %}
