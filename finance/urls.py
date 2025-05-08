@@ -27,6 +27,7 @@ urlpatterns = [
   path('invoice/<int:invoice_id>/email/', send_invoice_email, name='send_invoice_email'),
   path('invoices/export/csv/', export_invoices_csv, name='export_invoices_csv'),
   path('invoices/export/pdf/', export_invoices_pdf, name='export_invoices_pdf'),
+  path('invoice/<int:pk>/pdf/', invoice_review_pdf, name='invoice_review_pdf'),
 
 
   path('tax-categories/', category_page, name='category_page'),

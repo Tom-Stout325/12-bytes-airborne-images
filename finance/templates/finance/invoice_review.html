@@ -8,6 +8,13 @@
 
 <div class="text-end mt-4">
   <a href="{% url 'invoice_list' %}" class="btn btn-outline-primary">Back to Invoices</a>
+  <a href="{% url 'invoice_pdf' invoice.pk %}?preview=1" target="_blank" class="btn btn-outline-secondary">
+    <i class="fa-solid fa-eye"></i> Preview PDF
+  </a>
+  <a href="{% url 'invoice_pdf' invoice.pk %}" class="btn btn-outline-danger">
+    <i class="fa-solid fa-file-pdf"></i> Download PDF
+  </a>
+  
 </div>
 <div class="container mt-5">
   <div class="card shadow-sm">

@@ -505,6 +505,32 @@ def export_invoices_pdf(request):
 
 
 
+def invoice_review_pdf(request, pk):
+    invoice = Invoice.objects.get(pk=pk)
+    transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb)
+    
+    context = {
+        'invoice': invoice,
+        'transactions': transactions,
+        'invoice_amount': invoice.amount,
+        'total_expenses': sum(t.amount for t in transactions),
+        'net_amount': invoice.amount - sum(t.amount for t in transactions),
+    }
+
+    template = get_template('finance/invoice_review_pdf.html')
+    html_string = template.render(context)
+
+    if request.GET.get("preview") == "1":
+        return HttpResponse(html_string)
+
+    with tempfile.NamedTemporaryFile(delete=True) as tmp:
+        HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(tmp.name)
+        tmp.seek(0)
+        return HttpResponse(tmp.read(), content_type='application/pdf', headers={
+            'Content-Disposition': f'attachment; filename="invoice_{invoice.invoice_numb}.pdf"'
+        })
+
+
 # Categories    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
@@ -561,14 +587,6 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
 
 # Sub-Categories  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-
-# class SubCategoryListView(LoginRequiredMixin, ListView):
-#     model = SubCategory
-#     template_name = "finance/sub_category_page.html"
-#     context_object_name = "sub_cat"
-
-#     def get_queryset(self):
-#         return SubCategory.objects.order_by('sub_cat')
 
 
 class SubCategoryCreateView(LoginRequiredMixin, CreateView):
