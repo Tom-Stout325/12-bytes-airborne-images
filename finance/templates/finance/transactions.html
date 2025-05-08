@@ -30,69 +30,71 @@
 <div class="container-fluid py-4">
   <div class="p-4 shadow-sm rounded bg-white dark-toggle-container">
     <h2 class="mb-0 text-center">Transactions</h2>
-    <div class="d-flex justify-content-between align-items-center mb-3"></div>
-
-    <!-- Download and Filter Controls -->
-    <div class="row g-3 align-items-end mb-4">
-      <!-- Filter Form -->
-      <div class="col-12 col-md-6 col-lg-7">
-        <form class="row g-2" action="{% url 'transactions' %}" method="get">
-          <div class="col-6 col-sm-4">
-            <label for="year" class="form-label fw-semibold">Year</label>
-            <select name="year" id="year" class="form-select">
-              <option value="">All</option>
-              {% for year in years %}
-                <option value="{{ year.year }}" {% if selected_year == year.year|stringformat:'s' %}selected{% endif %}>
-                  {{ year.year }}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="col-6 col-sm-4">
-            <label for="sub_cat" class="form-label fw-semibold">Sub-Category</label>
-            <select name="sub_cat" id="sub_cat" class="form-select">
-              <option value="">All</option>
-              {% for sub in sub_categories %}
-                <option value="{{ sub.id }}" {% if selected_sub_cat == sub.id|stringformat:'s' %}selected{% endif %}>
-                  {{ sub.sub_cat }}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-          
-          <div class="col-6 col-sm-4">
-            <label for="type" class="form-label fw-semibold">Type</label>
-            <select name="type" id="type" class="form-select">
-              <option value="">All</option>
-              <option value="Income" {% if selected_type == "Income" %}selected{% endif %}>Income</option>
-              <option value="Expense" {% if selected_type == "Expense" %}selected{% endif %}>Expense</option>
-            </select>
-          </div>
-    
-          <div class="col-12 col-sm-4 d-grid">
-            <label class="form-label invisible">Submit</label>
-            <button type="submit" class="btn btn-primary w-100">Filter</button>
-          </div>
-        </form>
-      </div>
-    
-      <!-- Add Transaction Button -->
-      <div class="col-12 col-md-3 col-lg-2 d-grid">
-        <a href="{% url 'add_transaction' %}" class="btn btn-outline-primary w-100">
+  
+    <!-- Filter Row -->
+    <div class="row justify-content-center align-items-end mb-4">
+      <form class="col-12 col-lg-10 d-flex flex-wrap gap-3 justify-content-center" action="{% url 'transactions' %}" method="get">
+        <div class="form-group">
+          <label for="year" class="form-label fw-semibold">Year</label>
+          <select name="year" id="year" class="form-select">
+            <option value="">All</option>
+            {% for year in years %}
+              <option value="{{ year.year }}" {% if selected_year == year.year|stringformat:'s' %}selected{% endif %}>
+                {{ year.year }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="sub_cat" class="form-label fw-semibold">Sub-Category</label>
+          <select name="sub_cat" id="sub_cat" class="form-select">
+            <option value="">All</option>
+            {% for sub in sub_categories %}
+              <option value="{{ sub.id }}" {% if selected_sub_cat == sub.id|stringformat:'s' %}selected{% endif %}>
+                {{ sub.sub_cat }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="type" class="form-label fw-semibold">Type</label>
+          <select name="type" id="type" class="form-select">
+            <option value="">All</option>
+            <option value="Income" {% if selected_type == "Income" %}selected{% endif %}>Income</option>
+            <option value="Expense" {% if selected_type == "Expense" %}selected{% endif %}>Expense</option>
+          </select>
+        </div>
+  
+        <div class="form-group d-grid align-self-end">
+          <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
+      </form>
+    </div>
+  
+    <!-- Button Row -->
+    <div class="row justify-content-center text-center mb-3">
+      <div class="col-12 col-md-auto mb-2 mb-md-0">
+        <a href="{% url 'add_transaction' %}" class="btn btn-outline-primary">
           <i class="fa-solid fa-plus"></i> Add Transaction
         </a>
       </div>
-    
-      <!-- Download Buttons -->
-      <div class="col-12 col-md-3 col-lg-3 d-grid gap-2">
-        <a href="{% url 'download_transactions' %}" class="btn btn-outline-success w-100">
+  
+      <div class="col-12 col-md-auto mb-2 mb-md-0">
+        <a href="{% url 'download_transactions' %}" class="btn btn-outline-success">
           <i class="fa-solid fa-circle-chevron-down"></i> Download All
         </a>
-        <a href="{% url 'download_transactions' %}?year={{ selected_year }}" class="btn btn-outline-info w-100">
+      </div>
+  
+      <div class="col-12 col-md-auto">
+        <a href="{% url 'download_transactions' %}?year={{ selected_year }}" class="btn btn-outline-info">
           <i class="fa-solid fa-chevron-down"></i> Download {{ selected_year|default:"Year" }}
         </a>
       </div>
     </div>
+  </div>
+  
     
 
     <!-- Desktop Table View -->
