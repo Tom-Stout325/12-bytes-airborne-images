@@ -44,11 +44,6 @@
         </div>
       </form>
     </div>
-    <div class="col-lg-4 text-center mt-3 mt-lg-0">
-      <a href="{% url 'create_invoice' %}" class="btn btn-info w-100">
-        <i class="fas fa-plus"></i> Create A New Invoice
-      </a>
-    </div>
   </div>
 
   <div class="col-12 text-center mb-3">
@@ -103,7 +98,7 @@
           <td>{{ invoice.due }}</td>
           <td>
             <span class="badge {% if invoice.paid_date %}bg-success{% else %}bg-danger{% endif %}">
-              {% if invoice.paid_date %}{{ invoice.paid_date|date:"Y-m-d" }}{% else %}No{% endif %}
+              {% if invoice.paid_date %}{{ invoice.paid_date|date:"m-d-y" }}{% else %}No{% endif %}
             </span>
           </td>
           
@@ -116,35 +111,30 @@
             <a
               href="{% url 'invoice_detail' invoice.pk %}"
               target="_blank"
-              class="text-decoration-none"
-              ><i class="fa-solid fa-eye text-primary"></i
-            ></a>
+              class="text-decoration-none"><i class="fa-solid fa-eye text-primary"></i>
+            </a>
             <a
               href="{% url 'update_invoice' invoice.pk %}"
-              class="text-decoration-none"
-              ><i class="fa-solid fa-pencil text-primary"></i
-            ></a>
+              class="text-decoration-none"><i class="fa-solid fa-pencil text-primary"></i>
+            </a>
             <a
               href="{% url 'invoice_review' invoice.pk %}"
-              class="text-decoration-none"
-              ><i class="fa-regular fa-file text-primary"></i
-            ></a>
+              class="text-decoration-none"><i class="fa-regular fa-file text-primary"></i>
+            </a>
             <a
               href="{% url 'invoice_delete' invoice.pk %}"
-              class="text-decoration-none"
-              ><i class="fa-solid fa-trash-can text-primary"></i
-            ></a>
+              class="text-decoration-none"><i class="fa-solid fa-trash-can text-primary"></i>
+            </a>
             <a
               href="#"
               class="send-email text-decoration-none"
-              data-invoice-id="{{ invoice.id }}"
-              ><i class="fa-regular fa-paper-plane text-primary"></i>
+              data-invoice-id="{{ invoice.id }}"><i class="fa-regular fa-paper-plane text-primary"></i>
               <span
                 class="spinner-border spinner-border-sm d-none"
                 role="status"
-                aria-hidden="true"
-              ></span
-            ></a>
+                aria-hidden="true">
+                </span>
+              </a>
           </td>
         </tr>
         {% empty %}
