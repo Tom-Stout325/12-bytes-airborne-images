@@ -3,8 +3,7 @@
 {% load l10n %}
 {% load humanize %}
 
-
-{% block title %} Transactions {% endblock %}
+{% block title %}Transactions{% endblock %}
 
 {% block breadcrumbs %}
 <h3>Finance Portal</h3>
@@ -20,21 +19,6 @@
 </nav>
 {% endblock %}
 
-<head>
-  <style>
-    .hover-shadow:hover {
-      box-shadow: 0 0.75rem 1.25rem rgba(0, 0, 0, 0.1);
-      transform: translateY(-2px);
-      transition: all 0.2s ease-in-out;
-      border: 1px solid black
-    }
-
-  .transition {
-    transition: all 0.2s ease-in-out;
-  }
-  </style>
-</head>
-
 {% block content %}
 <div class="container mt-5">
   <div class="row g-4 justify-content-center">
@@ -42,7 +26,7 @@
     <!-- Financial Statement -->
     <div class="col-sm-12 col-md-6 col-lg-4">
       <a href="{% url 'financial_statement' %}" class="text-decoration-none">
-        <div class="card h-100 border-0 shadow-sm hover-shadow transition">
+        <div class="card h-100 border-0 shadow-sm">
           <div class="card-body text-center py-4" style="background-color: #f0f8ff; border-radius: .5rem;">
             <h5 class="card-title text-primary fw-bold">Financial Statement</h5>
             <p class="card-text text-secondary small">
@@ -56,7 +40,7 @@
     <!-- Category Summary -->
     <div class="col-sm-12 col-md-6 col-lg-4">
       <a href="{% url 'category_summary' %}" class="text-decoration-none">
-        <div class="card h-100 border-0 shadow-sm hover-shadow transition">
+        <div class="card h-100 border-0 shadow-sm">
           <div class="card-body text-center py-4" style="background-color: #eaf6ea; border-radius: .5rem;">
             <h5 class="card-title text-success fw-bold">Category Summary</h5>
             <p class="card-text text-secondary small">
@@ -70,7 +54,7 @@
     <!-- Keyword Financial Summary -->
     <div class="col-sm-12 col-md-6 col-lg-4">
       <a href="{% url 'keyword_financial_summary' %}" class="text-decoration-none">
-        <div class="card h-100 border-0 shadow-sm hover-shadow transition">
+        <div class="card h-100 border-0 shadow-sm">
           <div class="card-body text-center py-4" style="background-color: #fff5f5; border-radius: .5rem;">
             <h5 class="card-title text-danger fw-bold">Keyword Summary</h5>
             <p class="card-text text-secondary small">
@@ -84,4 +68,15 @@
   </div>
 </div>
 
+<style>
+.card {
+  transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+  box-shadow: 0 0.75rem 1.25rem rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border: 1px solid black;
+}
+</style>
 {% endblock %}
