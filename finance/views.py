@@ -482,8 +482,9 @@ def invoice_review_pdf(request, pk):
     invoice = Invoice.objects.get(pk=pk)
     transactions = Transaction.objects.filter(
         invoice_numb=invoice.invoice_numb,
-        trans_type__name__iexact="Expense"
-    )
+        trans_type__trans_type__iexact="Expense"
+)
+
     total_expenses = sum(t.amount for t in transactions)
     net_amount = invoice.amount - total_expenses
 
@@ -497,9 +498,8 @@ def invoice_review_pdf(request, pk):
     }
 
     template = get_template('finance/invoice_pdf.html')
-    html_string = template.render(context)  # ✅ Define this before using it
+    html_string = template.render(context) 
 
-    # Optional: Inject @page rule in older WeasyPrint versions
     html_string = "<style>@page { size: 8.5in 11in; margin: 1in; }</style>" + html_string
 
     if request.GET.get("preview") == "1":
