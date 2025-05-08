@@ -482,22 +482,25 @@ def invoice_review_pdf(request, pk):
     invoice = Invoice.objects.get(pk=pk)
     transactions = Transaction.objects.filter(
         invoice_numb=invoice.invoice_numb,
-        trans_type__trans_type__iexact="Expense"
+        trans_type__name__iexact="Expense"
     )
+    total_expenses = sum(t.amount for t in transactions)
+    net_amount = invoice.amount - total_expenses
 
     context = {
         'invoice': invoice,
         'transactions': transactions,
         'invoice_amount': invoice.amount,
-        'total_expenses': sum(t.amount for t in transactions),
-        'net_amount': invoice.amount - sum(t.amount for t in transactions),
+        'total_expenses': total_expenses,
+        'net_amount': net_amount,
+        'now': now(),
     }
 
-    template = get_template('finance/invoice_review_pdf.html')
-    html_string = f"""
-        <style>@page {{ size: 8.5in 11in; margin: 1in; }}</style>
-        {html_string}
-        """ 
+    template = get_template('finance/invoice_pdf.html')
+    html_string = template.render(context)  # ✅ Define this before using it
+
+    # Optional: Inject @page rule in older WeasyPrint versions
+    html_string = "<style>@page { size: 8.5in 11in; margin: 1in; }</style>" + html_string
 
     if request.GET.get("preview") == "1":
         return HttpResponse(html_string)
@@ -508,6 +511,7 @@ def invoice_review_pdf(request, pk):
         return HttpResponse(tmp.read(), content_type='application/pdf', headers={
             'Content-Disposition': f'attachment; filename="invoice_{invoice.invoice_numb}.pdf"'
         })
+
 
 
 # Categories    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
