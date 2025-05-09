@@ -8,32 +8,38 @@
   <h2>Search Transactions</h2>
 
   <form method="get" class="row g-3 mb-4">
-    <div class="col-md-4">
-      <input type="text" name="keyword" class="form-control" placeholder="Search by keyword" value="{{ keyword }}">
-    </div>
+  <div class="col-md-4">
+    <select name="keyword" class="form-select">
+      <option value="">All Keywords</option>
+      {% for k in keyword_options %}
+        <option value="{{ k.id }}" {% if selected_keyword == k.id|stringformat:"s" %}selected{% endif %}>{{ k.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
 
-    <div class="col-md-4">
-      <select name="category" class="form-select">
-        <option value="">All Categories</option>
-        {% for cat in categories %}
-          <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat }}</option>
-        {% endfor %}
-      </select>
-    </div>
+  <div class="col-md-4">
+    <select name="category" class="form-select">
+      <option value="">All Categories</option>
+      {% for cat in categories %}
+        <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat }}</option>
+      {% endfor %}
+    </select>
+  </div>
 
-    <div class="col-md-4">
-      <select name="sub_cat" class="form-select">
-        <option value="">All Sub-Categories</option>
-        {% for sub in sub_categories %}
-          <option value="{{ sub.id }}" {% if selected_sub_cat == sub.id|stringformat:"s" %}selected{% endif %}>{{ sub }}</option>
-        {% endfor %}
-      </select>
-    </div>
+  <div class="col-md-4">
+    <select name="sub_cat" class="form-select">
+      <option value="">All Sub-Categories</option>
+      {% for sub in sub_categories %}
+        <option value="{{ sub.id }}" {% if selected_sub_cat == sub.id|stringformat:"s" %}selected{% endif %}>{{ sub }}</option>
+      {% endfor %}
+    </select>
+  </div>
 
-    <div class="col-12">
-      <button type="submit" class="btn btn-primary">Search</button>
-    </div>
-  </form>
+  <div class="col-12">
+    <button type="submit" class="btn btn-primary">Search</button>
+  </div>
+</form>
+
 
   {% if transactions %}
     <table class="table table-bordered table-hover">
