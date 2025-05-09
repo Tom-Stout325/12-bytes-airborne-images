@@ -15,7 +15,7 @@ urlpatterns = [
   path('transaction/edit/<int:transaction_id>/', edit_transaction, name='edit_transaction'),
   path('download_transactions/', download_transactions, name='download_transactions'),
   path('transactions/<int:pk>/delete/', transaction_delete, name='transaction_delete'),
-  path('transactions_search/', transactions_search, name='transactions_search'),
+  path('transactions_search/', transaction_search, name='transactions_search'),
   
   path('invoices/<int:pk>/delete/', invoice_delete, name='invoice_delete'),
   path('invoices/', InvoiceListView.as_view(), name='invoice_list'),
