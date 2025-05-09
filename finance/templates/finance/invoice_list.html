@@ -99,4 +99,59 @@
         {% endfor %}
       </tbody>
     </table>
-  </
+  </div>
+
+  <div class="d-flex justify-content-center mt-3">
+    <nav>
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">« First</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">Previous</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">Next</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">Last »</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+      new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $(".send-email").click(function (e) {
+      e.preventDefault();
+      const invoiceId = $(this).data("invoice-id");
+      const $link = $(this);
+      const $spinner = $link.find(".spinner-border");
+      if (confirm("Are you sure you want to email this invoice?")) {
+        $spinner.removeClass("d-none");
+        $.ajax({
+          url: `/invoice/${invoiceId}/email/`,
+          type: "POST",
+          data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
+          success: function () {
+            $spinner.addClass("d-none");
+            alert("Invoice emailed successfully!");
+          },
+          error: function (_, __, error) {
+            $spinner.addClass("d-none");
+            alert("Failed to send email: " + error);
+          },
+        });
+      }
+    });
+  });
+</script>
+{% endblock %}
