@@ -6,7 +6,7 @@ from .models import *
 
     
 class TransactionAdmin(admin.ModelAdmin):
-    list_display    = ['date', 'sub_cat', 'amount', 'invoice_numb']
+    list_display    = ['date', 'sub_cat', 'keyword', 'amount', 'invoice_numb']
 
 
 class GroupAdmin(admin.ModelAdmin):
