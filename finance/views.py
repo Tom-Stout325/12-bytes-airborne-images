@@ -104,6 +104,7 @@ class Dashboard(LoginRequiredMixin, ListView):
 
         return context
 
+
 @login_required
 def transaction_search(request):
     keywords = request.GET.get('keyword', '')
@@ -134,6 +135,7 @@ def transaction_search(request):
     }
 
     return render(request, 'finance/transaction_search.html', context)
+
 
 # Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -176,7 +178,6 @@ class Transactions(LoginRequiredMixin, ListView):
             'selected_sub_cat': self.request.GET.get('sub_cat', '')
         })
         return context
-
 
 
 @login_required
@@ -269,7 +270,6 @@ def edit_transaction(request, transaction_id):
     return render(request, 'finance/transaction_edit.html', {'transaction': transaction, 'form': form})
 
 
-
 @login_required
 def transaction_delete(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk)
@@ -278,7 +278,6 @@ def transaction_delete(request, pk):
         messages.success(request, "Transaction was deleted.")
         return redirect('transactions')
     return render(request, 'finance/transaction_confirm_delete.html', {'item': transaction})
-
 
 
 @login_required
@@ -378,7 +377,6 @@ def create_invoice_success(request):
     return render(request, 'finance/invoice_add_success.html')
 
 
-
 class InvoiceListView(LoginRequiredMixin, ListView):
     model = Invoice
     template_name = "finance/invoices.html"
@@ -419,8 +417,6 @@ class InvoiceListView(LoginRequiredMixin, ListView):
             ("days_to_pay", "Days to Pay"),
         ]
         return context
-
-
 
 
 class InvoiceDetailView(LoginRequiredMixin, DetailView):
@@ -501,7 +497,6 @@ def export_invoices_pdf(request):
         HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(output.name)
         output.seek(0)
         response.write(output.read())
-
     return response
 
 
@@ -577,8 +572,8 @@ def invoice_review_pdf(request, pk):
         })
 
 
-
 # Categories    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 
 @login_required
 def category_page(request):
@@ -592,7 +587,6 @@ def category_page(request):
     return render(request, 'finance/category_page.html', context)
 
 
-
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = Category 
     form_class = CategoryForm
@@ -602,7 +596,6 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         messages.success(self.request, "Category added successfully!")
         return super().form_valid(form)
-
 
 
 class CategoryUpdateView(LoginRequiredMixin, UpdateView):
@@ -616,7 +609,6 @@ class CategoryUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-
 class CategoryDeleteView(LoginRequiredMixin, DeleteView):
     model = Category
     template_name = "components/category_confirm_delete.html"
@@ -628,7 +620,6 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
 
 
 # Sub-Categories  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
 
 
 class SubCategoryCreateView(LoginRequiredMixin, CreateView):
@@ -674,7 +665,6 @@ class ClientListView(LoginRequiredMixin, ListView):
     ordering = ['business']
 
 
-
 class ClientCreateView(LoginRequiredMixin, CreateView):
     model = Client
     form_class = ClientForm
@@ -686,7 +676,6 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-
 class ClientUpdateView(LoginRequiredMixin, UpdateView):
     model = Client
     form_class = ClientForm
@@ -696,7 +685,6 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, "Client updated successfully!")
         return super().form_valid(form)
-
 
 
 class ClientDeleteView(LoginRequiredMixin, DeleteView):
@@ -743,6 +731,7 @@ def get_summary_data(transactions, year):
         'net_profit': net_profit
     }
 
+
 @login_required
 def financial_statement(request):
     current_year = timezone.now().year
@@ -767,7 +756,6 @@ def financial_statement(request):
     })
 
 
-
 @login_required
 def print_category_summary(request):
     year = request.GET.get('year')
@@ -778,7 +766,6 @@ def print_category_summary(request):
     )
     context = get_summary_data(transactions, year)
     return render(request, 'finance/category_summary_print.html', context)
-
 
 
 @login_required
@@ -796,7 +783,6 @@ def category_summary(request):
         .distinct()
     )
     return render(request, 'finance/category_summary.html', context)
-
 
 
 @login_required
@@ -836,8 +822,6 @@ def keyword_financial_summary(request):
 def reports_page(request):
     return render(request, 'finance/reports.html')
 
-
-
 # Emails =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
@@ -866,16 +850,12 @@ def send_invoice_email(request, invoice_id):
 
     from_email = "tom@tom-stout.com"
     recipient = [invoice.client.email or settings.DEFAULT_EMAIL]
-
-
     email = EmailMessage(subject, body, from_email, recipient)
     email.content_subtype = 'html'
     email.attach(f"Invoice_{invoice.invoice_numb}.pdf", pdf_file, "application/pdf")
     email.send()
 
     return render(request, 'finance/email_sent.html')
-
-
 
 # Mileage =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -907,60 +887,8 @@ def mileage_list(request):
 
 @login_required
 def mileage_log(request):
-    context = get_mileage_context()
+    context = get_mileage_context(request)
     return render(request, 'finance/mileage_log.html', context)
-
-
-
-# @login_required
-# def mileage_list(request):
-#     try:
-#         mileage_rate = MileageRate.objects.get(id=1).rate
-#     except MileageRate.DoesNotExist:
-#         mileage_rate = 0.70
-
-#     current_year = datetime.now().year
-#     mileage_entries = Miles.objects.filter(date__year=current_year)
-
-#     taxable_miles = mileage_entries.filter(mileage_type='Taxable')
-#     total_miles = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
-
-#     taxable_miles_total = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
-#     taxable_dollars = taxable_miles_total * mileage_rate
-
-#     return render(request, 'finance/dashboard.html', {
-#         'mileage_list': mileage_entries,
-#         'total_miles': total_miles,
-#         'taxable_dollars': taxable_dollars,
-#         'current_year': current_year,
-#         'mileage_rate': mileage_rate,
-#     })
-
-
-# @login_required
-# def mileage_log(request):
-#     try:
-#         mileage_rate = MileageRate.objects.get(id=1).rate
-#     except MileageRate.DoesNotExist:
-#         mileage_rate = 0.70
-
-#     current_year = datetime.now().year
-#     mileage_entries = Miles.objects.filter(date__year=current_year)
-
-#     taxable_miles = mileage_entries.filter(mileage_type='Taxable')
-#     total_miles = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
-
-#     taxable_miles_total = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
-#     taxable_dollars = taxable_miles_total * mileage_rate
-
-#     return render(request, 'finance/mileage_log.html', {
-#         'mileage_list': mileage_entries,
-#         'total_miles': total_miles,
-#         'taxable_dollars': taxable_dollars,
-#         'current_year': current_year,
-#         'mileage_rate': mileage_rate,
-#     })
-
 
 
 class MileageCreateView(LoginRequiredMixin, CreateView):
@@ -970,7 +898,6 @@ class MileageCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('dashboard')
 
 
-
 class MileageUpdateView(LoginRequiredMixin, UpdateView):
     model = Miles
     form_class = MileageForm
@@ -978,14 +905,11 @@ class MileageUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('dashboard')
 
 
-
 class MileageDeleteView(LoginRequiredMixin, DeleteView):
     model = Miles
     template_name = 'finance/mileage_confirm_delete.html'
     success_url = reverse_lazy('dashboard')
     
-
-
 
 def add_mileage(request):
     if request.method == "POST":
