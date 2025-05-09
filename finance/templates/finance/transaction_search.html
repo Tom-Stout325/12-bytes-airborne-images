@@ -60,9 +60,9 @@
             <td>{{ tx.category }}</td>
             <td>{{ tx.sub_cat }}</td>
             <td>
-              <a href="{% url 'transaction_detail_page' tx.pk %}" class="btn btn-sm btn-info">View</a>
+              <a href="{% url 'transaction_detail' tx.pk %}" class="btn btn-sm btn-info">View</a>
               <a href="{% url 'edit_transaction' tx.pk %}" class="btn btn-sm btn-warning">Edit</a>
-              <a href="{% url 'transaction_delete' tx.pk %}" class="btn btn-sm btn-danger">Delete</a>
+              <a href="{% url 'delete_transaction' tx.pk %}" class="btn btn-sm btn-danger">Delete</a>
             </td>
           </tr>
         {% endfor %}
