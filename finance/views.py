@@ -859,7 +859,7 @@ def send_invoice_email(request, invoice_id):
 
 # Mileage =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-@login_required
+
 def get_mileage_context():
     try:
         rate = MileageRate.objects.get(id=1).rate
@@ -877,6 +877,7 @@ def get_mileage_context():
         'current_year': year,
         'mileage_rate': rate,
     }
+
 
 
 @login_required
