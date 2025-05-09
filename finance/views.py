@@ -104,6 +104,36 @@ class Dashboard(LoginRequiredMixin, ListView):
 
         return context
 
+@login_required
+def transaction_search(request):
+    keywords = request.GET.get('keyword', '')
+    category_id = request.GET.get('category', '')
+    sub_cat_id = request.GET.get('sub_cat', '')
+
+    queryset = Transaction.objects.select_related('trans_type', 'category', 'sub_cat').all()
+
+    if keywords:
+        queryset = queryset.filter(keyword__name__icontains=keywords)
+
+    if category_id:
+        queryset = queryset.filter(category__id=category_id)
+
+    if sub_cat_id:
+        queryset = queryset.filter(sub_cat__id=sub_cat_id)
+
+    categories = Category.objects.order_by('category')
+    sub_categories = SubCategory.objects.order_by('sub_cat')
+
+    context = {
+        'transactions': queryset,
+        'categories': categories,
+        'sub_categories': sub_categories,
+        'keyword': keywords,
+        'selected_category': category_id,
+        'selected_sub_cat': sub_cat_id,
+    }
+
+    return render(request, 'finance/transaction_search.html', context)
 
 # Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

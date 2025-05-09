@@ -1,0 +1,71 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block title %}Search Transactions{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Search Transactions</h2>
+
+  <form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <input type="text" name="keyword" class="form-control" placeholder="Search by keyword" value="{{ keyword }}">
+    </div>
+    <div class="col-md-4">
+      <select name="category" class="form-select">
+        <option value="">All Categories</option>
+        {% for cat in categories %}
+          <option value="{{ cat.id }}" {% ifselected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <select name="sub_cat" class="form-select">
+        <option value="">All Sub-Categories</option>
+        {% for sub in sub_categories %}
+          <option value="{{ sub.id }}" {% ifselected_sub_cat == sub.id|stringformat:"s" %}selected{% endif %}>{{ sub }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+  </form>
+
+  {% if transactions %}
+    <table class="table table-bordered table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Amount</th>
+          <th>Type</th>
+          <th>Keyword</th>
+          <th>Category</th>
+          <th>Sub-Category</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tx in transactions %}
+          <tr>
+            <td>{{ tx.date }}</td>
+            <td>{{ tx.transaction }}</td>
+            <td>${{ tx.amount|floatformat:2 }}</td>
+            <td>{{ tx.trans_type }}</td>
+            <td>{{ tx.keyword }}</td>
+            <td>{{ tx.category }}</td>
+            <td>{{ tx.sub_cat }}</td>
+            <td>
+              <a href="{% url 'transaction_detail_page' tx.pk %}" class="btn btn-sm btn-info">View</a>
+              <a href="{% url 'edit_transaction' tx.pk %}" class="btn btn-sm btn-warning">Edit</a>
+              <a href="{% url 'transaction_delete' tx.pk %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-muted">No transactions found for the selected filters.</p>
+  {% endif %}
+</div>
+{% endblock %}
