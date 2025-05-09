@@ -860,14 +860,14 @@ def send_invoice_email(request, invoice_id):
 # Mileage =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
-def get_mileage_context():
+def get_mileage_context(request):
     try:
         rate = MileageRate.objects.get(id=1).rate
     except MileageRate.DoesNotExist:
         rate = 0.70
 
     year = datetime.now().year
-    entries = Miles.objects.filter(date__year=year)
+    entries = Miles.objects.filter(user=request.user, date__year=year)
     taxable = entries.filter(mileage_type='Taxable')
     total_miles = taxable.aggregate(Sum('total'))['total__sum'] or 0
     return {
