@@ -137,7 +137,7 @@ def transaction_search(request):
 
 # Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-@login_required
+
 class Transactions(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "finance/transactions.html"
@@ -351,7 +351,7 @@ def create_invoice_success(request):
     return render(request, 'finance/invoice_add_success.html')
 
 
-@login_required
+
 class InvoiceListView(LoginRequiredMixin, ListView):
     model = Invoice
     template_name = "finance/invoices.html"
@@ -395,7 +395,7 @@ class InvoiceListView(LoginRequiredMixin, ListView):
 
 
 
-@login_required
+
 class InvoiceDetailView(LoginRequiredMixin, DetailView):
     model = Invoice
     template_name = 'finance/invoice_detail.html'
@@ -565,7 +565,7 @@ def category_page(request):
     return render(request, 'finance/category_page.html', context)
 
 
-@login_required
+
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = Category 
     form_class = CategoryForm
@@ -577,7 +577,7 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-@login_required
+
 class CategoryUpdateView(LoginRequiredMixin, UpdateView):
     model = Category
     form_class = CategoryForm
@@ -589,7 +589,7 @@ class CategoryUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-@login_required
+
 class CategoryDeleteView(LoginRequiredMixin, DeleteView):
     model = Category
     template_name = "components/category_confirm_delete.html"
@@ -603,7 +603,7 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
 # Sub-Categories  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
-@login_required
+
 class SubCategoryCreateView(LoginRequiredMixin, CreateView):
     model = SubCategory
     form_class = SubCategoryForm
@@ -614,7 +614,7 @@ class SubCategoryCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, "Sub-Category added successfully!")
         return super().form_valid(form)
 
-@login_required
+
 class SubCategoryUpdateView(LoginRequiredMixin, UpdateView):
     model = SubCategory
     form_class = SubCategoryForm
@@ -627,7 +627,6 @@ class SubCategoryUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-@login_required
 class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
     model = SubCategory
     template_name = "components/sub_category_confirm_delete.html"
@@ -640,7 +639,7 @@ class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
 
 # Clients   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-@login_required
+
 class ClientListView(LoginRequiredMixin, ListView):
     model = Client
     template_name = "components/client_list.html"
@@ -648,7 +647,7 @@ class ClientListView(LoginRequiredMixin, ListView):
     ordering = ['business']
 
 
-@login_required
+
 class ClientCreateView(LoginRequiredMixin, CreateView):
     model = Client
     form_class = ClientForm
@@ -660,7 +659,7 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-@login_required
+
 class ClientUpdateView(LoginRequiredMixin, UpdateView):
     model = Client
     form_class = ClientForm
@@ -672,7 +671,7 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-@login_required
+
 class ClientDeleteView(LoginRequiredMixin, DeleteView):
     model = Client
     template_name = "components/client_confirm_delete.html"
@@ -936,7 +935,7 @@ def mileage_log(request):
 #     })
 
 
-@login_required
+
 class MileageCreateView(LoginRequiredMixin, CreateView):
     model = Miles
     form_class = MileageForm
@@ -944,7 +943,7 @@ class MileageCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('dashboard')
 
 
-@login_required
+
 class MileageUpdateView(LoginRequiredMixin, UpdateView):
     model = Miles
     form_class = MileageForm
@@ -952,7 +951,7 @@ class MileageUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('dashboard')
 
 
-@login_required
+
 class MileageDeleteView(LoginRequiredMixin, DeleteView):
     model = Miles
     template_name = 'finance/mileage_confirm_delete.html'
@@ -960,7 +959,7 @@ class MileageDeleteView(LoginRequiredMixin, DeleteView):
     
 
 
-@login_required
+
 def add_mileage(request):
     if request.method == "POST":
         form = MileageForm(request.POST)
