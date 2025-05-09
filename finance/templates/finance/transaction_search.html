@@ -9,11 +9,11 @@
   <ol class="breadcrumb flex-wrap">
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
     <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Search Transactions</li>
     <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
     <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
     <li class="breadcrumb-item"><a href="{% url 'category_page' %}">Categories</a></li>
     <li class="breadcrumb-item"><a href="{% url 'reports' %}">Financial Reports</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Search Transactions</li>
   </ol>
 </nav>
 {% endblock %}
@@ -22,55 +22,97 @@
 <div class="container mt-4">
   <h2 class="mb-3">Search Transactions</h2>
 
-  <form method="get" class="row g-3 mb-4">
-    <div class="col-md-4">
-      <select name="keyword" class="form-select">
-        <option value="">All Keywords</option>
-        {% for k in keyword_options %}
-          <option value="{{ k.id }}" {% if selected_keyword == k.id|stringformat:"s" %}selected{% endif %}>{{ k.name }}</option>
-        {% endfor %}
-      </select>
+  <form method="get" class="mb-4">
+    <div class="accordion" id="filterAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="filtersHeading">
+          <button class="accordion-button {% if not selected_keyword and not selected_category and not selected_sub_cat and not selected_year %}collapsed{% endif %}"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#filtersCollapse"
+                  aria-expanded="{% if selected_keyword or selected_category or selected_sub_cat or selected_year %}true{% else %}false{% endif %}"
+                  aria-controls="filtersCollapse">
+            <i class="fas fa-filter me-2"></i> Filter Transactions
+          </button>
+        </h2>
+        <div id="filtersCollapse"
+             class="accordion-collapse collapse {% if selected_keyword or selected_category or selected_sub_cat or selected_year %}show{% endif %}"
+             aria-labelledby="filtersHeading"
+             data-bs-parent="#filterAccordion">
+          <div class="accordion-body">
+            <div class="row g-3">
+              <div class="col-md-6 col-lg-3">
+                <label class="form-label">Keyword</label>
+                <select name="keyword" class="form-select">
+                  <option value="">All Keywords</option>
+                  {% for k in keyword_options %}
+                    <option value="{{ k.id }}" {% if selected_keyword == k.id|stringformat:"s" %}selected{% endif %}>{{ k.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-md-6 col-lg-3">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-select">
+                  <option value="">All Categories</option>
+                  {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-md-6 col-lg-3">
+                <label class="form-label">Sub-Category</label>
+                <select name="sub_cat" class="form-select">
+                  <option value="">All Sub-Categories</option>
+                  {% for sub in sub_categories %}
+                    <option value="{{ sub.id }}" {% if selected_sub_cat == sub.id|stringformat:"s" %}selected{% endif %}>{{ sub }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-md-6 col-lg-3">
+                <label class="form-label">Year</label>
+                <select name="year" class="form-select">
+                  <option value="">All Years</option>
+                  {% for y in years %}
+                    <option value="{{ y }}" {% if selected_year == y|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="col-md-4">
-      <select name="category" class="form-select">
-        <option value="">All Categories</option>
-        {% for cat in categories %}
-          <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <div class="col-md-4">
-      <select name="sub_cat" class="form-select">
-        <option value="">All Sub-Categories</option>
-        {% for sub in sub_categories %}
-          <option value="{{ sub.id }}" {% if selected_sub_cat == sub.id|stringformat:"s" %}selected{% endif %}>{{ sub }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <div class="col-12 text-end">
+    <div class="d-flex justify-content-end gap-2 mt-3">
+      <a href="{% url 'transaction_search' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-times-circle me-1"></i> Clear Filters
+      </a>
       <button type="submit" class="btn btn-primary">
         <i class="fas fa-search me-1"></i> Search
       </button>
     </div>
   </form>
 
-  <!-- Display selected filters -->
+  {% if selected_keyword or selected_category or selected_sub_cat or selected_year %}
     <div class="mb-3">
-    <strong>Filters Applied:</strong>
-    {% if selected_keyword %}
+      <strong>Filters Applied:</strong>
+      {% if selected_keyword %}
         | Keyword: {% for k in keyword_options %}{% if k.id|stringformat:"s" == selected_keyword %}{{ k.name }}{% endif %}{% endfor %}
-    {% endif %}
-    {% if selected_category %}
+      {% endif %}
+      {% if selected_category %}
         | Category: {% for cat in categories %}{% if cat.id|stringformat:"s" == selected_category %}{{ cat }}{% endif %}{% endfor %}
-    {% endif %}
-    {% if selected_sub_cat %}
+      {% endif %}
+      {% if selected_sub_cat %}
         | Sub-Category: {% for sub in sub_categories %}{% if sub.id|stringformat:"s" == selected_sub_cat %}{{ sub }}{% endif %}{% endfor %}
-    {% endif %}
+      {% endif %}
+      {% if selected_year %}
+        | Year: {{ selected_year }}
+      {% endif %}
     </div>
-
+  {% endif %}
 
   {% if transactions %}
     <div class="table-responsive">

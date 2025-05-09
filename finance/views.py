@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
 from django.http import JsonResponse, HttpResponse
+from django.db.models.functions import ExtractYear
 from django.template.loader import get_template
 from django.urls import reverse_lazy, reverse
 from django.core.mail import EmailMessage
@@ -26,7 +27,6 @@ from .models import *
 from .forms import *
 
 logger = logging.getLogger(__name__)
-
 
 
 class Dashboard(LoginRequiredMixin, ListView):
@@ -280,32 +280,53 @@ def transaction_delete(request, pk):
     return render(request, 'finance/transaction_confirm_delete.html', {'item': transaction})
 
 
+
 @login_required
 def transaction_search(request):
     keywords = request.GET.get('keyword', '')
     category_id = request.GET.get('category', '')
     sub_cat_id = request.GET.get('sub_cat', '')
+    year = request.GET.get('year', '')
 
-    queryset = Transaction.objects.select_related('trans_type', 'category', 'sub_cat', 'keyword').all()
+    queryset = Transaction.objects.select_related('trans_type', 'category', 'sub_cat', 'keyword')
 
     if keywords:
         queryset = queryset.filter(keyword__id=keywords)
 
+    if category_id:
+        queryset = queryset.filter(category__id=category_id)
+
+    if sub_cat_id:
+        queryset = queryset.filter(sub_cat__id=sub_cat_id)
+
+    if year:
+        queryset = queryset.filter(date__year=year)
+
     categories = Category.objects.order_by('category')
     sub_categories = SubCategory.objects.order_by('sub_cat')
     keyword_options = Keyword.objects.all()
+
+    # Dynamically generate a list of distinct years from transaction dates
+    years = (
+        Transaction.objects.dates('date', 'year', order='DESC')
+        .distinct()
+        .values_list('year', flat=True)
+    )
 
     context = {
         'transactions': queryset,
         'categories': categories,
         'sub_categories': sub_categories,
         'keyword_options': keyword_options,
+        'years': years,
         'selected_keyword': keywords,
         'selected_category': category_id,
         'selected_sub_cat': sub_cat_id,
+        'selected_year': year,
     }
 
     return render(request, 'finance/transaction_search.html', context)
+
 
 
 
