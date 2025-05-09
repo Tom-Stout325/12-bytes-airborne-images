@@ -58,14 +58,19 @@
   </form>
 
   <!-- Display selected filters -->
-  {% if selected_keyword or selected_category or selected_sub_cat %}
     <div class="mb-3">
-      <strong>Filters Applied:</strong>
-      {% if selected_keyword %} Keyword: {{ keyword_options|get_selected:selected_keyword }} {% endif %}
-      {% if selected_category %} | Category: {{ categories|get_selected:selected_category }} {% endif %}
-      {% if selected_sub_cat %} | Sub-Category: {{ sub_categories|get_selected:selected_sub_cat }} {% endif %}
+    <strong>Filters Applied:</strong>
+    {% if selected_keyword %}
+        | Keyword: {% for k in keyword_options %}{% if k.id|stringformat:"s" == selected_keyword %}{{ k.name }}{% endif %}{% endfor %}
+    {% endif %}
+    {% if selected_category %}
+        | Category: {% for cat in categories %}{% if cat.id|stringformat:"s" == selected_category %}{{ cat }}{% endif %}{% endfor %}
+    {% endif %}
+    {% if selected_sub_cat %}
+        | Sub-Category: {% for sub in sub_categories %}{% if sub.id|stringformat:"s" == selected_sub_cat %}{{ sub }}{% endif %}{% endfor %}
+    {% endif %}
     </div>
-  {% endif %}
+
 
   {% if transactions %}
     <div class="table-responsive">
