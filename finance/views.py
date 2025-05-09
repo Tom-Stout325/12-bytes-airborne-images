@@ -28,7 +28,7 @@ from .forms import *
 logger = logging.getLogger(__name__)
 
 
-@login_required
+
 class Dashboard(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "finance/dashboard.html"
