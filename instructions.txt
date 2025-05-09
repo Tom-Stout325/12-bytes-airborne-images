@@ -1,3 +1,18 @@
+cache heavy views:
+
+from django.views.decorators.cache import cache_page
+
+@cache_page(60 * 15)  # Cache for 15 minutes
+@login_required
+def category_summary(request):
+    ...
+
+
+
+
+
+
+
 Add flight statistics to drones in Drone Detail
 
 
@@ -9,7 +24,7 @@ Replace the following images:
     logo.png
 
 
-In needed:  Setup a new venv
+If needed:  Setup a new venv
             Install Requirements
 Run:
     python3 -m venv venv

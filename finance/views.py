@@ -13,7 +13,6 @@ from django.contrib import messages
 from django.db.models import Sum, Q
 from django.utils import timezone
 from django.conf import settings
-from django.db.models import Q
 from datetime import datetime
 from weasyprint import HTML
 from pathlib import Path
@@ -28,6 +27,8 @@ from .forms import *
 
 logger = logging.getLogger(__name__)
 
+
+@login_required
 class Dashboard(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "finance/dashboard.html"
@@ -106,7 +107,7 @@ class Dashboard(LoginRequiredMixin, ListView):
 
 # Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-
+@login_required
 class Transactions(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "finance/transactions.html"
@@ -320,7 +321,7 @@ def create_invoice_success(request):
     return render(request, 'finance/invoice_add_success.html')
 
 
-
+@login_required
 class InvoiceListView(LoginRequiredMixin, ListView):
     model = Invoice
     template_name = "finance/invoices.html"
@@ -364,7 +365,7 @@ class InvoiceListView(LoginRequiredMixin, ListView):
 
 
 
-
+@login_required
 class InvoiceDetailView(LoginRequiredMixin, DetailView):
     model = Invoice
     template_name = 'finance/invoice_detail.html'
@@ -372,7 +373,11 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        logo_path = os.path.join(settings.STATIC_ROOT or settings.STATICFILES_DIRS[0], 'images', 'logo2.png')
+
+        logo_path = next((os.path.join(path, 'images/logo2.png')
+        for path in (settings.STATICFILES_DIRS if hasattr(settings, 'STATICFILES_DIRS') else [])
+        if os.path.exists(os.path.join(path, 'images/logo2.png'))), None)
+
         if not os.path.exists(logo_path):
             context['logo_path'] = None
         else:
@@ -414,6 +419,7 @@ def invoice_delete(request, pk):
     return render(request, 'finance/invoice_confirm_delete.html', {'item': invoice})
 
 
+@login_required
 def export_invoices_pdf(request):
     sort = request.GET.get('sort', 'invoice_numb')
     direction = request.GET.get('direction', 'desc')
@@ -442,6 +448,7 @@ def export_invoices_pdf(request):
     return response
 
 
+@login_required
 def export_invoices_csv(request):
     sort = request.GET.get('sort', 'invoice_numb')
     direction = request.GET.get('direction', 'desc')
@@ -477,7 +484,7 @@ def export_invoices_csv(request):
     return response
 
 
-
+@login_required
 def invoice_review_pdf(request, pk):
     invoice = Invoice.objects.get(pk=pk)
     transactions = Transaction.objects.filter(
@@ -516,7 +523,7 @@ def invoice_review_pdf(request, pk):
 
 # Categories    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-
+@login_required
 def category_page(request):
     category = Category.objects.order_by('category')        
     sub_cat = SubCategory.objects.order_by('sub_cat')   
@@ -528,14 +535,7 @@ def category_page(request):
     return render(request, 'finance/category_page.html', context)
 
 
-
-# class CategoryListView(LoginRequiredMixin, ListView):
-#     model = Category
-#     template_name = "components/category_page.html"
-#     context_object_name = "categories"
-#     ordering = ['category']
-
-
+@login_required
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = Category 
     form_class = CategoryForm
@@ -547,6 +547,7 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+@login_required
 class CategoryUpdateView(LoginRequiredMixin, UpdateView):
     model = Category
     form_class = CategoryForm
@@ -558,6 +559,7 @@ class CategoryUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
+@login_required
 class CategoryDeleteView(LoginRequiredMixin, DeleteView):
     model = Category
     template_name = "components/category_confirm_delete.html"
@@ -571,7 +573,7 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
 # Sub-Categories  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
-
+@login_required
 class SubCategoryCreateView(LoginRequiredMixin, CreateView):
     model = SubCategory
     form_class = SubCategoryForm
@@ -582,7 +584,7 @@ class SubCategoryCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, "Sub-Category added successfully!")
         return super().form_valid(form)
 
-
+@login_required
 class SubCategoryUpdateView(LoginRequiredMixin, UpdateView):
     model = SubCategory
     form_class = SubCategoryForm
@@ -595,6 +597,7 @@ class SubCategoryUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
+@login_required
 class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
     model = SubCategory
     template_name = "components/sub_category_confirm_delete.html"
@@ -607,6 +610,7 @@ class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
 
 # Clients   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+@login_required
 class ClientListView(LoginRequiredMixin, ListView):
     model = Client
     template_name = "components/client_list.html"
@@ -614,6 +618,7 @@ class ClientListView(LoginRequiredMixin, ListView):
     ordering = ['business']
 
 
+@login_required
 class ClientCreateView(LoginRequiredMixin, CreateView):
     model = Client
     form_class = ClientForm
@@ -625,6 +630,7 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+@login_required
 class ClientUpdateView(LoginRequiredMixin, UpdateView):
     model = Client
     form_class = ClientForm
@@ -636,6 +642,7 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
+@login_required
 class ClientDeleteView(LoginRequiredMixin, DeleteView):
     model = Client
     template_name = "components/client_confirm_delete.html"
@@ -649,6 +656,7 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
 # Financial Reports  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
+@login_required
 def get_summary_data(transactions, year):
     if year:
         transactions = transactions.filter(date__year=year)
@@ -801,7 +809,8 @@ def send_invoice_email(request, invoice_id):
     """
 
     from_email = "tom@tom-stout.com"
-    recipient = ["tom.stout97@gmail.com"]
+    recipient = [invoice.client.email or settings.DEFAULT_EMAIL]
+
 
     email = EmailMessage(subject, body, from_email, recipient)
     email.content_subtype = 'html'
@@ -815,55 +824,89 @@ def send_invoice_email(request, invoice_id):
 # Mileage =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 @login_required
-def mileage_list(request):
+def get_mileage_context():
     try:
-        mileage_rate = MileageRate.objects.get(id=1).rate
+        rate = MileageRate.objects.get(id=1).rate
     except MileageRate.DoesNotExist:
-        mileage_rate = 0.70
+        rate = 0.70
 
-    current_year = datetime.now().year
-    mileage_entries = Miles.objects.filter(date__year=current_year)
-
-    taxable_miles = mileage_entries.filter(mileage_type='Taxable')
-    total_miles = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
-
-    taxable_miles_total = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
-    taxable_dollars = taxable_miles_total * mileage_rate
-
-    return render(request, 'finance/dashboard.html', {
-        'mileage_list': mileage_entries,
+    year = datetime.now().year
+    entries = Miles.objects.filter(date__year=year)
+    taxable = entries.filter(mileage_type='Taxable')
+    total_miles = taxable.aggregate(Sum('total'))['total__sum'] or 0
+    return {
+        'mileage_list': entries,
         'total_miles': total_miles,
-        'taxable_dollars': taxable_dollars,
-        'current_year': current_year,
-        'mileage_rate': mileage_rate,
-    })
+        'taxable_dollars': total_miles * rate,
+        'current_year': year,
+        'mileage_rate': rate,
+    }
+
+
+@login_required
+def mileage_list(request):
+    context = get_mileage_context()
+    return render(request, 'finance/dashboard.html', context)
 
 
 @login_required
 def mileage_log(request):
-    try:
-        mileage_rate = MileageRate.objects.get(id=1).rate
-    except MileageRate.DoesNotExist:
-        mileage_rate = 0.70
-
-    current_year = datetime.now().year
-    mileage_entries = Miles.objects.filter(date__year=current_year)
-
-    taxable_miles = mileage_entries.filter(mileage_type='Taxable')
-    total_miles = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
-
-    taxable_miles_total = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
-    taxable_dollars = taxable_miles_total * mileage_rate
-
-    return render(request, 'finance/mileage_log.html', {
-        'mileage_list': mileage_entries,
-        'total_miles': total_miles,
-        'taxable_dollars': taxable_dollars,
-        'current_year': current_year,
-        'mileage_rate': mileage_rate,
-    })
+    context = get_mileage_context()
+    return render(request, 'finance/mileage_log.html', context)
 
 
+
+# @login_required
+# def mileage_list(request):
+#     try:
+#         mileage_rate = MileageRate.objects.get(id=1).rate
+#     except MileageRate.DoesNotExist:
+#         mileage_rate = 0.70
+
+#     current_year = datetime.now().year
+#     mileage_entries = Miles.objects.filter(date__year=current_year)
+
+#     taxable_miles = mileage_entries.filter(mileage_type='Taxable')
+#     total_miles = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
+
+#     taxable_miles_total = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
+#     taxable_dollars = taxable_miles_total * mileage_rate
+
+#     return render(request, 'finance/dashboard.html', {
+#         'mileage_list': mileage_entries,
+#         'total_miles': total_miles,
+#         'taxable_dollars': taxable_dollars,
+#         'current_year': current_year,
+#         'mileage_rate': mileage_rate,
+#     })
+
+
+# @login_required
+# def mileage_log(request):
+#     try:
+#         mileage_rate = MileageRate.objects.get(id=1).rate
+#     except MileageRate.DoesNotExist:
+#         mileage_rate = 0.70
+
+#     current_year = datetime.now().year
+#     mileage_entries = Miles.objects.filter(date__year=current_year)
+
+#     taxable_miles = mileage_entries.filter(mileage_type='Taxable')
+#     total_miles = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
+
+#     taxable_miles_total = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
+#     taxable_dollars = taxable_miles_total * mileage_rate
+
+#     return render(request, 'finance/mileage_log.html', {
+#         'mileage_list': mileage_entries,
+#         'total_miles': total_miles,
+#         'taxable_dollars': taxable_dollars,
+#         'current_year': current_year,
+#         'mileage_rate': mileage_rate,
+#     })
+
+
+@login_required
 class MileageCreateView(LoginRequiredMixin, CreateView):
     model = Miles
     form_class = MileageForm
@@ -871,6 +914,7 @@ class MileageCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('dashboard')
 
 
+@login_required
 class MileageUpdateView(LoginRequiredMixin, UpdateView):
     model = Miles
     form_class = MileageForm
@@ -878,11 +922,13 @@ class MileageUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('dashboard')
 
 
+@login_required
 class MileageDeleteView(LoginRequiredMixin, DeleteView):
     model = Miles
     template_name = 'finance/mileage_confirm_delete.html'
     success_url = reverse_lazy('dashboard')
     
+
 
 @login_required
 def add_mileage(request):
