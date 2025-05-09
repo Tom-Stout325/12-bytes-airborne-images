@@ -1,13 +1,16 @@
 {% extends "index.html" %}
 {% load crispy_forms_tags %}
-{% block title %}Add Mileage{% endblock %}
+
+{% block title %}
+  {% if form.instance.pk %}Update Mileage{% else %}Add Mileage{% endif %}
+{% endblock %}
 
 {% block breadcrumbs %}
 <h3>Finance Portal</h3>
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'mileage_list' %}">Mileage Log</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
     <li class="breadcrumb-item active" aria-current="page">
       {% if form.instance.pk %}Update Mileage{% else %}Add Mileage{% endif %}
     </li>
@@ -23,9 +26,9 @@
         <div class="card-header bg-primary text-white">
           <h5 class="mb-0">
             {% if form.instance.pk %}
-              Update Mileage Entry
+              <i class="fa-solid fa-pen-to-square"></i> Update Mileage Entry
             {% else %}
-              Add New Mileage Entry
+              <i class="fa-solid fa-plus"></i> Add New Mileage Entry
             {% endif %}
           </h5>
         </div>
@@ -33,7 +36,7 @@
           <form method="post" novalidate>
             {% csrf_token %}
             {{ form|crispy }}
-            <div class="d-grid mt-3">
+            <div class="d-grid gap-2 mt-3">
               <button type="submit" class="btn btn-success">
                 {% if form.instance.pk %}
                   <i class="fa-solid fa-save"></i> Update Entry
@@ -41,9 +44,7 @@
                   <i class="fa-solid fa-plus"></i> Save Entry
                 {% endif %}
               </button>
-            </div>
-            <div class="text-center mt-3">
-              <a href="{% url 'mileage_list' %}" class="btn btn-outline-secondary">
+              <a href="{% url 'mileage_log' %}" class="btn btn-outline-secondary">
                 <i class="fa-solid fa-arrow-left"></i> Back to Mileage Log
               </a>
             </div>

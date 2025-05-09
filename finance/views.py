@@ -857,6 +857,7 @@ def send_invoice_email(request, invoice_id):
 
     return render(request, 'finance/email_sent.html')
 
+
 # Mileage =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
@@ -870,6 +871,7 @@ def get_mileage_context(request):
     entries = Miles.objects.filter(user=request.user, date__year=year)
     taxable = entries.filter(mileage_type='Taxable')
     total_miles = taxable.aggregate(Sum('total'))['total__sum'] or 0
+
     return {
         'mileage_list': entries,
         'total_miles': total_miles,
@@ -877,13 +879,6 @@ def get_mileage_context(request):
         'current_year': year,
         'mileage_rate': rate,
     }
-
-
-
-@login_required
-def mileage_list(request):
-    context = get_mileage_context()
-    return render(request, 'finance/dashboard.html', context)
 
 
 @login_required
@@ -896,35 +891,30 @@ class MileageCreateView(LoginRequiredMixin, CreateView):
     model = Miles
     form_class = MileageForm
     template_name = 'finance/mileage_form.html'
-    success_url = reverse_lazy('dashboard')
+    success_url = reverse_lazy('mileage_log')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
 
 class MileageUpdateView(LoginRequiredMixin, UpdateView):
     model = Miles
     form_class = MileageForm
     template_name = 'finance/mileage_form.html'
-    success_url = reverse_lazy('dashboard')
+    success_url = reverse_lazy('mileage_log')
+
+    def get_queryset(self):
+        return Miles.objects.filter(user=self.request.user)
 
 
 class MileageDeleteView(LoginRequiredMixin, DeleteView):
     model = Miles
     template_name = 'finance/mileage_confirm_delete.html'
-    success_url = reverse_lazy('dashboard')
-    
+    success_url = reverse_lazy('mileage_log')
 
-def add_mileage(request):
-    if request.method == "POST":
-        form = MileageForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('mileage_list')
-    else:
-        form = MileageForm()
-        
-    context = {
-        'form': form,
-    }
-    return render(request, 'finance/mileage_form.html', context)
+    def get_queryset(self):
+        return Miles.objects.filter(user=self.request.user)
 
 
 @login_required
@@ -935,11 +925,8 @@ def update_mileage_rate(request):
         form = MileageRateForm(request.POST, instance=mileage_rate)
         if form.is_valid():
             form.save()
-            return redirect('dashboard')
+            return redirect('mileage_log')
     else:
         form = MileageRateForm(instance=mileage_rate)
 
     return render(request, 'components/update_mileage_rate.html', {'form': form})
-
-
-

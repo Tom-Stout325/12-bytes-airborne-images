@@ -80,11 +80,11 @@ class ClientForm(forms.ModelForm):
         model = Client
         fields = ['business', 'first', 'last', 'street', 'address2', 'email', 'phone']
         
-        
+
 class MileageForm(forms.ModelForm):
     class Meta:
         model = Miles
-        fields = ['date', 'begin', 'end', 'client', 'invoice', 'tax', 'job', 'vehicle', 'mileage_type']
+        exclude = ['user', 'total']  # `total` is auto-calculated; `user` is set in view
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'begin': forms.NumberInput(attrs={'step': '0.1', 'class': 'form-control'}),
@@ -95,13 +95,13 @@ class MileageForm(forms.ModelForm):
             'job': forms.TextInput(attrs={'class': 'form-control'}),
             'vehicle': forms.TextInput(attrs={'class': 'form-control'}),
             'mileage_type': forms.Select(attrs={'class': 'form-control'}),
-        }      
+        }
 
 
 class MileageRateForm(forms.ModelForm):
     class Meta:
         model = MileageRate
         fields = ['rate']
-
-
-
+        widgets = {
+            'rate': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+        }

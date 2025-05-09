@@ -184,12 +184,15 @@ class MileageRate(models.Model):
 
 
 
+
+
 class Miles(models.Model):
     MILEAGE_TYPE_CHOICES = [
         ('Taxable', 'Taxable'),
         ('Reimbursed', 'Reimbursed'),
     ]
 
+    user             = models.ForeignKey(User, on_delete=models.CASCADE)
     date             = models.DateField()
     begin            = models.DecimalField(max_digits=10, decimal_places=1, null=True, validators=[MinValueValidator(0)])
     end              = models.DecimalField(max_digits=10, decimal_places=1, null=True, validators=[MinValueValidator(0)])
@@ -199,8 +202,7 @@ class Miles(models.Model):
     tax              = models.CharField(max_length=10, blank=False, null=True, default="Yes")
     job              = models.CharField(max_length=255, blank=True, null=True)
     vehicle          = models.CharField(max_length=255, blank=False, null=True, default="Lead Foot")
-
-    mileage_type = models.CharField(max_length=20, choices=MILEAGE_TYPE_CHOICES, default='Taxable')
+    mileage_type     = models.CharField(max_length=20, choices=MILEAGE_TYPE_CHOICES, default='Taxable')
 
     class Meta:
         verbose_name_plural = "Miles"
@@ -210,12 +212,12 @@ class Miles(models.Model):
         return f"{self.date} - {self.client}"
 
     def save(self, *args, **kwargs):
-        # Automatically calculate total mileage
         if self.begin is not None and self.end is not None:
             self.total = round(self.end - self.begin, 1)
         else:
             self.total = None
         super().save(*args, **kwargs)
+
 
 
 
