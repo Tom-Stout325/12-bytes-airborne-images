@@ -20,74 +20,54 @@
 
 {% block content %}
 <div class="container bg-light border rounded p-4">
-  <h2 class="text-center pb-3 text-primary">Invoices</h2>
-  <hr class="w-50 mx-auto" />
-
-  <div class="row justify-content-center mb-4">
-    <div class="col-lg-8">
-      <form method="get" class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
-        <h4 class="mb-2 mb-md-0 text-center text-md-start">Find an Invoice</h4>
-        <div class="input-group" style="max-width: 100%;">
-          <input
-            type="text"
-            name="search"
-            class="form-control"
-            placeholder="Search by Invoice, Client, or Service"
-            value="{{ search_query }}">
-          <button type="submit" class="btn btn-outline-secondary">
-            <i class="fa-solid fa-magnifying-glass-dollar"></i>
-          </button>
-        </div>
-      </form>
-    </div>
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+    <h2 class="text-primary mb-3 mb-md-0">Invoices</h2>
+    <form method="get" class="d-flex flex-column flex-md-row gap-2 w-100 w-md-auto">
+      <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Search invoices..." value="{{ search_query }}">
+        <button type="submit" class="btn btn-outline-secondary">
+          <i class="fa-solid fa-magnifying-glass-dollar"></i>
+        </button>
+      </div>
+    </form>
   </div>
 
-  <div class="col-12 text-center mb-3">
+  <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
     <a href="{% url 'create_invoice' %}" class="btn btn-outline-primary">
-      <i class="fas fa-plus"></i> Create A New Invoice
+      <i class="fas fa-plus"></i> New Invoice
     </a>
-    <a
-      href="{% url 'export_invoices_csv' %}?search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}"
-      class="btn btn-outline-success me-2">
-      <i class="fa-solid fa-file-csv"></i> Export CSV
+    <a href="{% url 'export_invoices_csv' %}?search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}" class="btn btn-outline-success">
+      <i class="fa-solid fa-file-csv"></i> CSV
     </a>
-    <a
-      href="{% url 'export_invoices_pdf' %}?search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}"
-      class="btn btn-outline-danger">
-      <i class="fa-solid fa-file-pdf"></i> Export PDF
+    <a href="{% url 'export_invoices_pdf' %}?search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}" class="btn btn-outline-danger">
+      <i class="fa-solid fa-file-pdf"></i> PDF
     </a>
   </div>
 
   <div class="table-responsive">
-    <table class="table table-hover">
-      <thead>
-        <tr class="table-primary text-center text-nowrap">
-          {% for field, label in invoice_headers %}
-            <th>
-              <a class="text-decoration-none text-dark"
-                 href="?sort={{ field }}&direction={% if current_sort == field and current_direction == 'asc' %}desc{% else %}asc{% endif %}&search={{ search_query }}">
-                {{ label }}
-                {% if current_sort == field %}
-                  {% if current_direction == "asc" %}
-                    <i class="fa-solid fa-arrow-up-wide-short"></i>
-                  {% else %}
-                    <i class="fa-solid fa-arrow-down-wide-short"></i>
-                  {% endif %}
-                {% endif %}
-              </a>
-            </th>
-          {% endfor %}
+    <table class="table table-hover align-middle">
+      <thead class="table-primary text-center">
+        <tr class="d-none d-md-table-row">
+          <th>Invoice #</th>
+          <th>Client</th>
+          <th>Location</th>
+          <th>Service</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Due</th>
+          <th>Paid</th>
+          <th>Days</th>
           <th>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="View, edit, delete, review, or email this invoice.">
-              Actions <i class="fa-solid fa-circle-info text-secondary ms-1 p-5"></i>
+              Actions <i class="fa-solid fa-circle-info text-secondary ms-1"></i>
             </span>
           </th>
         </tr>
       </thead>
-    
+
       <tbody>
         {% for invoice in invoices %}
-        <tr class="text-center">
+        <tr class="d-none d-md-table-row text-center">
           <td>{{ invoice.invoice_numb }}</td>
           <td>{{ invoice.client }}</td>
           <td>{{ invoice.keyword }}</td>
@@ -100,28 +80,33 @@
               {% if invoice.paid_date %}{{ invoice.paid_date|date:"m-d-y" }}{% else %}No{% endif %}
             </span>
           </td>
-          <td>
-            {% if invoice.paid_date %}{{ invoice.days_to_pay }} days{% else %}
-            <span class="text-muted">—</span>
-            {% endif %}
-          </td>
+          <td>{% if invoice.paid_date %}{{ invoice.days_to_pay }} days{% else %}<span class="text-muted">—</span>{% endif %}</td>
           <td class="text-nowrap">
-            <a href="{% url 'invoice_detail' invoice.pk %}" target="_blank" class="text-decoration-none">
-              <i class="fa-solid fa-eye text-primary"></i>
-            </a>
-            <a href="{% url 'update_invoice' invoice.pk %}" class="text-decoration-none">
-              <i class="fa-solid fa-pencil text-primary"></i>
-            </a>
-            <a href="{% url 'invoice_review' invoice.pk %}" class="text-decoration-none">
-              <i class="fa-regular fa-file text-primary"></i>
-            </a>
-            <a href="{% url 'invoice_delete' invoice.pk %}" class="text-decoration-none">
-              <i class="fa-solid fa-trash-can text-primary"></i>
-            </a>
+            <a href="{% url 'invoice_detail' invoice.pk %}" class="text-decoration-none"><i class="fa-solid fa-eye text-primary"></i></a>
+            <a href="{% url 'update_invoice' invoice.pk %}" class="text-decoration-none"><i class="fa-solid fa-pencil text-primary"></i></a>
+            <a href="{% url 'invoice_review' invoice.pk %}" class="text-decoration-none"><i class="fa-regular fa-file text-primary"></i></a>
+            <a href="{% url 'invoice_delete' invoice.pk %}" class="text-decoration-none"><i class="fa-solid fa-trash-can text-primary"></i></a>
             <a href="#" class="send-email text-decoration-none" data-invoice-id="{{ invoice.id }}">
               <i class="fa-regular fa-paper-plane text-primary"></i>
-              <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+              <span class="spinner-border spinner-border-sm d-none" role="status"></span>
             </a>
+          </td>
+        </tr>
+        <tr class="d-table-row d-md-none">
+          <td>
+            <strong>{{ invoice.date|date:"m/d/y" }}</strong><br>
+            {{ invoice.keyword }}<br>
+            <span class="text-muted">Due: {{ invoice.due|date:"m/d/y" }}</span><br>
+            <div class="mt-2">
+              <a href="{% url 'invoice_detail' invoice.pk %}" class="text-decoration-none me-2"><i class="fa-solid fa-eye text-primary"></i></a>
+              <a href="{% url 'update_invoice' invoice.pk %}" class="text-decoration-none me-2"><i class="fa-solid fa-pencil text-primary"></i></a>
+              <a href="{% url 'invoice_review' invoice.pk %}" class="text-decoration-none me-2"><i class="fa-regular fa-file text-primary"></i></a>
+              <a href="{% url 'invoice_delete' invoice.pk %}" class="text-decoration-none me-2"><i class="fa-solid fa-trash-can text-primary"></i></a>
+              <a href="#" class="send-email text-decoration-none" data-invoice-id="{{ invoice.id }}">
+                <i class="fa-regular fa-paper-plane text-primary"></i>
+                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+              </a>
+            </div>
           </td>
         </tr>
         {% empty %}
@@ -131,52 +116,25 @@
         {% endfor %}
       </tbody>
     </table>
-    
   </div>
 
-  <!-- Pagination -->
   <div class="d-flex justify-content-center mt-3">
     <nav>
       <ul class="pagination">
         {% if page_obj.has_previous %}
-        <li class="page-item">
-          <a
-            class="page-link"
-            href="?page=1&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">« First</a>
-        </li>
-        <li class="page-item">
-          <a
-            class="page-link"
-            href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">
-            Previous
-            </a>
-        </li>
+        <li class="page-item"><a class="page-link" href="?page=1&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">« First</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">Previous</a></li>
         {% endif %}
-        <li class="page-item disabled">
-          <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-        </li>
+        <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
         {% if page_obj.has_next %}
-        <li class="page-item">
-          <a
-            class="page-link"
-            href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">
-            Next
-          </a>
-        </li>
-        <li class="page-item">
-          <a
-            class="page-link"
-            href="?page={{ page_obj.paginator.num_pages }}&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">
-            Last »
-            </a>
-        </li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">Next</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">Last »</a></li>
         {% endif %}
       </ul>
     </nav>
   </div>
 </div>
 
-<!-- JS for Tooltip -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -186,8 +144,6 @@
   });
 </script>
 
-
-<!-- JS for Email Sending -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   $(document).ready(function () {
@@ -201,9 +157,7 @@
         $.ajax({
           url: `/invoice/${invoiceId}/email/`,
           type: "POST",
-          data: {
-            csrfmiddlewaretoken: "{{ csrf_token }}",
-          },
+          data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
           success: function () {
             $spinner.addClass("d-none");
             alert("Invoice emailed successfully!");
