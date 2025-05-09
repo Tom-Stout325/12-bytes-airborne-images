@@ -20,7 +20,7 @@
 
 {% block content %}
 <div class="container mt-4">
-  <h2 class="mb-4">Search Transactions</h2>
+  <h2 class="mb-3">Search Transactions</h2>
 
   <form method="get" class="row g-3 mb-4">
     <div class="col-md-4">
@@ -57,20 +57,30 @@
     </div>
   </form>
 
+  <!-- Display selected filters -->
+  {% if selected_keyword or selected_category or selected_sub_cat %}
+    <div class="mb-3">
+      <strong>Filters Applied:</strong>
+      {% if selected_keyword %} Keyword: {{ keyword_options|get_selected:selected_keyword }} {% endif %}
+      {% if selected_category %} | Category: {{ categories|get_selected:selected_category }} {% endif %}
+      {% if selected_sub_cat %} | Sub-Category: {{ sub_categories|get_selected:selected_sub_cat }} {% endif %}
+    </div>
+  {% endif %}
+
   {% if transactions %}
     <div class="table-responsive">
-      <table class="table table-hover align-middle table-bordered shadow-sm">
+      <table class="table table-hover table-bordered align-middle shadow-sm">
         <thead class="table-light">
           <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Description</th>
-            <th scope="col">Amount</th>
-            <th scope="col">Type</th>
-            <th scope="col">Keyword</th>
-            <th scope="col">Category</th>
-            <th scope="col">Sub-Category</th>
-            <th scope="col">
-              <span data-bs-toggle="tooltip" title="View, Edit or Delete" class="d-inline-block">
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th class="d-none d-md-table-cell">Type</th>
+            <th class="d-none d-lg-table-cell">Keyword</th>
+            <th class="d-none d-lg-table-cell">Category</th>
+            <th class="d-none d-lg-table-cell">Sub-Category</th>
+            <th>
+              <span data-bs-toggle="tooltip" title="View, Edit or Delete">
                 <i class="fas fa-tools"></i>
               </span>
             </th>
@@ -82,10 +92,10 @@
               <td>{{ tx.date }}</td>
               <td class="text-wrap">{{ tx.transaction }}</td>
               <td>${{ tx.amount|floatformat:2 }}</td>
-              <td>{{ tx.trans_type }}</td>
-              <td>{{ tx.keyword }}</td>
-              <td>{{ tx.category }}</td>
-              <td>{{ tx.sub_cat }}</td>
+              <td class="d-none d-md-table-cell">{{ tx.trans_type }}</td>
+              <td class="d-none d-lg-table-cell">{{ tx.keyword }}</td>
+              <td class="d-none d-lg-table-cell">{{ tx.category }}</td>
+              <td class="d-none d-lg-table-cell">{{ tx.sub_cat }}</td>
               <td class="text-nowrap">
                 <a href="{% url 'transaction_detail' tx.pk %}" class="btn btn-sm btn-outline-info me-1" data-bs-toggle="tooltip" title="View">
                   <i class="fas fa-eye"></i>
@@ -107,12 +117,11 @@
   {% endif %}
 </div>
 
+<!-- Bootstrap Tooltips -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-      new bootstrap.Tooltip(tooltipTriggerEl)
-    })
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
   });
 </script>
 {% endblock %}
