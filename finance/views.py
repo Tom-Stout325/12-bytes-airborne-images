@@ -791,13 +791,10 @@ def financial_statement(request):
 
 @login_required
 def print_category_summary(request):
-    year = request.GET.get('year')
-    transactions = (
-        Transaction.objects
-        .select_related('trans_type', 'category', 'sub_cat')
-    )
-    context = get_summary_data(transactions, year)
+    year = request.GET.get('year', str(timezone.now().year))
+    context = get_summary_data(request, year)
     return render(request, 'finance/category_summary_print.html', context)
+
 
 
 def get_summary_data(request, year):
