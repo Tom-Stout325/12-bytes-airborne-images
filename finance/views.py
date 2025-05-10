@@ -859,7 +859,7 @@ def category_summary(request):
 def keyword_financial_summary(request):
     current_year = timezone.now().year
     years = [current_year, current_year - 1, current_year - 2]
-    excluded_keywords = {"na", "monthly", "nhra", "none", "Denver", "None", "Monthly", "NHRA"}
+    excluded_keywords = {"na", "monthly", "nhra", "none", "Denver", "None", "Monthly", "NHRA", "unknown", "Unknown"}
     summary_data = (
         Transaction.objects
         .exclude(keyword__name__in=excluded_keywords)
