@@ -803,16 +803,17 @@ def print_category_summary(request):
 @login_required
 def category_summary(request):
     year = request.GET.get('year', str(timezone.now().year))
+
     transactions = (
         Transaction.objects
         .select_related('trans_type', 'category', 'sub_cat')
     )
     context = get_summary_data(transactions, year)
     context['available_years'] = (
-        .dates('date', 'year')
-        .distinct()
+        Transaction.objects.dates('date', 'year', order='DESC').distinct()
     )
     return render(request, 'finance/category_summary.html', context)
+
 
 
 @login_required
