@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 from datetime import timedelta, date
-
+from decimal import Decimal
 
 
 class Type(models.Model):
@@ -101,12 +101,13 @@ class Transaction(models.Model):
     deductible_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        # for travel meals:
+        # Only calculate deductible_amount for Travel: Meals (sub_cat ID 26)
         if self.sub_cat_id == 26:
             self.deductible_amount = round(Decimal(self.amount) * Decimal('0.5'), 2)
         else:
-            self.deductible_amount = self.amount
+            self.deductible_amount = None  # clear or ignore for all others
         super().save(*args, **kwargs)
+
 
     class Meta:
         verbose_name_plural = "Transactions"
