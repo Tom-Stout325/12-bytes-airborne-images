@@ -12,6 +12,7 @@ class TransactionAdmin(admin.ModelAdmin):
 class GroupAdmin(admin.ModelAdmin):
     list_display    = ['name', 'date']
     
+    
 @admin.register(Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
     list_display = ('invoice_numb', 'client', 'amount', 'status', 'paid_date', 'days_to_pay')
@@ -21,6 +22,12 @@ class InvoiceAdmin(admin.ModelAdmin):
     days_to_pay.short_description = "Days to Pay"
 
 
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['category', 'category_id']
+
+
+class SubCategoryAdmin(admin.ModelAdmin):
+    list_display = ['sub_cat', 'sub_cat.id']
 
 admin.site.register(InvoiceItem)
 admin.site.register(MileageRate)
