@@ -105,53 +105,58 @@ class Dashboard(LoginRequiredMixin, ListView):
         return context
 
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.utils.timezone import now
+from django.db.models.functions import ExtractYear
+
+from .models import Transaction, Category, SubCategory, Keyword
+
+
 @login_required
 def transaction_search(request):
-    # Get current year
     current_year = now().year
+
+    # Get filters
     selected_keyword = request.GET.get('keyword', '')
     selected_category = request.GET.get('category', '')
     selected_sub_cat = request.GET.get('sub_cat', '')
-    selected_year = request.GET.get('year', '')  # blank = "All Years"
+    selected_year = request.GET.get('year', '')  # "" means All Years
+
+    # Start queryset
     queryset = Transaction.objects.select_related('trans_type', 'category', 'sub_cat', 'keyword')
 
+    # Apply filters
     if selected_keyword:
         queryset = queryset.filter(keyword__id=selected_keyword)
-
     if selected_category:
         queryset = queryset.filter(category__id=selected_category)
-
     if selected_sub_cat:
         queryset = queryset.filter(sub_cat__id=selected_sub_cat)
-
     if selected_year:
         queryset = queryset.filter(date__year=selected_year)
 
-    categories = Category.objects.order_by('category')
-    sub_categories = SubCategory.objects.order_by('sub_cat')
-    keyword_options = Keyword.objects.all()
-
-    years = (
-        Transaction.objects.annotate(tx_year=ExtractYear('date'))
-        .values_list('tx_year', flat=True)
-        .distinct()
-        .order_by('-tx_year')
-    )
-
+    # Year list for filter dropdown
+    years_qs = Transaction.objects.annotate(extracted_year=ExtractYear('date')) \
+                                  .values_list('extracted_year', flat=True) \
+                                  .distinct() \
+                                  .order_by('-extracted_year')
+    years = [str(y) for y in years_qs if y is not None]  # make sure they are strings for comparison
 
     context = {
         'transactions': queryset,
-        'categories': categories,
-        'sub_categories': sub_categories,
-        'keyword_options': keyword_options,
+        'categories': Category.objects.order_by('category'),
+        'sub_categories': SubCategory.objects.order_by('sub_cat'),
+        'keyword_options': Keyword.objects.all(),
         'years': years,
         'selected_keyword': selected_keyword,
         'selected_category': selected_category,
         'selected_sub_cat': selected_sub_cat,
-        'selected_year': selected_year, 
+        'selected_year': selected_year,
     }
 
     return render(request, 'finance/transaction_search.html', context)
+
 
 
 # Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
