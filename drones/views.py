@@ -35,7 +35,6 @@ from drones.models import Drone, FlightLog
 
 
 def drone_portal(request):
-    profile = get_object_or_404(PilotProfile, user=request.user)
     total_drones = Drone.objects.count()
     total_flights = FlightLog.objects.count()
     active_drones = FlightLog.objects.all()
