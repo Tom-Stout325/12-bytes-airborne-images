@@ -8,11 +8,9 @@ def category_summary(request):
     ...
 
 
+Add Invoice filtering by year and keyword
 
-
-
-
-
+Only show log in if user is not logged in
 Add flight statistics to drones in Drone Detail
 
 
