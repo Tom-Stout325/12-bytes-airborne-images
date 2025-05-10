@@ -894,7 +894,7 @@ def send_invoice_email(request, invoice_id):
 # Mileage =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
-def mileage_list(request):
+def get_mileage_context(request):
     try:
         rate = MileageRate.objects.get(id=1).rate
     except MileageRate.DoesNotExist:
@@ -914,10 +914,12 @@ def mileage_list(request):
     }
 
 
+
 @login_required
 def mileage_log(request):
     context = get_mileage_context(request)
     return render(request, 'finance/mileage_log.html', context)
+
 
 
 class MileageCreateView(LoginRequiredMixin, CreateView):
