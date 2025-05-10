@@ -105,28 +105,17 @@ class Dashboard(LoginRequiredMixin, ListView):
         return context
 
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from django.utils.timezone import now
-from django.db.models.functions import ExtractYear
-
-from .models import Transaction, Category, SubCategory, Keyword
-
-
 @login_required
 def transaction_search(request):
     current_year = now().year
 
-    # Get filters
+    # Get filters from GET parameters
     selected_keyword = request.GET.get('keyword', '')
     selected_category = request.GET.get('category', '')
     selected_sub_cat = request.GET.get('sub_cat', '')
-    selected_year = request.GET.get('year', '')  # "" means All Years
-
-    # Start queryset
+    selected_year = request.GET.get('year', '')
     queryset = Transaction.objects.select_related('trans_type', 'category', 'sub_cat', 'keyword')
 
-    # Apply filters
     if selected_keyword:
         queryset = queryset.filter(keyword__id=selected_keyword)
     if selected_category:
@@ -136,12 +125,12 @@ def transaction_search(request):
     if selected_year:
         queryset = queryset.filter(date__year=selected_year)
 
-    # Year list for filter dropdown
     years_qs = Transaction.objects.annotate(extracted_year=ExtractYear('date')) \
                                   .values_list('extracted_year', flat=True) \
                                   .distinct() \
                                   .order_by('-extracted_year')
-    years = [str(y) for y in years_qs if y is not None]  # make sure they are strings for comparison
+
+    years = [str(y) for y in years_qs if y is not None]
 
     context = {
         'transactions': queryset,
@@ -156,6 +145,7 @@ def transaction_search(request):
     }
 
     return render(request, 'finance/transaction_search.html', context)
+
 
 
 
@@ -302,52 +292,52 @@ def transaction_delete(request, pk):
     return render(request, 'finance/transaction_confirm_delete.html', {'item': transaction})
 
 
-
 @login_required
 def transaction_search(request):
-    keywords = request.GET.get('keyword', '')
-    category_id = request.GET.get('category', '')
-    sub_cat_id = request.GET.get('sub_cat', '')
-    year = request.GET.get('year', '')
+    current_year = now().year
 
+    # Get filters from GET parameters
+    selected_keyword = request.GET.get('keyword', '')
+    selected_category = request.GET.get('category', '')
+    selected_sub_cat = request.GET.get('sub_cat', '')
+    selected_year = request.GET.get('year', '')
+
+    # Start queryset
     queryset = Transaction.objects.select_related('trans_type', 'category', 'sub_cat', 'keyword')
 
-    if keywords:
-        queryset = queryset.filter(keyword__id=keywords)
+    # Apply filters
+    if selected_keyword:
+        queryset = queryset.filter(keyword__id=selected_keyword)
+    if selected_category:
+        queryset = queryset.filter(category__id=selected_category)
+    if selected_sub_cat:
+        queryset = queryset.filter(sub_cat__id=selected_sub_cat)
+    if selected_year:
+        queryset = queryset.filter(date__year=selected_year)
 
-    if category_id:
-        queryset = queryset.filter(category__id=category_id)
+    # Extract years safely using alias
+    years_qs = Transaction.objects.annotate(extracted_year=ExtractYear('date')) \
+                                  .values_list('extracted_year', flat=True) \
+                                  .distinct() \
+                                  .order_by('-extracted_year')
 
-    if sub_cat_id:
-        queryset = queryset.filter(sub_cat__id=sub_cat_id)
-
-    if year:
-        queryset = queryset.filter(date__year=year)
-
-    categories = Category.objects.order_by('category')
-    sub_categories = SubCategory.objects.order_by('sub_cat')
-    keyword_options = Keyword.objects.all()
-
-    # Dynamically generate a list of distinct years from transaction dates
-    years = (
-        Transaction.objects.dates('date', 'year', order='DESC')
-        .distinct()
-        .values_list('year', flat=True)
-    )
+    # Convert years to string for template selection comparison
+    years = [str(y) for y in years_qs if y is not None]
 
     context = {
         'transactions': queryset,
-        'categories': categories,
-        'sub_categories': sub_categories,
-        'keyword_options': keyword_options,
+        'categories': Category.objects.order_by('category'),
+        'sub_categories': SubCategory.objects.order_by('sub_cat'),
+        'keyword_options': Keyword.objects.all(),
         'years': years,
-        'selected_keyword': keywords,
-        'selected_category': category_id,
-        'selected_sub_cat': sub_cat_id,
-        'selected_year': year,
+        'selected_keyword': selected_keyword,
+        'selected_category': selected_category,
+        'selected_sub_cat': selected_sub_cat,
+        'selected_year': selected_year,
     }
 
     return render(request, 'finance/transaction_search.html', context)
+
 
 
 
