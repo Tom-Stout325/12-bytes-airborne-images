@@ -800,19 +800,61 @@ def print_category_summary(request):
     return render(request, 'finance/category_summary_print.html', context)
 
 
+def get_summary_data(request, year):
+    user = request.user
+
+    # Base filter
+    transactions = Transaction.objects.filter(
+        user=user,
+        date__year=year
+    ).select_related('trans_type', 'category', 'sub_cat')
+
+    # Income Transactions
+    income = transactions.filter(trans_type__trans_type='Income')
+    income_category_totals = income.values('category__category').annotate(total=Sum('amount')).order_by('category__category')
+    income_subcategory_totals = income.values('sub_cat__sub_cat').annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
+    income_category_total = income.aggregate(total=Sum('amount'))['total'] or 0
+    income_subcategory_total = income.aggregate(total=Sum('amount'))['total'] or 0
+
+    # Expense Transactions
+    expense = transactions.filter(trans_type__trans_type='Expense')
+    expense_category_totals = expense.values('category__category').annotate(total=Sum('amount')).order_by('category__category')
+    expense_subcategory_totals = expense.values('sub_cat__sub_cat').annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
+    expense_category_total = expense.aggregate(total=Sum('amount'))['total'] or 0
+    expense_subcategory_total = expense.aggregate(total=Sum('amount'))['total'] or 0
+
+    # Net Profit
+    net_profit = income_category_total - expense_category_total
+
+    return {
+        'selected_year': year,
+        'income_category_totals': income_category_totals,
+        'income_subcategory_totals': income_subcategory_totals,
+        'income_category_total': income_category_total,
+        'income_subcategory_total': income_subcategory_total,
+        'expense_category_totals': expense_category_totals,
+        'expense_subcategory_totals': expense_subcategory_totals,
+        'expense_category_total': expense_category_total,
+        'expense_subcategory_total': expense_subcategory_total,
+        'net_profit': net_profit,
+    }
+
+
+
 @login_required
 def category_summary(request):
     year = request.GET.get('year', str(timezone.now().year))
 
-    transactions = (
-        Transaction.objects
-        .select_related('trans_type', 'category', 'sub_cat')
-    )
-    context = get_summary_data(transactions, year)
+    context = get_summary_data(request, year)
+
     context['available_years'] = (
-        Transaction.objects.dates('date', 'year', order='DESC').distinct()
+        Transaction.objects.filter(user=request.user)
+        .dates('date', 'year', order='DESC')
+        .distinct()
     )
+
     return render(request, 'finance/category_summary.html', context)
+
 
 
 
