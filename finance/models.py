@@ -95,7 +95,7 @@ class Transaction(models.Model):
     team           = models.ForeignKey('Team', null=True, on_delete=models.PROTECT)
     transaction    = models.CharField(max_length=500, blank=True, null=True)
     tax            = models.CharField(max_length=500, blank=True, null=True, default="Yes")
-    keyword = models.ForeignKey(Keyword, on_delete=models.PROTECT, null=True, blank=True)
+    keyword        = models.ForeignKey(Keyword, on_delete=models.PROTECT, null=True, blank=True)
     receipt        = models.FileField(upload_to='receipts/', blank=True, null=True)
     user           = models.ForeignKey(User, on_delete=models.PROTECT)
     deductible_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)

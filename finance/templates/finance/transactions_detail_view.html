@@ -7,7 +7,7 @@
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'transactions' %}"></a>Transactions</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</a></li>
     <li class="breadcrumb-item active" aria-current="page">Transaction Details</a></li>
     <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
     <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
@@ -41,6 +41,9 @@
 
         <dt class="col-sm-4 col-md-3 fw-bold">Category</dt>
         <dd class="col-sm-8 col-md-9">{{ transaction.category.category }}</dd>
+
+        <dt class="col-sm-4 col-md-3 fw-bold">Keyword</dt>
+        <dd class="col-sm-8 col-md-9">{{ transaction.keyword }}</dd>
 
         {% if transaction.sub_cat %}
         <dt class="col-sm-4 col-md-3 fw-bold">Subcategory</dt>
