@@ -894,7 +894,7 @@ def send_invoice_email(request, invoice_id):
 # Mileage =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
-def get_mileage_context(request):
+def mileage_list(request):
     try:
         rate = MileageRate.objects.get(id=1).rate
     except MileageRate.DoesNotExist:
