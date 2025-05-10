@@ -115,14 +115,6 @@
             <td class="text-start ps-2">{{ x.transaction }}</td>
             <td>{{ x.keyword }}</td>
             <td><strong>${{ x.amount|floatformat:2|intcomma }}</strong></td>
-            <td>
-              {% if x.sub_cat.id == 26 %}
-                <strong>${{ x.deductible_amount|floatformat:2|intcomma }}</strong>
-                <small class="text-muted">(50%)</small>
-              {% else %}
-                <span class="text-muted">—</span>
-              {% endif %}
-            </td>
             <td>{{ x.invoice_numb }}</td>
             <td><a href="{% url 'transaction_detail' x.id %}" class="text-decoration-none"><i class="fa-solid fa-eye text-success"></i></a></td>
             <td><a href="{% url 'edit_transaction' x.id %}" class="text-decoration-none"><i class="fa-solid fa-pencil text-warning"></i></a></td>
