@@ -35,16 +35,16 @@
     <h4>{{ selected_year|default:"All Years" }}</h4>
 
     <!-- Income Category Table -->
-    {% include "components/summary_block.html" with title="Income Categories" rows=income_category_totals label="category__category" total=income_category_total color="success" %}
+    {% include "components/category_block.html" with title="Income Categories" rows=income_category_totals label="category__category" total=income_category_total color="success" %}
 
     <!-- Income Sub-Category Table -->
-    {% include "components/summary_block.html" with title="Income Sub-Categories" rows=income_subcategory_totals label="sub_cat__sub_cat" total=income_subcategory_total color="success" %}
+    {% include "components/category_block.html" with title="Income Sub-Categories" rows=income_subcategory_totals label="sub_cat__sub_cat" total=income_subcategory_total color="success" %}
 
     <!-- Expense Category Table -->
-    {% include "components/summary_block.html" with title="Expense Categories" rows=expense_category_totals label="category__category" total=expense_category_total color="danger" %}
+    {% include "components/category_block.html" with title="Expense Categories" rows=expense_category_totals label="category__category" total=expense_category_total color="danger" %}
 
     <!-- Expense Sub-Category Table -->
-    {% include "components/summary_block.html" with title="Expense Sub-Categories" rows=expense_subcategory_totals label="sub_cat__sub_cat" total=expense_subcategory_total color="danger" %}
+    {% include "components/category_block.html" with title="Expense Sub-Categories" rows=expense_subcategory_totals label="sub_cat__sub_cat" total=expense_subcategory_total color="danger" %}
 
     <!-- Net Profit -->
     <div class="text-end mt-4">
