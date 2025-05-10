@@ -98,7 +98,15 @@ class Transaction(models.Model):
     keyword = models.ForeignKey(Keyword, on_delete=models.PROTECT, null=True, blank=True)
     receipt        = models.FileField(upload_to='receipts/', blank=True, null=True)
     user           = models.ForeignKey(User, on_delete=models.PROTECT)
+    deductible_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        # for travel meals:
+        if self.sub_cat_id == 26:
+            self.deductible_amount = round(Decimal(self.amount) * Decimal('0.5'), 2)
+        else:
+            self.deductible_amount = self.amount
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name_plural = "Transactions"

@@ -3,7 +3,6 @@
 {% load l10n %}
 {% load humanize %}
 
-
 {% block title %} Transactions {% endblock %}
 
 {% block breadcrumbs %}
@@ -17,7 +16,6 @@
     <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
     <li class="breadcrumb-item"><a href="{% url 'category_page' %}">Categories</a></li>
     <li class="breadcrumb-item"><a href="{% url 'reports' %}">Financial Reports</a></li>
-
   </ol>
 </nav>
 {% endblock %}
@@ -32,8 +30,8 @@
 <div class="container-fluid py-4">
   <div class="p-4 shadow-sm rounded bg-white dark-toggle-container">
     <h2 class="mb-0 text-center">Transactions</h2>
-  
-    <!-- Filter Row -->
+
+    <!-- Filter Form -->
     <div class="row justify-content-center align-items-end mb-4">
       <form class="col-12 col-lg-10 d-flex flex-wrap gap-3 justify-content-center" action="{% url 'transactions' %}" method="get">
         <div class="form-group">
@@ -41,25 +39,21 @@
           <select name="year" id="year" class="form-select">
             <option value="">All</option>
             {% for year in years %}
-              <option value="{{ year.year }}" {% if selected_year == year.year|stringformat:'s' %}selected{% endif %}>
-                {{ year.year }}
-              </option>
+              <option value="{{ year.year }}" {% if selected_year == year.year|stringformat:'s' %}selected{% endif %}>{{ year.year }}</option>
             {% endfor %}
           </select>
         </div>
-  
+
         <div class="form-group">
           <label for="sub_cat" class="form-label fw-semibold">Sub-Category</label>
           <select name="sub_cat" id="sub_cat" class="form-select">
             <option value="">All</option>
             {% for sub in sub_categories %}
-              <option value="{{ sub.id }}" {% if selected_sub_cat == sub.id|stringformat:'s' %}selected{% endif %}>
-                {{ sub.sub_cat }}
-              </option>
+              <option value="{{ sub.id }}" {% if selected_sub_cat == sub.id|stringformat:'s' %}selected{% endif %}>{{ sub.sub_cat }}</option>
             {% endfor %}
           </select>
         </div>
-  
+
         <div class="form-group">
           <label for="type" class="form-label fw-semibold">Type</label>
           <select name="type" id="type" class="form-select">
@@ -68,27 +62,25 @@
             <option value="Expense" {% if selected_type == "Expense" %}selected{% endif %}>Expense</option>
           </select>
         </div>
-  
+
         <div class="form-group d-grid align-self-end">
           <button type="submit" class="btn btn-primary">Filter</button>
         </div>
       </form>
     </div>
-  
-    <!-- Button Row -->
+
+    <!-- Buttons -->
     <div class="row justify-content-center text-center mb-3">
-      <div class="col-12 col-md-auto mb-2 mb-md-0">
+      <div class="col-12 col-md-auto mb-2">
         <a href="{% url 'add_transaction' %}" class="btn btn-outline-primary">
           <i class="fa-solid fa-plus"></i> Add Transaction
         </a>
       </div>
-  
-      <div class="col-12 col-md-auto mb-2 mb-md-0">
+      <div class="col-12 col-md-auto mb-2">
         <a href="{% url 'download_transactions' %}" class="btn btn-outline-success">
           <i class="fa-solid fa-circle-chevron-down"></i> Download All
         </a>
       </div>
-  
       <div class="col-12 col-md-auto">
         <a href="{% url 'download_transactions' %}?year={{ selected_year }}" class="btn btn-outline-info">
           <i class="fa-solid fa-chevron-down"></i> Download {{ selected_year|default:"Year" }}
@@ -96,27 +88,26 @@
       </div>
     </div>
   </div>
-  
-    
 
-    <!-- Desktop Table View -->
-    <div class="table-responsive d-none d-md-block">
-      <table id="transactionsTable" class="table table-bordered table-hover text-center align-middle sortable-table shadow-sm rounded">
-        <thead>
-          <tr>
-            <th class="sortable-header" onclick="sortTable(0)"> Date &nbsp;<i class="sort-icon fa-solid fa-sort"></i></th>
-            <th class="sortable-header" onclick="sortTable(1)"> Type &nbsp;<i class="sort-icon fa-solid fa-sort"></i></th>
-            <th class="sortable-header" onclick="sortTable(2)"> Transaction &nbsp;<i class="sort-icon fa-solid fa-sort"></i></th>
-            <th class="sortable-header" onclick="sortTable(3)"> Location &nbsp;<i class="sort-icon fa-solid fa-sort"></i></th>
-            <th class="sortable-header" onclick="sortTable(4)"> Amount &nbsp;<i class="sort-icon fa-solid fa-sort"></i></th>
-            <th class="sortable-header" onclick="sortTable(5)"> Inv. # &nbsp;<i class="sort-icon fa-solid fa-sort"></i></th>
-            <th scope="col">View</th>
-            <th scope="col">Edit</th>
-            <th scope="col">Delete</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for x in transactions %}
+  <!-- Desktop Table View -->
+  <div class="table-responsive d-none d-md-block">
+    <table id="transactionsTable" class="table table-bordered table-hover text-center align-middle sortable-table shadow-sm rounded">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Transaction</th>
+          <th>Location</th>
+          <th>Amount</th>
+          <th>Deductible</th>
+          <th>Inv. #</th>
+          <th>View</th>
+          <th>Edit</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for x in transactions %}
           <tr>
             <td>{{ x.date }}</td>
             <td>
@@ -125,82 +116,87 @@
             <td class="text-start ps-2">{{ x.transaction }}</td>
             <td>{{ x.keyword }}</td>
             <td><strong>${{ x.amount|floatformat:2|intcomma }}</strong></td>
+            <td>
+              {% if x.sub_cat.id == 26 %}
+                <strong>${{ x.deductible_amount|floatformat:2|intcomma }}</strong>
+                <small class="text-muted">(50%)</small>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
             <td>{{ x.invoice_numb }}</td>
-            <td>
-              <a href="{% url 'transaction_detail' x.id %}" class="text-decoration-none"><i class="fa-solid fa-eye text-success"></i></a>   
-            </td>
-            <td>
-              <a href="{% url 'edit_transaction' x.id %}" class="text-decoration-none"><i class="fa-solid fa-pencil text-warning"></i></a>
-            </td>
-            <td>
-              <a href="{% url 'transaction_delete' x.id %}" class="text-decoration-none"><i class="fa-solid fa-trash-can"></i></a>   
-            </td>
+            <td><a href="{% url 'transaction_detail' x.id %}" class="text-decoration-none"><i class="fa-solid fa-eye text-success"></i></a></td>
+            <td><a href="{% url 'edit_transaction' x.id %}" class="text-decoration-none"><i class="fa-solid fa-pencil text-warning"></i></a></td>
+            <td><a href="{% url 'transaction_delete' x.id %}" class="text-decoration-none"><i class="fa-solid fa-trash-can text-danger"></i></a></td>
           </tr>
-          {% empty %}
+        {% empty %}
           <tr>
-            <td colspan="8" class="text-muted">No transactions found for this filter.</td>
+            <td colspan="10" class="text-muted text-center">No transactions found for this filter.</td>
           </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Mobile Accordion View -->
-    <div class="mobile-accordion d-block d-md-none">
-      <div class="accordion" id="accordionTransactions">
-        {% for x in transactions %}
-          <div class="accordion-item mb-2">
-            <h2 class="accordion-header" id="heading{{ x.id }}">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ x.id }}">
-                {{ x.date }} — {{ x.transaction }}
-              </button>
-            </h2>
-            <div id="collapse{{ x.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionTransactions">
-              <div class="accordion-body">
-                <strong>Type:</strong> {{ x.trans_type }}<br>
-                <strong>Location:</strong> {{ x.keyword }}<br>
-                <strong>Amount:</strong> $ {{ x.amount|floatformat:2|intcomma }}<br>
-                <strong>Invoice #:</strong> {{ x.invoice_numb }}<br>
-                <div class="mt-2">
-                  <a href="{% url 'transaction_detail' x.id %}" class="btn btn-sm btn-outline-primary">View</a>
-
-                  
-                  <a href="{% url 'edit_transaction' x.id %}" class="btn btn-sm btn-warning">Edit</a>
-                </div>
+  <!-- Mobile Accordion View -->
+  <div class="mobile-accordion d-block d-md-none">
+    <div class="accordion" id="accordionTransactions">
+      {% for x in transactions %}
+        <div class="accordion-item mb-2">
+          <h2 class="accordion-header" id="heading{{ x.id }}">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ x.id }}">
+              {{ x.date }} — {{ x.transaction }}
+            </button>
+          </h2>
+          <div id="collapse{{ x.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionTransactions">
+            <div class="accordion-body">
+              <strong>Type:</strong> {{ x.trans_type }}<br>
+              <strong>Location:</strong> {{ x.keyword }}<br>
+              <strong>Amount:</strong> ${{ x.amount|floatformat:2|intcomma }}<br>
+              {% if x.sub_cat.id == 26 %}
+                <strong>Deductible:</strong> ${{ x.deductible_amount|floatformat:2|intcomma }} <small class="text-muted">(50%)</small><br>
+              {% endif %}
+              <strong>Invoice #:</strong> {{ x.invoice_numb }}<br>
+              <div class="mt-2">
+                <a href="{% url 'transaction_detail' x.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                <a href="{% url 'edit_transaction' x.id %}" class="btn btn-sm btn-warning">Edit</a>
               </div>
             </div>
           </div>
-        {% empty %}
-          <div class="text-muted text-center">No transactions found for this filter.</div>
-        {% endfor %}
-      </div>
-    </div>
-
-    <!-- Pagination -->
-    <div class="d-flex justify-content-center mt-4">
-      <nav>
-        <ul class="pagination">
-          {% if page_obj.has_previous %}
-          <a class="page-link" href="?page=1
-          {% if selected_year %}&year={{ selected_year }}{% endif %}
-          {% if selected_type %}&type={{ selected_type }}{% endif %}
-          {% if selected_sub_cat %}&sub_cat={{ selected_sub_cat }}{% endif %}">
-        
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">Previous</a></li>
-          {% endif %}
-          <li class="page-item active">
-            <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-          </li>
-          {% if page_obj.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">Next</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}">Last</a></li>
-          {% endif %}
-        </ul>
-      </nav>
+        </div>
+      {% empty %}
+        <div class="text-muted text-center">No transactions found for this filter.</div>
+      {% endfor %}
     </div>
   </div>
 
-
+  <!-- Pagination -->
+  <div class="d-flex justify-content-center mt-4">
+    <nav>
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page=1{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_sub_cat %}&sub_cat={{ selected_sub_cat }}{% endif %}">First</a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_sub_cat %}&sub_cat={{ selected_sub_cat }}{% endif %}">Previous</a>
+          </li>
+        {% endif %}
+        <li class="page-item active">
+          <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        </li>
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_sub_cat %}&sub_cat={{ selected_sub_cat }}{% endif %}">Next</a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if selected_year %}&year={{ selected_year }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_sub_cat %}&sub_cat={{ selected_sub_cat }}{% endif %}">Last</a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</div>
 
 <script>
   function sortTable(col) {
@@ -231,6 +227,5 @@
     currentIcon.classList.add(asc ? "fa-sort-up" : "fa-sort-down", "active");
   }
 </script>
-
 
 {% endblock %}
