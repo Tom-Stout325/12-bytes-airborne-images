@@ -794,7 +794,6 @@ def print_category_summary(request):
     year = request.GET.get('year')
     transactions = (
         Transaction.objects
-        .filter(user=request.user)
         .select_related('trans_type', 'category', 'sub_cat')
     )
     context = get_summary_data(transactions, year)
@@ -806,12 +805,10 @@ def category_summary(request):
     year = request.GET.get('year', str(timezone.now().year))
     transactions = (
         Transaction.objects
-        .filter(user=request.user)
         .select_related('trans_type', 'category', 'sub_cat')
     )
     context = get_summary_data(transactions, year)
     context['available_years'] = (
-        Transaction.objects.filter(user=request.user)
         .dates('date', 'year')
         .distinct()
     )
@@ -854,6 +851,7 @@ def keyword_financial_summary(request):
 @login_required
 def reports_page(request):
     return render(request, 'finance/reports.html')
+
 
 # Emails =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
