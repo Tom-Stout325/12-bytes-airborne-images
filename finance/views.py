@@ -132,11 +132,12 @@ def transaction_search(request):
     keyword_options = Keyword.objects.all()
 
     years = (
-        Transaction.objects.annotate(year=ExtractYear('date'))
-        .values_list('year', flat=True)
+        Transaction.objects.annotate(tx_year=ExtractYear('date'))
+        .values_list('tx_year', flat=True)
         .distinct()
-        .order_by('-year')
+        .order_by('-tx_year')
     )
+
 
     context = {
         'transactions': queryset,
