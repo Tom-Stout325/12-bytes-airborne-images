@@ -6,82 +6,89 @@
 {% block title %}Finance Portal{% endblock %} 
 
 {% block content %}
-<div class="container py-4">
-  <!-- Header -->
-  <div class="text-center mb-5">
-    <img src="{% static 'images/logo2.png' %}" alt="Logo" style="height: 150px;" class="mb-2">
-    <h1 class="display-6 fw-bold text-primary">Finance Portal</h1>
-  </div>
+<div class="container my-4">
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
 
-  <!-- Cards Section -->
-  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
     <div class="col">
-      <div class="card shadow-sm h-100 border-primary hover-scale">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title text-primary text-center">💰 Transactions</h5>
-          <p class="card-text mb-3">Manage income and expense records across all categories.</p>
-          <div class="mt-auto">
-            <a href="{% url 'transactions' %}" class="btn btn-primary w-100">View Transactions</a>
+      <a href="{% url 'transactions' %}" class="text-decoration-none">
+        <div class="card shadow-sm h-100 border-0 hover-shadow-sm">
+          <div class="card-body text-center py-3">
+            <i class="fa-solid fa-receipt fa-lg text-primary mb-2"></i>
+            <h6 class="card-title mb-1">Transactions</h6>
+            <p class="card-text text-muted small">Manage financial transactions.</p>
           </div>
         </div>
-      </div>
+      </a>
     </div>
 
     <div class="col">
-      <div class="card shadow-sm h-100 border-success hover-scale">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title text-success text-center">🧾 Invoices</h5>
-          <p class="card-text mb-3">Create, manage, and track invoice payments.</p>
-          <div class="mt-auto">
-            <a href="{% url 'invoice_list' %}" class="btn btn-success w-100">View Invoices</a>
+      <a href="{% url 'invoice_list' %}" class="text-decoration-none">
+        <div class="card shadow-sm h-100 border-0 hover-shadow-sm">
+          <div class="card-body text-center py-3">
+            <i class="fa-solid fa-file-invoice-dollar fa-lg text-success mb-2"></i>
+            <h6 class="card-title mb-1">Invoices</h6>
+            <p class="card-text text-muted small">Review and issue invoices.</p>
           </div>
         </div>
-      </div>
+      </a>
     </div>
 
     <div class="col">
-      <div class="card shadow-sm h-100 border-info hover-scale">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title text-info text-center">🚗 Mileage Log</h5>
-          <p class="card-text mb-3">Track business mileage for reimbursements and deductions.</p>
-          <div class="mt-auto">
-            <a href="{% url 'mileage_log' %}" class="btn btn-info w-100 text-white">Mileage Log</a>
+      <a href="{% url 'mileage_log' %}" class="text-decoration-none">
+        <div class="card shadow-sm h-100 border-0 hover-shadow-sm">
+          <div class="card-body text-center py-3">
+            <i class="fa-solid fa-road fa-lg text-info mb-2"></i>
+            <h6 class="card-title mb-1">Mileage Log</h6>
+            <p class="card-text text-muted small">Track travel mileage.</p>
           </div>
         </div>
-      </div>
+      </a>
     </div>
 
     <div class="col">
-      <div class="card shadow-sm h-100 border-warning hover-scale">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title text-warning text-center">🏷️ Categories</h5>
-          <p class="card-text mb-3">Organize transactions by category and subcategory.</p>
-          <div class="mt-auto">
-            <a href="{% url 'category_page' %}" class="btn btn-warning w-100 text-dark">Manage Categories</a>
+      <a href="{% url 'category_page' %}" class="text-decoration-none">
+        <div class="card shadow-sm h-100 border-0 hover-shadow-sm">
+          <div class="card-body text-center py-3">
+            <i class="fa-solid fa-tags fa-lg text-warning mb-2"></i>
+            <h6 class="card-title mb-1">Categories</h6>
+            <p class="card-text text-muted small">Manage transaction categories.</p>
           </div>
         </div>
-      </div>
+      </a>
     </div>
 
     <div class="col">
-      <div class="card shadow-sm h-100 border-danger hover-scale">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title text-danger text-center">📊 Reports</h5>
-          <p class="card-text mb-3">Generate income/expense summaries and Schedule C exports.</p>
-          <div class="mt-auto">
-            <a href="{% url 'reports' %}" class="btn btn-danger w-100">View Reports</a>
+      <a href="{% url 'reports' %}" class="text-decoration-none">
+        <div class="card shadow-sm h-100 border-0 hover-shadow-sm">
+          <div class="card-body text-center py-3">
+            <i class="fa-solid fa-chart-line fa-lg text-danger mb-2"></i>
+            <h6 class="card-title mb-1">Reports</h6>
+            <p class="card-text text-muted small">View financial summaries.</p>
           </div>
         </div>
-      </div>
+      </a>
     </div>
+
+    <div class="col">
+      <a href="{% url 'keyword_list' %}" class="text-decoration-none">
+        <div class="card shadow-sm h-100 border-0 hover-shadow-sm">
+          <div class="card-body text-center py-3">
+            <i class="fa-solid fa-key fa-lg text-secondary mb-2"></i>
+            <h6 class="card-title mb-1">Keywords</h6>
+            <p class="card-text text-muted small">Manage keywords for tagging transactions.</p>
+          </div>
+        </div>
+      </a>
+    </div>
+
   </div>
 </div>
 
 <style>
-.hover-scale:hover {
-  transform: scale(1.02);
+.card.hover-shadow-sm:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease-in-out;
 }
 </style>
-
 {% endblock %}
