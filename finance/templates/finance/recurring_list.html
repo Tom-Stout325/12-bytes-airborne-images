@@ -1,0 +1,49 @@
+{% extends 'index.html' %} 
+
+
+{% block breadcrumbs %}
+  <h3>Finance Portal</h3>
+  {% include "components/breadcrumbs.html" with level1="Transactions" level1_url=urls.transactions level2="Recurring Transactions" %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="text-center text-success mb-5">Recurring Transactions</h2>
+  <a href="{% url 'recurring_add' %}" class="btn btn-success mb-5">Add New</a>
+  <table class="table table-sm table-striped">
+    <thead>
+      <tr>
+        <th>Transaction</th>
+        <th>Amount</th>
+        <th>Day</th>
+        <th>Category</th>
+        <th>SubCategory</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in recurring_transactions %}
+      <tr>
+        <td>{{ r.transaction }}</td>
+        <td>${{ r.amount }}</td>
+        <td>{{ r.day }}</td>
+        <td>{{ r.category }}</td>
+        <td>{{ r.sub_cat }}</td>
+        <td>
+          <a
+            href="{% url 'recurring_edit' r.pk %}"
+            class="btn btn-sm btn-warning"
+            >Edit</a
+          >
+          <a
+            href="{% url 'recurring_delete' r.pk %}"
+            class="btn btn-sm btn-danger"
+            >Delete</a
+          >
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

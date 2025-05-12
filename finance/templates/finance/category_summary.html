@@ -4,17 +4,7 @@
 
 {% block breadcrumbs %}
     <h3>Finance Portal</h3>
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"> <a href="{% url 'dashboard' %}">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'category_page' %}">Categories</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'reports' %}">Financial Reports</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Income/Expense Summary</li>
-        </ol>
-    </nav>
+    {% include "components/breadcrumbs.html" with level1="Financial Reports" level1_url=urls.reports level2="Income & Expense Summary" %}
 {% endblock %}
 
 {% block content %}

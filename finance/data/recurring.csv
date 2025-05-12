@@ -1,0 +1,14 @@
+date,trans_type,category,sub_cat,amount,transaction,keyword,team,tax,user
+18,2,11,29,60.45,Verizon Cellular,133,1,Yes,1
+18,2,35,3,44.24,Verizon iPad,133,1,Yes,1
+1,2,11,67,50,Starlink,133,1,Yes,1
+1,2,2,8,143.61,The Hartford Insurance,133,1,Yes,1
+8,2,4,14,9,Heroku,133,34,Yes,1
+8,2,4,14,6,AWS - Database,133,34,Yes,1
+7,2,4,44,13.38,Microsoft 365,133,34,Yes,1
+6,2,4,44,9.99,Apple iCloud,133,34,Yes,1
+21,2,4,44,32.09,Adobe CC,133,2,Yes,1
+20,2,4,44,16.04,Paddle.com,133,34,Yes,1
+2,2,4,11,9,PaymentTech,133,1,Yes,1
+30,2,4,11,15,Chase Bank Fee,133,1,Yes,1
+2,2,4,44,2.55,Google Suite,133,34,Yes,1

@@ -5,18 +5,8 @@
 {% block title %} Edit{% endblock %}
 
 {% block breadcrumbs %}
-<h3>Finance Portal</h3>
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</li>
-    <li class="breadcrumb-item active" aria-current="page">Edit Transactions</li>
-    <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'category_page' %}">Categories</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'reports' %}">Financial Reports</a></li>
-  </ol>
-</nav>
+    <h3>Finance Portal</h3>
+    {% include "components/breadcrumbs.html" with level1="Transactions" level1_url=urls.transactions level2="Edit Transaction" %}
 {% endblock %}
 
 
@@ -28,7 +18,7 @@
         </div>
         <form method="post">
             {% csrf_token %}
-            {{ form|crispy }} <!-- Using crispy forms to render the form with better styling -->
+            {{ form|crispy }}
 
             <div class="d-grid gap-2 mt-3">
                 <button type="submit" class="btn btn-success w-100">Save Changes</button>

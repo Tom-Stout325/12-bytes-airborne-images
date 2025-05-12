@@ -84,7 +84,7 @@ class ClientForm(forms.ModelForm):
 class MileageForm(forms.ModelForm):
     class Meta:
         model = Miles
-        exclude = ['user', 'total']  # `total` is auto-calculated; `user` is set in view
+        exclude = ['user', 'total'] 
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'begin': forms.NumberInput(attrs={'step': '0.1', 'class': 'form-control'}),
@@ -104,4 +104,29 @@ class MileageRateForm(forms.ModelForm):
         fields = ['rate']
         widgets = {
             'rate': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+        }
+
+
+
+class KeywordForm(forms.ModelForm):
+    class Meta:
+        model = Keyword
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+
+from django import forms
+from .models import RecurringTransaction
+
+class RecurringTransactionForm(forms.ModelForm):
+    class Meta:
+        model = RecurringTransaction
+        fields = [
+            'user', 'trans_type', 'category', 'sub_cat', 'amount', 'transaction', 'day',
+            'team', 'keyword', 'tax', 'receipt', 'account', 'active'
+        ]
+        widgets = {
+            'day': forms.NumberInput(attrs={'min': 1, 'max': 28}),  # avoid edge-case months
         }

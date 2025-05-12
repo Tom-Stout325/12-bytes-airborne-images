@@ -1,0 +1,14 @@
+{% extends 'index.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Keyword Form{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>{{ view.object.pk|yesno:"Edit Keyword,Add Keyword" }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" class="btn btn-success">Save</button>
+    <a href="{% url 'keyword_list' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}

@@ -12,7 +12,11 @@ ENV/
 .venv/
 *.sqlite3
 
+.env
+.env.local
 
+settings copy 2.py
+settings copy.py
 
 # macOS
 .DS_Store

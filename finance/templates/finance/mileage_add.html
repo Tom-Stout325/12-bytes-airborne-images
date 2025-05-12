@@ -1,4 +1,11 @@
 {% extends 'index.html' %}
+
+
+{% block breadcrumbs %}
+  <h3>Finance Portal</h3>
+  {% include "components/breadcrumbs.html" with level1="Mileage Log" level1_url=urls.mileage_log level2="Edit Mileage" %}
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
   <h2>{{ mileage|default:'Add Mileage' }}</h2>

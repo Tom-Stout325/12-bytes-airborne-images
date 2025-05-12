@@ -1,7 +1,6 @@
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView, CreateView
-from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
@@ -15,7 +14,6 @@ from django.contrib import messages
 from django.db.models import Sum, Q
 from django.utils import timezone
 from django.conf import settings
-from calendar import monthrange
 from datetime import datetime
 from weasyprint import HTML
 from pathlib import Path
@@ -24,6 +22,7 @@ import logging
 import base64
 import csv
 import os
+
 from .models import *
 from .forms import *
 
@@ -297,13 +296,16 @@ def transaction_delete(request, pk):
 def transaction_search(request):
     current_year = now().year
 
+    # Get filters from GET parameters
     selected_keyword = request.GET.get('keyword', '')
     selected_category = request.GET.get('category', '')
     selected_sub_cat = request.GET.get('sub_cat', '')
     selected_year = request.GET.get('year', '')
 
+    # Start queryset
     queryset = Transaction.objects.select_related('trans_type', 'category', 'sub_cat', 'keyword')
 
+    # Apply filters
     if selected_keyword:
         queryset = queryset.filter(keyword__id=selected_keyword)
     if selected_category:
@@ -313,11 +315,13 @@ def transaction_search(request):
     if selected_year:
         queryset = queryset.filter(date__year=selected_year)
 
+    # Extract years safely using alias
     years_qs = Transaction.objects.annotate(extracted_year=ExtractYear('date')) \
                                   .values_list('extracted_year', flat=True) \
                                   .distinct() \
                                   .order_by('-extracted_year')
 
+    # Convert years to string for template selection comparison
     years = [str(y) for y in years_qs if y is not None]
 
     context = {
@@ -333,6 +337,9 @@ def transaction_search(request):
     }
 
     return render(request, 'finance/transaction_search.html', context)
+
+
+
 
 
 # Invoices   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -945,6 +952,7 @@ def get_mileage_context(request):
     }
 
 
+
 @login_required
 def mileage_log(request):
     context = get_mileage_context(request)
@@ -997,6 +1005,9 @@ def update_mileage_rate(request):
     return render(request, 'components/update_mileage_rate.html', {'form': form})
 
 
+
+
+
 #-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-= KEYWORDS
 
 
@@ -1021,126 +1032,3 @@ class KeywordDeleteView(DeleteView):
     model = Keyword
     template_name = 'finance/keyword_confirm_delete.html'
     success_url = reverse_lazy('keyword_list')
-
-
-
-
-class RecurringTransactionListView(LoginRequiredMixin, ListView):
-    model = RecurringTransaction
-    template_name = 'finance/recurring_list.html'
-    context_object_name = 'recurring_transactions'
-
-    def get_queryset(self):
-        return RecurringTransaction.objects.filter(user=self.request.user)
-
-class RecurringTransactionCreateView(LoginRequiredMixin, CreateView):
-    model = RecurringTransaction
-    form_class = RecurringTransactionForm
-    template_name = 'finance/recurring_form.html'
-    success_url = reverse_lazy('recurring_list')
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
-
-class RecurringTransactionUpdateView(LoginRequiredMixin, UpdateView):
-    model = RecurringTransaction
-    form_class = RecurringTransactionForm
-    template_name = 'finance/recurring_form.html'
-    success_url = reverse_lazy('recurring_list')
-
-class RecurringTransactionDeleteView(LoginRequiredMixin, DeleteView):
-    model = RecurringTransaction
-    template_name = 'finance/recurring_confirm_delete.html'
-    success_url = reverse_lazy('recurring_list')
-
-
-
-@staff_member_required
-def run_recurring_now_view(request):
-    today = now().date()
-    created = 0
-    skipped = 0
-
-    recurrences = RecurringTransaction.objects.filter(day=today.day, active=True)
-
-    for r in recurrences:
-        exists = Transaction.objects.filter(
-            user=r.user,
-            transaction=r.transaction,
-            date__year=today.year,
-            date__month=today.month
-        ).exists()
-
-        if exists:
-            skipped += 1
-            continue
-
-        Transaction.objects.create(
-            date=today,
-            trans_type=r.trans_type,
-            category=r.category,
-            sub_cat=r.sub_cat,
-            amount=r.amount,
-            transaction=r.transaction,
-            team=r.team,
-            keyword=r.keyword,
-            tax=r.tax,
-            user=r.user,
-            paid="Yes"
-        )
-
-        created += 1
-
-    messages.success(request, f"{created} transactions created, {skipped} skipped.")
-    return redirect('transactions') 
-
-
-@staff_member_required
-def run_monthly_batch_view(request):
-    today = now().date()
-
-    year = int(request.GET.get('year', today.year))
-    month = int(request.GET.get('month', today.month))
-    last_day = monthrange(year, month)[1]
-
-    created_transactions = []
-    skipped = 0
-
-    recurrences = RecurringTransaction.objects.filter(active=True)
-
-    for r in recurrences:
-        target_day = min(r.day, last_day)
-        trans_date = date(year, month, target_day)
-
-        exists = Transaction.objects.filter(
-            user=r.user,
-            transaction=r.transaction,
-            date=trans_date
-        ).exists()
-
-        if exists:
-            skipped += 1
-            continue
-
-        tx = Transaction.objects.create(
-            date=trans_date,
-            trans_type=r.trans_type,
-            category=r.category,
-            sub_cat=r.sub_cat,
-            amount=r.amount,
-            transaction=r.transaction,
-            team=r.team,
-            keyword=r.keyword,
-            tax=r.tax,
-            user=r.user,
-            paid="Yes"
-        )
-        created_transactions.append(tx)
-
-    return render(request, 'finance/recurring_batch_success.html', {
-        'created': created_transactions,
-        'skipped': skipped,
-        'run_year': year,
-        'run_month': month,
-    })

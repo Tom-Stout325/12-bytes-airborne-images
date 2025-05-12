@@ -228,6 +228,27 @@ class Miles(models.Model):
         super().save(*args, **kwargs)
 
 
+ # -------------------------------------------------------------------------------------------
 
 
+class RecurringTransaction(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    trans_type = models.ForeignKey(Type, on_delete=models.PROTECT)
+    category = models.ForeignKey(Category, on_delete=models.PROTECT)
+    sub_cat = models.ForeignKey(SubCategory, on_delete=models.PROTECT)
+    amount = models.DecimalField(max_digits=20, decimal_places=2)
+    transaction = models.CharField(max_length=255)
+    day = models.IntegerField(help_text="Day of the month to apply")
+    team = models.ForeignKey('Team', null=True, on_delete=models.PROTECT, blank=True)
+    keyword = models.ForeignKey('Keyword', null=True, on_delete=models.PROTECT, blank=True)
+    tax = models.CharField(max_length=10, default="Yes")
+    receipt = models.FileField(upload_to='receipts/', blank=True, null=True)
+    account = models.CharField(max_length=255, blank=True, null=True)
+    active = models.BooleanField(default=True)
+    last_created = models.DateField(null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.transaction} - {self.amount} on day {self.day}"
+
+
+ # -------------------------------------------------------------------------------------------

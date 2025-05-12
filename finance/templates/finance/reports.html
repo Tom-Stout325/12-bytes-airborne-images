@@ -6,17 +6,8 @@
 {% block title %}Transactions{% endblock %}
 
 {% block breadcrumbs %}
-<h3>Finance Portal</h3>
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'category_page' %}">Categories</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Financial Reports</li>
-  </ol>
-</nav>
+  <h3>Finance Portal</h3>
+  {% include "components/breadcrumbs.html" with level1="Financial Reports" level1_url=urls.reports %}
 {% endblock %}
 
 {% block content %}
@@ -74,7 +65,21 @@
       </a>
     </div>
 
-  </div>
+    <div class="col-sm-12 col-md-6 col-lg-4">
+      <a href="{% url 'recurring_list' %}" class="text-decoration-none">
+        <div class="card h-100 border-0 shadow-sm custom-hover" style="background-color: #fff5f5;">
+          <div class="card-body text-center py-4" style="border-radius: .5rem;">
+            <div class="mb-3">
+              <i class="fa-solid fa-tags fa-2x text-info"></i>
+            </div>
+            <h5 class="card-title text-info fw-bold">Recurring Transactions</h5>
+            <p class="card-text text-secondary small">
+              Review Monthly Recurring Transactions
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
 </div>
 
 <style>

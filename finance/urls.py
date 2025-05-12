@@ -3,6 +3,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from .views import *
 
+from .views import (
+    KeywordListView,
+    KeywordCreateView,
+    KeywordUpdateView,
+    KeywordDeleteView
+)
+
 
 urlpatterns = [
   path('dashboard', Dashboard.as_view(), name="dashboard"),
@@ -31,8 +38,7 @@ urlpatterns = [
   path('invoice/<int:pk>/pdf/', invoice_review_pdf, name='invoice_review_pdf'),
 
 
-  path('tax-categories/', category_page, name='category_page'),
-
+  path('category-report/', category_page, name='category_page'),
   path('category/add/', CategoryCreateView.as_view(), name='add_category'),
   path('category/edit/<int:pk>/', CategoryUpdateView.as_view(), name='edit_category'),
   path('category/delete/<int:pk>/',CategoryDeleteView.as_view(), name='delete_category'),
@@ -58,7 +64,20 @@ urlpatterns = [
   path('mileage/<int:pk>/delete/', MileageDeleteView.as_view(), name='mileage_delete'),
   path('mileage/update-rate/', update_mileage_rate, name='update_mileage_rate'),
   
-
-
+  path('keywords/', KeywordListView.as_view(), name='keyword_list'),
+  path('keywords/add/', KeywordCreateView.as_view(), name='keyword_create'),
+  path('keywords/<int:pk>/edit/', KeywordUpdateView.as_view(), name='keyword_update'),
+  path('keywords/<int:pk>/delete/', KeywordDeleteView.as_view(), name='keyword_delete'),
+  
+  path('recurring/', RecurringTransactionListView.as_view(), name='recurring_list'),
+  path('recurring/add/', RecurringTransactionCreateView.as_view(), name='recurring_add'),
+  path('recurring/<int:pk>/edit/', RecurringTransactionUpdateView.as_view(), name='recurring_edit'),
+  path('recurring/<int:pk>/delete/', RecurringTransactionDeleteView.as_view(), name='recurring_delete'),
+  path('run-recurring-now/', run_recurring_now_view, name='run_recurring_now'),
+  path('transactions/run-monthly-batch/', run_monthly_batch_view, name='run_monthly_batch'),
 
 ]
+
+
+
+

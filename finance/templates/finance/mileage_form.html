@@ -6,16 +6,8 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-<h3>Finance Portal</h3>
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
-    <li class="breadcrumb-item active" aria-current="page">
-      {% if form.instance.pk %}Update Mileage{% else %}Add Mileage{% endif %}
-    </li>
-  </ol>
-</nav>
+  <h3>Finance Portal</h3>
+  {% include "components/breadcrumbs.html" with level1="Mileage Log" level1_url=urls.mileage_log level2="Add Mileage" %}
 {% endblock %}
 
 {% block content %}

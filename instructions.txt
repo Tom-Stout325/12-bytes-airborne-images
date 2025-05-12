@@ -1,3 +1,8 @@
+PRODUCTION UPDATES
+
+change all keyword id 18 to keyword id 7
+
+
 cache heavy views:
 
 from django.views.decorators.cache import cache_page
@@ -14,7 +19,7 @@ Only show log in if user is not logged in
 Add flight statistics to drones in Drone Detail
 
 
-
+Add Keyword CRUD
 
 
 Replace the following images:

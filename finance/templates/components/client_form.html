@@ -3,8 +3,10 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+{% include "components/breadcrumbs.html" with level1="Clients" level1_url=urls.client_list level2="Add or Edit a Client" %}
+
 <div class="container w-50 justify-content-center bg-light border rounded">
-    <div class="py-4 text-center">
+    <div class="py-4 text-center text-primary">
         <h2>{% if form.instance.pk %}Edit Client{% else %}Add A Client{% endif %}</h2>
     </div>
     <div>

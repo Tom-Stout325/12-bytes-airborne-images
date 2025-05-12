@@ -12,6 +12,14 @@ class TransactionAdmin(admin.ModelAdmin):
 class GroupAdmin(admin.ModelAdmin):
     list_display    = ['name', 'date']
     
+
+class TeamAdmin(admin.ModelAdmin):
+    list_display    = ['name', 'id']
+    
+    
+class TypeAdmin(admin.ModelAdmin):
+    list_display    = ['trans_type', 'id']
+    
     
 @admin.register(Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
@@ -28,14 +36,22 @@ class CategoryAdmin(admin.ModelAdmin):
 
 class SubCategoryAdmin(admin.ModelAdmin):
     list_display = ['sub_cat', 'sub_cat.id']
+    
+
+@admin.register(RecurringTransaction)
+class RecurringTransactionAdmin(admin.ModelAdmin):
+    list_display = ('transaction', 'amount', 'day', 'category', 'sub_cat', 'user', 'active', 'last_created')
+    list_filter = ('active', 'day', 'category', 'sub_cat')
+    search_fields = ('transaction', 'user__username')
+
 
 admin.site.register(InvoiceItem)
 admin.site.register(MileageRate)
 admin.site.register(Client)
 admin.site.register(Keyword)
-admin.site.register(Type)
+admin.site.register(Type, TypeAdmin)
 admin.site.register(Service)
-admin.site.register(Team)
+admin.site.register(Team, TeamAdmin)
 admin.site.register(Category,)
 admin.site.register(SubCategory)
 admin.site.register(Transaction, TransactionAdmin)

@@ -3,23 +3,11 @@
 
 {% block title %}Tax Categories{% endblock %}
 
-{% block breadcrumbs %}
-<h3>Finance Portal</h3>
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'transactions' %}">Transactions</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'transactions_search' %}">Search Transactions</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'invoice_list' %}">Invoices</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'mileage_log' %}">Mileage Log</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Categories</li>
-    <li class="breadcrumb-item"><a href="{% url 'reports' %}">Financial Reports</a></li>
-  </ol>
-</nav>
-{% endblock %}
-
 
 {% block content %}
+{% include "components/breadcrumbs.html" with level1="Categories & Sub Categories" %}
+
+<h3 class="text-primary text-center my-4">Categories / Sub Categories</h3>
 <div class="container mt-4">
   <div class="row">
 

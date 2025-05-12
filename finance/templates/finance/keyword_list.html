@@ -1,0 +1,46 @@
+{% extends 'index.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Keywords{% endblock %}
+
+{% block breadcrumbs %}
+  <h3>Finance Portal</h3>
+  {% include "components/breadcrumbs.html" with level1="Financial Reports" level1_url=urls.reports level2="Keyword Summary" %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>{{ view.object.pk|yesno:"Edit Keyword,Add Keyword" }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" class="btn btn-success">Save</button>
+    <a href="{% url 'keyword_list' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+
+<div class="container mt-4">
+  <h2 class="mb-4">Keywords</h2>
+  <a href="{% url 'keyword_create' %}" class="btn btn-primary mb-3">Add New Keyword</a>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th style="width: 200px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for keyword in keywords %}
+      <tr>
+        <td><strong>{{ keyword.name }}</strong> 
+            <small class="text-muted">(ID: {{ keyword.id }})</small></td>
+        <td>
+          <a href="{% url 'keyword_update' keyword.pk %}" class="btn btn-sm btn-warning">Edit</a>
+          <a href="{% url 'keyword_delete' keyword.pk %}" class="btn btn-sm btn-danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

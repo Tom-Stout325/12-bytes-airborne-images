@@ -2,7 +2,9 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
+
 {% block content %}
+{% include "components/breadcrumbs.html" with level1="Categories" %}
 <div class="container w-50 justify-content-center bg-light border rounded">
     <div class="py-4 text-center">
         <h2>{% if form.instance.pk %}Edit A Category{% else %}Add A Category{% endif %}</h2>
