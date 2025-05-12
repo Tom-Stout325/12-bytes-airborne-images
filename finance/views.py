@@ -7,11 +7,13 @@ from django.views.decorators.http import require_POST
 from django.template.loader import render_to_string
 from django.http import JsonResponse, HttpResponse
 from django.db.models.functions import ExtractYear
+from django.db.models.functions import TruncMonth
 from django.template.loader import get_template
 from django.urls import reverse_lazy, reverse
 from django.core.mail import EmailMessage
 from django.utils.timezone import now
 from django.contrib import messages
+from collections import defaultdict
 from django.db.models import Sum, Q
 from django.utils import timezone
 from django.conf import settings
@@ -26,6 +28,7 @@ import csv
 import os
 from .models import *
 from .forms import *
+
 
 logger = logging.getLogger(__name__)
 
@@ -1055,6 +1058,30 @@ class RecurringTransactionDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('recurring_list')
 
 
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models.functions import TruncMonth
+from collections import defaultdict
+from .models import Transaction, RecurringTransaction
+
+@staff_member_required
+def recurring_report_view(request):
+    # Get all transactions that originated from recurring templates
+    recurring_templates = RecurringTransaction.objects.values_list('transaction', flat=True)
+    transactions = Transaction.objects.filter(transaction__in=recurring_templates)
+
+    # Group by transaction name and by month/year
+    grouped = defaultdict(lambda: defaultdict(list))
+    for tx in transactions:
+        key = tx.transaction
+        month_year = tx.date.strftime('%B %Y')
+        grouped[key][month_year].append(tx)
+
+    # Sorted output for display
+    summary = sorted(grouped.items(), key=lambda x: x[0].lower())
+
+    return render(request, 'finance/recurring_report.html', {
+        'summary': summary
+    })
 
 @staff_member_required
 def run_recurring_now_view(request):

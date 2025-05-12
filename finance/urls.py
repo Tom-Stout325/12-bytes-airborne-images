@@ -75,6 +75,7 @@ urlpatterns = [
   path('recurring/<int:pk>/delete/', RecurringTransactionDeleteView.as_view(), name='recurring_delete'),
   path('run-recurring-now/', run_recurring_now_view, name='run_recurring_now'),
   path('transactions/run-monthly-batch/', run_monthly_batch_view, name='run_monthly_batch'),
+  path('recurring/report/', recurring_report_view, name='recurring_report'),
 
 ]
 

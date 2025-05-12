@@ -9,7 +9,12 @@
 {% block content %}
 <div class="container mt-4">
   <h2 class="text-center text-success mb-5">Recurring Transactions</h2>
-  <a href="{% url 'recurring_add' %}" class="btn btn-success mb-5">Add New</a>
+  <div class="d-flex justify-content-start gap-2 mb-4">
+    <a href="{% url 'recurring_add' %}" class="btn btn-success">Add New</a>
+    <a href="{% url 'recurring_report' %}" class="btn btn-outline-primary">Run Report</a>
+  </div>
+
+
   <table class="table table-sm table-striped">
     <thead>
       <tr>
