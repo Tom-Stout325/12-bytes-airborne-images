@@ -864,30 +864,30 @@ from django.shortcuts import render
 from finance.models import Transaction
 
 
+from django.db.models import Sum
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from finance.models import Transaction
+
 @login_required
 def nhra_summary(request):
     current_year = timezone.now().year
     years = [current_year, current_year - 1, current_year - 2]
 
-    # Define excluded keywords (lowercase for consistent matching)
-    excluded_keywords = {"na", "monthly", "nhra", "none", "denver", "unknown"}
+    # Exclude non-event keywords by ID
+    excluded_ids = [35, 133, 34, 67, 100]
 
-    # Build Q object to exclude keywords case-insensitively
-    exclude_q = Q()
-    for kw in excluded_keywords:
-        exclude_q |= Q(keyword__name__iexact=kw)
-
-    # Fetch and aggregate transactions
     summary_data = (
         Transaction.objects
+        .exclude(keyword__id__in=excluded_ids)
         .filter(date__year__in=years)
-        .exclude(exclude_q)
         .values('keyword__name', 'date__year', 'trans_type__trans_type')
         .annotate(total=Sum('amount'))
         .order_by('keyword__name', 'date__year')
     )
 
-    # Organize results into a nested dict
+    # Group into a nested dictionary: {keyword: {year: {income, expense, net}}}
     result = {}
     for item in summary_data:
         keyword = item['keyword__name']
@@ -902,7 +902,6 @@ def nhra_summary(request):
         elif trans_type == "expense":
             result[keyword][year]["expense"] = item['total']
 
-        # Calculate net
         result[keyword][year]["net"] = (
             result[keyword][year]["income"] - result[keyword][year]["expense"]
         )
@@ -911,6 +910,7 @@ def nhra_summary(request):
         "years": years,
         "summary_data": result,
     })
+
 
 
 
