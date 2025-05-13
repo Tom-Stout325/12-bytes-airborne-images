@@ -854,28 +854,13 @@ def category_summary(request):
     )
     return render(request, 'finance/category_summary.html', context)
 
-
-
-
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from django.db.models import Sum, Q
-from django.shortcuts import render
-from finance.models import Transaction
-
-
-from django.db.models import Sum
-from django.utils import timezone
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from finance.models import Transaction
+    
 
 @login_required
 def nhra_summary(request):
     current_year = timezone.now().year
     years = [current_year, current_year - 1, current_year - 2]
 
-    # Exclude non-event keywords by ID
     excluded_ids = [35, 133, 34, 67, 100]
 
     summary_data = (
@@ -887,7 +872,6 @@ def nhra_summary(request):
         .order_by('keyword__name', 'date__year')
     )
 
-    # Group into a nested dictionary: {keyword: {year: {income, expense, net}}}
     result = {}
     for item in summary_data:
         keyword = item['keyword__name']
