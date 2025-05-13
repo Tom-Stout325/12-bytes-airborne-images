@@ -26,37 +26,29 @@
   <table class="table table-hover table-bordered text-center align-middle">
     <thead>
       <tr>
-        {% for col, label in [
-          ('date', 'Date'),
-          ('trans_type__trans_type', 'Type'),
-          ('transaction', 'Transaction'),
-          ('keyword__name', 'Location'),
-          ('amount', 'Amount'),
-          ('invoice_numb', 'Inv. #')
-        ] %}
-          {% with current_sort=filters.sort|default:'date' current_dir=filters.direction|default:'desc' %}
-            {% if current_sort == col %}
-              {% if current_dir == 'asc' %}
-                {% with icon='fa-sort-up' next_dir='desc' %}
-                  <th class="sortable-header">
-                    <a href="?{% querystring sort=col direction=next_dir %}">{{ label }} <i class="fa-solid {{ icon }}"></i></a>
-                  </th>
-                {% endwith %}
-              {% else %}
-                {% with icon='fa-sort-down' next_dir='asc' %}
-                  <th class="sortable-header">
-                    <a href="?{% querystring sort=col direction=next_dir %}">{{ label }} <i class="fa-solid {{ icon }}"></i></a>
-                  </th>
-                {% endwith %}
-              {% endif %}
+        {% with current_sort=filters.sort|default:'date' current_dir=filters.direction|default:'desc' %}
+          {% for col, label in [
+            ('date', 'Date'),
+            ('trans_type__trans_type', 'Type'),
+            ('transaction', 'Transaction'),
+            ('keyword__name', 'Location'),
+            ('amount', 'Amount'),
+            ('invoice_numb', 'Inv. #')
+          ] %}
+            {% if current_sort == col and current_dir == 'asc' %}
+              <th class="sortable-header">
+                <a href="?{% querystring sort=col direction='desc' %}">{{ label }} <i class="fa-solid fa-sort-up"></i></a>
+              </th>
+            {% elif current_sort == col and current_dir == 'desc' %}
+              <th class="sortable-header">
+                <a href="?{% querystring sort=col direction='asc' %}">{{ label }} <i class="fa-solid fa-sort-down"></i></a>
+              </th>
             {% else %}
-              {% with icon='fa-sort text-muted' next_dir='asc' %}
-                <th class="sortable-header">
-                  <a href="?{% querystring sort=col direction=next_dir %}">{{ label }} <i class="fa-solid {{ icon }}"></i></a>
-                </th>
-              {% endwith %}
+              <th class="sortable-header">
+                <a href="?{% querystring sort=col direction='asc' %}">{{ label }} <i class="fa-solid fa-sort text-muted"></i></a>
+              </th>
             {% endif %}
-          {% endwith %}
+          {% endfor %}
         {% endwith %}
         <th>View</th>
         <th>Edit</th>
@@ -69,7 +61,9 @@
         <tr>
           <td>{{ tx.date }}</td>
           <td>
-            <span class="badge {% if tx.trans_type.trans_type == 'Income' %}bg-success{% else %}bg-danger{% endif %}">{{ tx.trans_type }}</span>
+            <span class="badge {% if tx.trans_type.trans_type == 'Income' %}bg-success{% else %}bg-danger{% endif %}">
+              {{ tx.trans_type }}
+            </span>
           </td>
           <td class="text-start">{{ tx.transaction }}</td>
           <td>{{ tx.keyword }}</td>
