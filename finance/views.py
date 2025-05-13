@@ -112,8 +112,6 @@ class Dashboard(LoginRequiredMixin, ListView):
 @login_required
 def transaction_search(request):
     current_year = now().year
-
-    # Get filters from GET parameters
     selected_keyword = request.GET.get('keyword', '')
     selected_category = request.GET.get('category', '')
     selected_sub_cat = request.GET.get('sub_cat', '')
@@ -156,8 +154,6 @@ def transaction_search(request):
 # Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
-from finance.models import Keyword  # make sure this import is present
-
 class Transactions(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "finance/transactions.html"
@@ -165,43 +161,77 @@ class Transactions(LoginRequiredMixin, ListView):
     context_object_name = "transactions"
 
     def get_queryset(self):
-        queryset = Transaction.objects.select_related('trans_type', 'category', 'sub_cat', 'team', 'keyword').order_by('-date')
+        queryset = Transaction.objects.select_related(
+            'trans_type', 'category', 'sub_cat', 'team', 'keyword'
+        )
 
-        year = self.request.GET.get('year')
-        trans_type = self.request.GET.get('type')
-        sub_cat_id = self.request.GET.get('sub_cat')
-        keyword_id = self.request.GET.get('keyword')
+        self.filters = {
+            'year': self.request.GET.get('year'),
+            'type': self.request.GET.get('type'),
+            'sub_cat': self.request.GET.get('sub_cat'),
+            'keyword': self.request.GET.get('keyword'),
+            'sort': self.request.GET.get('sort', 'date'),
+            'direction': self.request.GET.get('direction', 'desc')
+        }
 
-        if year:
+        if self.filters['year']:
             try:
-                queryset = queryset.filter(date__year=int(year))
+                queryset = queryset.filter(date__year=int(self.filters['year']))
             except ValueError:
                 pass
 
-        if trans_type in ['Income', 'Expense']:
-            queryset = queryset.filter(trans_type__trans_type=trans_type)
+        if self.filters['type'] in ['Income', 'Expense']:
+            queryset = queryset.filter(trans_type__trans_type=self.filters['type'])
 
-        if sub_cat_id:
-            queryset = queryset.filter(sub_cat__id=sub_cat_id)
+        if self.filters['sub_cat']:
+            queryset = queryset.filter(sub_cat__id=self.filters['sub_cat'])
 
-        if keyword_id:
-            queryset = queryset.filter(keyword__id=keyword_id)
+        if self.filters['keyword']:
+            queryset = queryset.filter(keyword__id=self.filters['keyword'])
+
+        if self.filters['sort'] in ['date', 'trans_type__trans_type', 'transaction', 'keyword__name', 'amount', 'invoice_numb']:
+            sort_expr = self.filters['sort']
+            if self.filters['direction'] == 'desc':
+                sort_expr = f"-{sort_expr}"
+            queryset = queryset.order_by(sort_expr)
+        else:
+            queryset = queryset.order_by('-date')
 
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
+            'request': self.request,
+            'filters': self.filters,
             'page_title': 'Transactions',
             'years': Transaction.objects.dates('date', 'year', order='DESC').distinct(),
             'sub_categories': SubCategory.objects.order_by('sub_cat'),
             'keywords': Keyword.objects.order_by('name'),
-            'selected_year': self.request.GET.get('year', ''),
-            'selected_type': self.request.GET.get('type', ''),
-            'selected_sub_cat': self.request.GET.get('sub_cat', ''),
-            'selected_keyword': self.request.GET.get('keyword', ''),
         })
         return context
+
+
+class DownloadTransactionsCSV(LoginRequiredMixin, View):
+    def get(self, request):
+        queryset = Transactions().get_queryset()
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="transactions.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Date', 'Type', 'Transaction', 'Location', 'Amount', 'Invoice #'])
+
+        for tx in queryset:
+            writer.writerow([
+                tx.date,
+                tx.trans_type.trans_type if tx.trans_type else '',
+                tx.transaction,
+                tx.keyword.name if tx.keyword else '',
+                tx.amount,
+                tx.invoice_numb
+            ])
+
+        return response
 
 
 

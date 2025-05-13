@@ -1,6 +1,7 @@
-import base64
-from django import template
+from urllib.parse import urlencode
 from django.conf import settings
+from django import template
+import base64
 
 register = template.Library()
 
@@ -15,3 +16,16 @@ def inline_logo():
             return f"data:image/png;base64,{encoded_image}"
     except FileNotFoundError:
         return ""  # Return an empty string if the image is not found
+
+
+from django import template
+
+register = template.Library()
+
+@register.simple_tag(takes_context=True)
+def querystring(context, **kwargs):
+    request = context['request']
+    query = request.GET.copy()
+    for k, v in kwargs.items():
+        query[k] = v
+    return query.urlencode()

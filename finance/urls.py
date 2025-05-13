@@ -23,7 +23,8 @@ urlpatterns = [
   path('download_transactions/', download_transactions, name='download_transactions'),
   path('transactions/<int:pk>/delete/', transaction_delete, name='transaction_delete'),
   path('transactions-search/', transaction_search, name='transactions_search'),
-
+  path('transactions/download/', DownloadTransactionsCSV.as_view(), name='download_transactions_csv'),
+  
   path('invoices/<int:pk>/delete/', invoice_delete, name='invoice_delete'),
   path('invoices/', InvoiceListView.as_view(), name='invoice_list'),
   path('invoice/<int:pk>/review/', invoice_review, name='invoice_review'),
