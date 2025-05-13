@@ -861,7 +861,7 @@ def category_summary(request):
 
 
 @login_required
-def keyword_financial_summary(request):
+def nhra_summary(request):
     current_year = timezone.now().year
     years = [current_year, current_year - 1, current_year - 2]
     excluded_keywords = {"na", "monthly", "nhra", "none", "Denver", "None", "Monthly", "NHRA", "unknown", "Unknown"}
@@ -887,7 +887,7 @@ def keyword_financial_summary(request):
             result[keyword][year]["expense"] = item['total']
         result[keyword][year]["net"] = result[keyword][year]["income"] - result[keyword][year]["expense"]
 
-    return render(request, "finance/keyword_financial_summary.html", {
+    return render(request, "finance/nhra_summary.html", {
         "years": years,
         "summary_data": result,
     })

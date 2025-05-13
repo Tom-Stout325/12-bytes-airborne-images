@@ -56,7 +56,7 @@ urlpatterns = [
   path('financial-statement/', financial_statement, name='financial_statement'),
   path('category-summary/', category_summary, name='category_summary'),
   path('print-category-summary/', print_category_summary, name='print_category_summary'),
-  path('keyword-financial-summary/', keyword_financial_summary, name='keyword_financial_summary'),
+  path('nhra-summary/', nhra_summary, name='nhra_summary'),
 
   path('mileage-log/', mileage_log, name='mileage_log'),
   path('mileage/add/', MileageCreateView.as_view(), name='mileage_create'),

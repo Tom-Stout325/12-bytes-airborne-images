@@ -19,9 +19,10 @@
     </div>
     <div class="card-body">
       <!-- Export Button -->
-      <div class="mb-3 text-end">
-        <button class="btn btn-success btn-sm export-btn">Export to CSV</button>
-      </div>
+    <div class="mb-3 text-end">
+      <button class="btn btn-success btn-sm export-btn">Export to CSV</button>
+    </div>
+
 
       <div class="table-responsive">
         <table id="summaryTable" class="table table-bordered table-hover table-sm align-middle">
@@ -67,22 +68,36 @@
   </div>
 </div>
 
-<!-- Table Sorter Plugin -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js"></script>
-
 <script>
-  $(document).ready(function () {
-    // Sort table
-    $("#summaryTable").tablesorter();
+  document.querySelector('.export-btn').addEventListener('click', function () {
+    const table = document.getElementById('summaryTable');
+    const rows = table.querySelectorAll('tr');
+    let csv = [];
 
-    // Export button
-    $(".export-btn").click(function () {
-      $("#summaryTable").tableExport({
-        formats: ["csv"],
-        filename: "invoice_summary",
-        exportButtons: false
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('th, td');
+      let csvRow = [];
+      cells.forEach(cell => {
+        let text = cell.textContent.trim();
+        text = text.replace(/,/g, '');
+        if (text.includes('$') || text.includes(',') || text.includes(' ')) {
+          text = `"${text}"`;
+        }
+        csvRow.push(text);
       });
+      csv.push(csvRow.join(','));
     });
+
+    const csvContent = csv.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'nhra_invoice_summary.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   });
 </script>
+
+
 {% endblock %}
