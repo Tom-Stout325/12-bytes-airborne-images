@@ -99,6 +99,7 @@ class Transaction(models.Model):
     receipt        = models.FileField(upload_to='receipts/', blank=True, null=True)
     user           = models.ForeignKey(User, on_delete=models.PROTECT)
     deductible_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    recurring_template = models.ForeignKey('RecurringTransaction',null=True,blank=True,on_delete=models.SET_NULL,related_name='generated_transactions')
 
     def save(self, *args, **kwargs):
         # Only calculate deductible_amount for Travel: Meals (sub_cat ID 26)

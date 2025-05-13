@@ -1,56 +1,29 @@
 {% extends 'index.html' %}
-{% load humanize %}
-
-{% block title %}Recurring Transaction Report{% endblock %}
-
-{% block breadcrumbs %}
-  {% include "components/breadcrumbs.html" with level1="Transactions" level1_url=urls.transactions level2="Recurring Report" %}
-{% endblock %}
-
 {% block content %}
-<div class="container py-4">
-  <h2 class="text-center text-primary mb-5">Recurring Transactions Report</h2>
+<div class="container mt-4">
+  <h2 class="mb-4 text-success text-center">Recurring Transactions Report</h2>
 
-  {% if transactions_by_month %}
-    {% for month, tx_list in transactions_by_month.items %}
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light fw-bold">
-          {{ month }} ({{ tx_list|length }} transactions)
-        </div>
-        <div class="card-body p-0">
-          <table class="table table-sm mb-0 table-striped">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Amount</th>
-                <th>Category</th>
-                <th>SubCategory</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for tx in tx_list %}
-              <tr>
-                <td>{{ tx.date }}</td>
-                <td>{{ tx.transaction }}</td>
-                <td>${{ tx.amount|floatformat:2|intcomma }}</td>
-                <td>{{ tx.category }}</td>
-                <td>{{ tx.sub_cat }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    {% endfor %}
+  {% if has_data %}
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>Transaction</th>
+          <th>Amount</th>
+          <th>Run Months</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in summary %}
+          <tr>
+            <td>{{ item.template.transaction }}</td>
+            <td>${{ item.template.amount }}</td>
+            <td>{{ item.months|join:", " }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   {% else %}
     <div class="alert alert-warning">No recurring transactions found.</div>
   {% endif %}
-
-  <div class="text-center mt-4">
-    <a href="{% url 'recurring_list' %}" class="btn btn-secondary">
-      <i class="fa fa-arrow-left"></i> Back to Recurring Transactions
-    </a>
-  </div>
 </div>
 {% endblock %}

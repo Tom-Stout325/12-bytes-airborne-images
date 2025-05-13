@@ -1058,30 +1058,23 @@ class RecurringTransactionDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('recurring_list')
 
 
-from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models.functions import TruncMonth
-from collections import defaultdict
-from .models import Transaction, RecurringTransaction
-
 @staff_member_required
 def recurring_report_view(request):
-    # Get all transactions that originated from recurring templates
-    recurring_templates = RecurringTransaction.objects.values_list('transaction', flat=True)
-    transactions = Transaction.objects.filter(transaction__in=recurring_templates)
-
-    # Group by transaction name and by month/year
-    grouped = defaultdict(lambda: defaultdict(list))
-    for tx in transactions:
-        key = tx.transaction
-        month_year = tx.date.strftime('%B %Y')
-        grouped[key][month_year].append(tx)
-
-    # Sorted output for display
-    summary = sorted(grouped.items(), key=lambda x: x[0].lower())
-
+    templates = RecurringTransaction.objects.all()
+    summary = []
+    for template in templates:
+        transactions = template.generated_transactions.order_by('date')
+        summary.append({
+            'template': template,
+            'transactions': transactions,
+            'months': sorted({tx.date.strftime("%B %Y") for tx in transactions})
+        })
+    has_data = any(s['transactions'] for s in summary)
     return render(request, 'finance/recurring_report.html', {
-        'summary': summary
+        'summary': summary,
+        'has_data': has_data,
     })
+
 
 @staff_member_required
 def run_recurring_now_view(request):
@@ -1126,30 +1119,22 @@ def run_recurring_now_view(request):
 @staff_member_required
 def run_monthly_batch_view(request):
     today = now().date()
-
     year = int(request.GET.get('year', today.year))
     month = int(request.GET.get('month', today.month))
     last_day = monthrange(year, month)[1]
-
     created_transactions = []
     skipped = 0
-
     recurrences = RecurringTransaction.objects.filter(active=True)
-
     for r in recurrences:
         target_day = min(r.day, last_day)
         trans_date = date(year, month, target_day)
-
         exists = Transaction.objects.filter(
-            user=r.user,
-            transaction=r.transaction,
+            recurring_template=r,
             date=trans_date
         ).exists()
-
         if exists:
             skipped += 1
             continue
-
         tx = Transaction.objects.create(
             date=trans_date,
             trans_type=r.trans_type,
@@ -1161,9 +1146,12 @@ def run_monthly_batch_view(request):
             keyword=r.keyword,
             tax=r.tax,
             user=r.user,
-            paid="Yes"
+            paid="Yes",
+            recurring_template=r 
         )
         created_transactions.append(tx)
+        r.last_created = trans_date
+        r.save(update_fields=['last_created'])
 
     return render(request, 'finance/recurring_batch_success.html', {
         'created': created_transactions,
@@ -1171,3 +1159,4 @@ def run_monthly_batch_view(request):
         'run_year': year,
         'run_month': month,
     })
+
