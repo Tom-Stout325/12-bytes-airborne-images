@@ -29,6 +29,19 @@
 
 <hr>
 <hr>
+
+<div>
+  <form method="get" class="mb-4">
+  <label for="year" class="form-label me-2">Year:</label>
+  <select name="year" id="year" class="form-select d-inline-block w-auto">
+    {% for y in 2022|get_range:3 %}
+      <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Go</button>
+</form>
+
+</div>
 <div class="table-responsive mt-4">
   <table class="table table-bordered table-sm text-center align-middle">
     <thead class="table-light">
