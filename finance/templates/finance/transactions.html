@@ -13,9 +13,16 @@
 {% endblock %}
 
 {% block content %}
+
 <style>
   .sortable-table th {
     cursor: pointer;
+  }
+  @media (max-width: 576px) {
+    .btn {
+      font-size: 0.85rem;
+      padding: 0.4rem 0.6rem;
+    }
   }
 </style>
 
@@ -24,65 +31,77 @@
     <h2 class="mb-0 text-center text-primary">Transactions</h2>
 
     <!-- Filter Form -->
-    <div class="row justify-content-center align-items-end mb-4">
-      <form class="col-12 col-lg-10 d-flex flex-wrap gap-3 justify-content-center" action="{% url 'transactions' %}" method="get">
-        <div class="form-group">
-          <label for="year" class="form-label fw-semibold">Year</label>
-          <select name="year" id="year" class="form-select">
-            <option value="">All</option>
-            {% for year in years %}
-              <option value="{{ year.year }}" {% if selected_year == year.year|stringformat:'s' %}selected{% endif %}>{{ year.year }}</option>
-            {% endfor %}
-          </select>
-        </div>
+<div class="row justify-content-center mb-4">
+  <form class="col-12 col-lg-10" action="{% url 'transactions' %}" method="get">
+    <div class="row g-3">
+      <div class="col-12 col-sm-6 col-md-3">
+        <label for="year" class="form-label fw-semibold">Year</label>
+        <select name="year" id="year" class="form-select">
+          <option value="">All</option>
+          {% for year in years %}
+            <option value="{{ year.year }}" {% if selected_year == year.year|stringformat:'s' %}selected{% endif %}>{{ year.year }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-        <div class="form-group">
-          <label for="sub_cat" class="form-label fw-semibold">Sub-Category</label>
-          <select name="sub_cat" id="sub_cat" class="form-select">
-            <option value="">All</option>
-            {% for sub in sub_categories %}
-              <option value="{{ sub.id }}" {% if selected_sub_cat == sub.id|stringformat:'s' %}selected{% endif %}>{{ sub.sub_cat }}</option>
-            {% endfor %}
-          </select>
-        </div>
+      <div class="col-12 col-sm-6 col-md-3">
+        <label for="sub_cat" class="form-label fw-semibold">Sub-Category</label>
+        <select name="sub_cat" id="sub_cat" class="form-select">
+          <option value="">All</option>
+          {% for sub in sub_categories %}
+            <option value="{{ sub.id }}" {% if selected_sub_cat == sub.id|stringformat:'s' %}selected{% endif %}>{{ sub.sub_cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-        <div class="form-group">
-          <label for="type" class="form-label fw-semibold">Type</label>
-          <select name="type" id="type" class="form-select">
-            <option value="">All</option>
-            <option value="Income" {% if selected_type == "Income" %}selected{% endif %}>Income</option>
-            <option value="Expense" {% if selected_type == "Expense" %}selected{% endif %}>Expense</option>
-          </select>
-        </div>
+      <div class="col-12 col-sm-6 col-md-3">
+        <label for="type" class="form-label fw-semibold">Type</label>
+        <select name="type" id="type" class="form-select">
+          <option value="">All</option>
+          <option value="Income" {% if selected_type == "Income" %}selected{% endif %}>Income</option>
+          <option value="Expense" {% if selected_type == "Expense" %}selected{% endif %}>Expense</option>
+        </select>
+      </div>
 
-        <div class="form-group d-grid align-self-end">
-          <button type="submit" class="btn btn-primary">Filter</button>
-        </div>
-      </form>
+      <div class="col-12 col-sm-6 col-md-3">
+        <label for="keyword" class="form-label fw-semibold">Keyword</label>
+        <select name="keyword" id="keyword" class="form-select">
+          <option value="">All</option>
+          {% for keyword in keywords %}
+            <option value="{{ keyword.id }}" {% if selected_keyword == keyword.id|stringformat:'s' %}selected{% endif %}>{{ keyword.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-12 d-grid">
+        <button type="submit" class="btn btn-primary mt-2 w-100">
+          <i class="fa-solid fa-filter"></i> Apply Filters
+        </button>
+      </div>
     </div>
+  </form>
+</div>
+
 
 <!-- Button Section -->
-<div class="row justify-content-center text-center mb-4">
-  <div class="col-12">
-    <div class="d-flex flex-wrap gap-3 justify-content-center align-items-end">
-      
-      <!-- Add Transaction -->
+<!-- Action Buttons -->
+<div class="row justify-content-center mb-4">
+  <div class="col-12 col-lg-10">
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+
       <a href="{% url 'add_transaction' %}" class="btn btn-outline-primary">
         <i class="fa-solid fa-plus"></i> Add Transaction
       </a>
 
-      <!-- Download All -->
       <a href="{% url 'download_transactions' %}" class="btn btn-outline-success">
         <i class="fa-solid fa-circle-chevron-down"></i> Download All
       </a>
 
-      <!-- Download Year -->
       <a href="{% url 'download_transactions' %}?year={{ selected_year }}" class="btn btn-outline-info">
         <i class="fa-solid fa-chevron-down"></i> Download {{ selected_year|default:"Year" }}
       </a>
 
-      <!-- Run Batch Form -->
-      <form method="get" action="{% url 'run_monthly_batch' %}" class="d-flex flex-wrap gap-2 align-items-end mb-0">
+      <form method="get" action="{% url 'run_monthly_batch' %}" class="d-flex flex-wrap gap-2 align-items-end">
         <div>
           <label for="batch-year" class="form-label mb-0 small">Year</label>
           <select name="year" id="batch-year" class="form-select form-select-sm">
@@ -95,6 +114,7 @@
             <option value="{{ current_year }}" selected>{{ current_year }}</option>
           </select>
         </div>
+
         <div>
           <label for="batch-month" class="form-label mb-0 small">Month</label>
           {% month_choices as months %}
@@ -104,8 +124,9 @@
             {% endfor %}
           </select>
         </div>
-        <div>
-          <button type="submit" class="btn btn-sm btn-outline-danger mt-3">
+
+        <div class="align-self-end">
+          <button type="submit" class="btn btn-outline-danger btn-sm">
             <i class="fa-solid fa-rotate"></i> Run Monthly Batch
           </button>
         </div>
@@ -114,6 +135,7 @@
     </div>
   </div>
 </div>
+
 
 
   <!-- Desktop Table View -->

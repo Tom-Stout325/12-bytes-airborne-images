@@ -156,6 +156,8 @@ def transaction_search(request):
 # Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
+from finance.models import Keyword  # make sure this import is present
+
 class Transactions(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "finance/transactions.html"
@@ -163,23 +165,27 @@ class Transactions(LoginRequiredMixin, ListView):
     context_object_name = "transactions"
 
     def get_queryset(self):
-        queryset = Transaction.objects.select_related('trans_type', 'category', 'sub_cat', 'team').order_by('-date')
+        queryset = Transaction.objects.select_related('trans_type', 'category', 'sub_cat', 'team', 'keyword').order_by('-date')
 
         year = self.request.GET.get('year')
         trans_type = self.request.GET.get('type')
         sub_cat_id = self.request.GET.get('sub_cat')
+        keyword_id = self.request.GET.get('keyword')
 
         if year:
             try:
                 queryset = queryset.filter(date__year=int(year))
             except ValueError:
-                logger.warning(f"Invalid year value: {year}")
+                pass
 
         if trans_type in ['Income', 'Expense']:
             queryset = queryset.filter(trans_type__trans_type=trans_type)
 
         if sub_cat_id:
             queryset = queryset.filter(sub_cat__id=sub_cat_id)
+
+        if keyword_id:
+            queryset = queryset.filter(keyword__id=keyword_id)
 
         return queryset
 
@@ -189,11 +195,14 @@ class Transactions(LoginRequiredMixin, ListView):
             'page_title': 'Transactions',
             'years': Transaction.objects.dates('date', 'year', order='DESC').distinct(),
             'sub_categories': SubCategory.objects.order_by('sub_cat'),
+            'keywords': Keyword.objects.order_by('name'),
             'selected_year': self.request.GET.get('year', ''),
             'selected_type': self.request.GET.get('type', ''),
-            'selected_sub_cat': self.request.GET.get('sub_cat', '')
+            'selected_sub_cat': self.request.GET.get('sub_cat', ''),
+            'selected_keyword': self.request.GET.get('keyword', ''),
         })
         return context
+
 
 
 @login_required
