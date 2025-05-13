@@ -1060,20 +1060,32 @@ class RecurringTransactionDeleteView(LoginRequiredMixin, DeleteView):
 
 @staff_member_required
 def recurring_report_view(request):
-    templates = RecurringTransaction.objects.all()
-    summary = []
-    for template in templates:
-        transactions = template.generated_transactions.order_by('date')
-        summary.append({
+    year = int(request.GET.get('year', now().year))
+    months = range(1, 13)
+
+    # Prepare table data
+    data = []
+    for template in RecurringTransaction.objects.all().order_by('transaction'):
+        row = {
             'template': template,
-            'transactions': transactions,
-            'months': sorted({tx.date.strftime("%B %Y") for tx in transactions})
-        })
-    has_data = any(s['transactions'] for s in summary)
+            'monthly_checks': []
+        }
+        for month in months:
+            target_day = min(template.day, 28)  # Avoid invalid dates
+            exists = Transaction.objects.filter(
+                recurring_template=template,
+                date__year=year,
+                date__month=month
+            ).exists()
+            row['monthly_checks'].append(exists)
+        data.append(row)
+
     return render(request, 'finance/recurring_report.html', {
-        'summary': summary,
-        'has_data': has_data,
+        'data': data,
+        'months': [month_name[m] for m in months],
+        'year': year
     })
+
 
 
 @staff_member_required

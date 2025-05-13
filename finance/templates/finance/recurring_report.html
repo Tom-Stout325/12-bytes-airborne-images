@@ -26,4 +26,30 @@
     <div class="alert alert-warning">No recurring transactions found.</div>
   {% endif %}
 </div>
+
+<hr>
+<hr>
+<div class="table-responsive mt-4">
+  <table class="table table-bordered table-sm text-center align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Transaction</th>
+        {% for m in months %}
+          <th>{{ m|slice:":3" }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in data %}
+        <tr>
+          <td class="text-start">{{ row.template.transaction }}</td>
+          {% for exists in row.monthly_checks %}
+            <td>{% if exists %}✅{% else %}&mdash;{% endif %}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
 {% endblock %}
