@@ -29,6 +29,7 @@ import csv
 import os
 from .models import *
 from .forms import *
+from django.views import View  
 
 logger = logging.getLogger(__name__)
 
