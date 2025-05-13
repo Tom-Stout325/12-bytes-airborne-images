@@ -25,40 +25,44 @@
 <div class="table-responsive">
   <table class="table table-hover table-bordered text-center align-middle">
     <thead>
-  <tr>
-    {% for col, label in [
-      ('date', 'Date'),
-      ('trans_type__trans_type', 'Type'),
-      ('transaction', 'Transaction'),
-      ('keyword__name', 'Location'),
-      ('amount', 'Amount'),
-      ('invoice_numb', 'Inv. #')
-    ] %}
-      {% with current_sort=filters.sort|default:'date' current_dir=filters.direction|default:'desc' %}
-        {% if current_sort == col %}
-          {% if current_dir == 'asc' %}
-            {% with icon='fa-sort-up' next_dir='desc' %}
-          {% else %}
-            {% with icon='fa-sort-down' next_dir='asc' %}
-          {% endif %}
-            <th class="sortable-header">
-              <a href="?{% querystring sort=col direction=next_dir %}">{{ label }} <i class="fa-solid {{ icon }}"></i></a>
-            </th>
+      <tr>
+        {% for col, label in [
+          ('date', 'Date'),
+          ('trans_type__trans_type', 'Type'),
+          ('transaction', 'Transaction'),
+          ('keyword__name', 'Location'),
+          ('amount', 'Amount'),
+          ('invoice_numb', 'Inv. #')
+        ] %}
+          {% with current_sort=filters.sort|default:'date' current_dir=filters.direction|default:'desc' %}
+            {% if current_sort == col %}
+              {% if current_dir == 'asc' %}
+                {% with icon='fa-sort-up' next_dir='desc' %}
+                  <th class="sortable-header">
+                    <a href="?{% querystring sort=col direction=next_dir %}">{{ label }} <i class="fa-solid {{ icon }}"></i></a>
+                  </th>
+                {% endwith %}
+              {% else %}
+                {% with icon='fa-sort-down' next_dir='asc' %}
+                  <th class="sortable-header">
+                    <a href="?{% querystring sort=col direction=next_dir %}">{{ label }} <i class="fa-solid {{ icon }}"></i></a>
+                  </th>
+                {% endwith %}
+              {% endif %}
+            {% else %}
+              {% with icon='fa-sort text-muted' next_dir='asc' %}
+                <th class="sortable-header">
+                  <a href="?{% querystring sort=col direction=next_dir %}">{{ label }} <i class="fa-solid {{ icon }}"></i></a>
+                </th>
+              {% endwith %}
+            {% endif %}
           {% endwith %}
-        {% else %}
-          {% with icon='fa-sort text-muted' next_dir='asc' %}
-            <th class="sortable-header">
-              <a href="?{% querystring sort=col direction=next_dir %}">{{ label }} <i class="fa-solid {{ icon }}"></i></a>
-            </th>
-          {% endwith %}
-        {% endif %}
-      {% endwith %}
-    {% endfor %}
-    <th>View</th>
-    <th>Edit</th>
-    <th>Delete</th>
-  </tr>
-</thead>
+        {% endfor %}
+        <th>View</th>
+        <th>Edit</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
 
     <tbody>
       {% for tx in transactions %}
