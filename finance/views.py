@@ -846,51 +846,72 @@ def get_summary_data(request, year):
 @login_required
 def category_summary(request):
     year = request.GET.get('year', str(timezone.now().year))
-
     context = get_summary_data(request, year)
-
     context['available_years'] = (
         Transaction.objects.filter(user=request.user)
         .dates('date', 'year', order='DESC')
         .distinct()
     )
-
     return render(request, 'finance/category_summary.html', context)
 
 
+
+
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from django.db.models import Sum, Q
+from django.shortcuts import render
+from finance.models import Transaction
 
 
 @login_required
 def nhra_summary(request):
     current_year = timezone.now().year
     years = [current_year, current_year - 1, current_year - 2]
-    excluded_keywords = {"na", "monthly", "nhra", "none", "Denver", "None", "Monthly", "NHRA", "unknown", "Unknown"}
+
+    # Define excluded keywords (lowercase for consistent matching)
+    excluded_keywords = {"na", "monthly", "nhra", "none", "denver", "unknown"}
+
+    # Build Q object to exclude keywords case-insensitively
+    exclude_q = Q()
+    for kw in excluded_keywords:
+        exclude_q |= Q(keyword__name__iexact=kw)
+
+    # Fetch and aggregate transactions
     summary_data = (
         Transaction.objects
-        .exclude(keyword__name__in=excluded_keywords)
         .filter(date__year__in=years)
+        .exclude(exclude_q)
         .values('keyword__name', 'date__year', 'trans_type__trans_type')
         .annotate(total=Sum('amount'))
         .order_by('keyword__name', 'date__year')
     )
 
+    # Organize results into a nested dict
     result = {}
     for item in summary_data:
         keyword = item['keyword__name']
         year = item['date__year']
         trans_type = item['trans_type__trans_type'].lower()
+
         if keyword not in result:
             result[keyword] = {y: {"income": 0, "expense": 0, "net": 0} for y in years}
+
         if trans_type == "income":
             result[keyword][year]["income"] = item['total']
         elif trans_type == "expense":
             result[keyword][year]["expense"] = item['total']
-        result[keyword][year]["net"] = result[keyword][year]["income"] - result[keyword][year]["expense"]
+
+        # Calculate net
+        result[keyword][year]["net"] = (
+            result[keyword][year]["income"] - result[keyword][year]["expense"]
+        )
 
     return render(request, "finance/nhra_summary.html", {
         "years": years,
         "summary_data": result,
     })
+
 
 
 @login_required
