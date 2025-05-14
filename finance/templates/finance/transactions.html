@@ -45,7 +45,7 @@
   </form>
 </div>
 
-<div class="d-flex justify-content-end mb-3">
+<div class="mb-3">
   <h4 class="text-primary text-center">CSV Downloads</h4>
   <div class="btn-group">
     <a href="{% url 'download_transactions_csv' %}?{% for key, value in request.GET.items %}{% if key != 'page' and key != 'year' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}year=current" class="btn btn-outline-success">
