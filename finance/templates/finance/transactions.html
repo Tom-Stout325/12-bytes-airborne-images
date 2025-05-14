@@ -7,9 +7,14 @@
 {% block content %}
 
 <div class="d-flex justify-content-end mb-3">
-  <a href="{% url 'download_transactions_csv' %}?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}" class="btn btn-outline-success">
-    <i class="fa-solid fa-file-csv"></i> Download CSV
-  </a>
+  <div class="btn-group">
+    <a href="{% url 'download_transactions_csv' %}?{% for key, value in request.GET.items %}{% if key != 'page' and key != 'year' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}year=current" class="btn btn-outline-success">
+      <i class="fa-solid fa-file-csv"></i> Download Current Year
+    </a>
+    <a href="{% url 'download_transactions_csv' %}?{% for key, value in request.GET.items %}{% if key != 'page' and key != 'year' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}" class="btn btn-outline-success">
+      <i class="fa-solid fa-file-csv"></i> Download All
+    </a>
+  </div>
 </div>
 
 <div class="table-responsive">

@@ -153,6 +153,7 @@ def transaction_search(request):
 # Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
+
 class Transactions(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "finance/transactions.html"
@@ -183,14 +184,23 @@ class Transactions(LoginRequiredMixin, ListView):
         context['current_sort'] = self.request.GET.get('sort', '-date')
         return context
 
-
-
-
 class DownloadTransactionsCSV(LoginRequiredMixin, View):
     def get(self, request):
-        queryset = Transactions().get_queryset()
+        # Reuse the Transactions view's queryset logic
+        transactions_view = Transactions()
+        transactions_view.request = request  # Set request to access GET parameters
+        queryset = transactions_view.get_queryset()
+
+        # Filter by current year if 'year=current' is in GET parameters
+        year_param = request.GET.get('year', None)
+        if year_param == 'current':
+            current_year = datetime.now().year
+            queryset = queryset.filter(date__year=current_year)
+
+        # Prepare CSV response
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="transactions.csv"'
+        filename = "transactions_current_year.csv" if year_param == 'current' else "transactions_all.csv"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
         writer = csv.writer(response)
         writer.writerow(['Date', 'Type', 'Transaction', 'Location', 'Amount', 'Invoice #'])
