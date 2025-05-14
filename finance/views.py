@@ -155,6 +155,11 @@ def transaction_search(request):
 # Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
+from django.utils.timezone import now
+from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import Transaction, SubCategory, Keyword
+
 class Transactions(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "finance/transactions.html"
@@ -166,51 +171,44 @@ class Transactions(LoginRequiredMixin, ListView):
             'trans_type', 'category', 'sub_cat', 'team', 'keyword'
         )
 
-        self.filters = {
-            'year': self.request.GET.get('year'),
-            'type': self.request.GET.get('type'),
-            'sub_cat': self.request.GET.get('sub_cat'),
-            'keyword': self.request.GET.get('keyword'),
-            'sort': self.request.GET.get('sort', 'date'),
-            'direction': self.request.GET.get('direction', 'desc')
-        }
+        # Filtering
+        year = self.request.GET.get('year')
+        trans_type = self.request.GET.get('type')
+        sub_cat_id = self.request.GET.get('sub_cat')
+        keyword_id = self.request.GET.get('keyword')
 
-        if self.filters['year']:
-            try:
-                queryset = queryset.filter(date__year=int(self.filters['year']))
-            except ValueError:
-                pass
+        if year:
+            queryset = queryset.filter(date__year=year)
+        if trans_type in ['Income', 'Expense']:
+            queryset = queryset.filter(trans_type__trans_type=trans_type)
+        if sub_cat_id:
+            queryset = queryset.filter(sub_cat__id=sub_cat_id)
+        if keyword_id:
+            queryset = queryset.filter(keyword__id=keyword_id)
 
-        if self.filters['type'] in ['Income', 'Expense']:
-            queryset = queryset.filter(trans_type__trans_type=self.filters['type'])
-
-        if self.filters['sub_cat']:
-            queryset = queryset.filter(sub_cat__id=self.filters['sub_cat'])
-
-        if self.filters['keyword']:
-            queryset = queryset.filter(keyword__id=self.filters['keyword'])
-
-        if self.filters['sort'] in ['date', 'trans_type__trans_type', 'transaction', 'keyword__name', 'amount', 'invoice_numb']:
-            sort_expr = self.filters['sort']
-            if self.filters['direction'] == 'desc':
-                sort_expr = f"-{sort_expr}"
-            queryset = queryset.order_by(sort_expr)
+        # Sorting
+        sort = self.request.GET.get('sort', 'date')
+        direction = self.request.GET.get('direction', 'desc')
+        if direction == 'asc':
+            queryset = queryset.order_by(sort)
         else:
-            queryset = queryset.order_by('-date')
+            queryset = queryset.order_by(f'-{sort}')
 
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'request': self.request,
-            'filters': self.filters,
-            'page_title': 'Transactions',
+            'filters': {
+                'sort': self.request.GET.get('sort', 'date'),
+                'direction': self.request.GET.get('direction', 'desc'),
+            },
             'years': Transaction.objects.dates('date', 'year', order='DESC').distinct(),
             'sub_categories': SubCategory.objects.order_by('sub_cat'),
             'keywords': Keyword.objects.order_by('name'),
         })
         return context
+
 
 
 class DownloadTransactionsCSV(LoginRequiredMixin, View):
