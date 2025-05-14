@@ -26,29 +26,48 @@
   <table class="table table-hover table-bordered text-center align-middle">
     <thead>
       <tr>
-        {% with headers_dict={
-          'date': 'Date',
-          'trans_type__trans_type': 'Type',
-          'transaction': 'Transaction',
-          'keyword__name': 'Location',
-          'amount': 'Amount',
-          'invoice_numb': 'Inv. #' } %}
-          {% for col in headers_dict %}
-            {% if filters.sort == col and filters.direction == 'asc' %}
-              <th class="sortable-header">
-                <a href="?{% querystring sort=col direction='desc' %}">{{ headers_dict[col] }} <i class="fa-solid fa-sort-up"></i></a>
-              </th>
-            {% elif filters.sort == col and filters.direction == 'desc' %}
-              <th class="sortable-header">
-                <a href="?{% querystring sort=col direction='asc' %}">{{ headers_dict[col] }} <i class="fa-solid fa-sort-down"></i></a>
-              </th>
-            {% else %}
-              <th class="sortable-header">
-                <a href="?{% querystring sort=col direction='asc' %}">{{ headers_dict[col] }} <i class="fa-solid fa-sort text-muted"></i></a>
-              </th>
-            {% endif %}
-          {% endfor %}
-        {% endwith %}
+        {% for col in 'date,trans_type__trans_type,transaction,keyword__name,amount,invoice_numb'|split:',' %}
+          {% if filters.sort == col and filters.direction == 'asc' %}
+            <th class="sortable-header">
+              <a href="?{% querystring sort=col direction='desc' %}">
+                {% if col == 'date' %}Date
+                {% elif col == 'trans_type__trans_type' %}Type
+                {% elif col == 'transaction' %}Transaction
+                {% elif col == 'keyword__name' %}Location
+                {% elif col == 'amount' %}Amount
+                {% elif col == 'invoice_numb' %}Inv. #
+                {% endif %}
+                <i class="fa-solid fa-sort-up"></i>
+              </a>
+            </th>
+          {% elif filters.sort == col and filters.direction == 'desc' %}
+            <th class="sortable-header">
+              <a href="?{% querystring sort=col direction='asc' %}">
+                {% if col == 'date' %}Date
+                {% elif col == 'trans_type__trans_type' %}Type
+                {% elif col == 'transaction' %}Transaction
+                {% elif col == 'keyword__name' %}Location
+                {% elif col == 'amount' %}Amount
+                {% elif col == 'invoice_numb' %}Inv. #
+                {% endif %}
+                <i class="fa-solid fa-sort-down"></i>
+              </a>
+            </th>
+          {% else %}
+            <th class="sortable-header">
+              <a href="?{% querystring sort=col direction='asc' %}">
+                {% if col == 'date' %}Date
+                {% elif col == 'trans_type__trans_type' %}Type
+                {% elif col == 'transaction' %}Transaction
+                {% elif col == 'keyword__name' %}Location
+                {% elif col == 'amount' %}Amount
+                {% elif col == 'invoice_numb' %}Inv. #
+                {% endif %}
+                <i class="fa-solid fa-sort text-muted"></i>
+              </a>
+            </th>
+          {% endif %}
+        {% endfor %}
         <th>View</th>
         <th>Edit</th>
         <th>Delete</th>
