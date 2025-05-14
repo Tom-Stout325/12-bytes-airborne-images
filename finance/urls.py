@@ -69,7 +69,7 @@ urlpatterns = [
     path('mileage-log/', mileage_log, name='mileage_log'),
     path('mileage/add/', MileageCreateView.as_view(), name='mileage_create'),
     path('mileage/<int:pk>/edit/', MileageUpdateView.as_view(), name='mileage_update'),
-    path('mileage/<int:pk>/delete/', MileageDeleteView.as_view(), name='mileage_delete'),
+    path('mileage/<int:pk>/delete/', MileageDeleteView.as_view(), name='mileage_update'),
     path('mileage/update-rate/', update_mileage_rate, name='update_mileage_rate'),
 
     # Keywords
