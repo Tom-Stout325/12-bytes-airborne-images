@@ -100,7 +100,16 @@ class Transaction(models.Model):
     user           = models.ForeignKey(User, on_delete=models.PROTECT)
     deductible_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     recurring_template = models.ForeignKey('RecurringTransaction',null=True,blank=True,on_delete=models.SET_NULL,related_name='generated_transactions')
-
+    indexes = [
+            models.Index(fields=['keyword']),
+            models.Index(fields=['category']),
+            models.Index(fields=['sub_cat']),
+            models.Index(fields=['date']),
+            models.Index(fields=['amount']),
+            models.Index(fields=['transaction']),
+            models.Index(fields=['invoice_numb']),
+        ]
+    
     def save(self, *args, **kwargs):
         # Only calculate deductible_amount for Travel: Meals (sub_cat ID 26)
         if self.sub_cat_id == 26:
