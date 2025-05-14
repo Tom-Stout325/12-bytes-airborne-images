@@ -2,8 +2,6 @@ from django import forms
 from django.forms import inlineformset_factory
 from .models import *
 
-
-
 class TransForm(forms.ModelForm):
     keyword = forms.ModelChoiceField(
         queryset=Keyword.objects.order_by('name'),
@@ -21,16 +19,13 @@ class TransForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
 
-
-def clean_receipt(self):
-    receipt = self.cleaned_data.get('receipt')
-
-    if receipt and hasattr(receipt, 'content_type'):
-        content_type = receipt.content_type
-        if content_type not in ['application/pdf', 'image/jpeg', 'image/png']:
-            raise forms.ValidationError("Only PDF, JPG, or PNG files are allowed.")
-    return receipt
-
+    def clean_receipt(self):
+        receipt = self.cleaned_data.get('receipt')
+        if receipt and hasattr(receipt, 'content_type'):
+            content_type = receipt.content_type
+            if content_type not in ['application/pdf', 'image/jpeg', 'image/png']:
+                raise forms.ValidationError("Only PDF, JPG, or PNG files are allowed.")
+        return receipt
 
 class InvoiceForm(forms.ModelForm):
     class Meta:
@@ -45,14 +40,10 @@ class InvoiceForm(forms.ModelForm):
             'paid_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
-
-
-
 class InvoiceItemForm(forms.ModelForm):
     class Meta:
         model = InvoiceItem
         fields = ['item', 'qty', 'price']
-
 
 InvoiceItemFormSet = inlineformset_factory(
     Invoice,
@@ -62,29 +53,25 @@ InvoiceItemFormSet = inlineformset_factory(
     can_delete=True
 )
 
-
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
         fields = ['category']
-
 
 class SubCategoryForm(forms.ModelForm):
     class Meta:
         model = SubCategory
         fields = ['sub_cat']
 
-
 class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
         fields = ['business', 'first', 'last', 'street', 'address2', 'email', 'phone']
-        
 
 class MileageForm(forms.ModelForm):
     class Meta:
         model = Miles
-        exclude = ['user', 'total'] 
+        exclude = ['user', 'total']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'begin': forms.NumberInput(attrs={'step': '0.1', 'class': 'form-control'}),
@@ -97,7 +84,6 @@ class MileageForm(forms.ModelForm):
             'mileage_type': forms.Select(attrs={'class': 'form-control'}),
         }
 
-
 class MileageRateForm(forms.ModelForm):
     class Meta:
         model = MileageRate
@@ -105,8 +91,6 @@ class MileageRateForm(forms.ModelForm):
         widgets = {
             'rate': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
-
-
 
 class KeywordForm(forms.ModelForm):
     class Meta:
@@ -116,10 +100,6 @@ class KeywordForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
-
-from django import forms
-from .models import RecurringTransaction
-
 class RecurringTransactionForm(forms.ModelForm):
     class Meta:
         model = RecurringTransaction
@@ -128,5 +108,5 @@ class RecurringTransactionForm(forms.ModelForm):
             'team', 'keyword', 'tax', 'receipt', 'account', 'active'
         ]
         widgets = {
-            'day': forms.NumberInput(attrs={'min': 1, 'max': 28}),  # avoid edge-case months
+            'day': forms.NumberInput(attrs={'min': 1, 'max': 28}),
         }

@@ -2,11 +2,11 @@ from django.urls import path
 from .views import (
     Dashboard, Transactions, DownloadTransactionsCSV,
     TransactionCreateView, TransactionUpdateView, TransactionDetailView, TransactionDeleteView,
-    add_transaction_success,
+    add_transaction_success,  # Keep for now
     InvoiceListView, invoice_review, invoice_review_pdf, InvoiceDetailView,
     InvoiceCreateView, InvoiceUpdateView, InvoiceDeleteView, send_invoice_email,
     unpaid_invoices, export_invoices_csv, export_invoices_pdf,
-    CategoryListView, CategoryCreateView, CategoryUpdateView, CategoryDeleteView,
+    CategoryCreateView, CategoryUpdateView, CategoryDeleteView,
     SubCategoryCreateView, SubCategoryUpdateView, SubCategoryDeleteView,
     ClientListView, ClientCreateView, ClientUpdateView, ClientDeleteView,
     reports_page, financial_statement, category_summary, print_category_summary, nhra_summary,

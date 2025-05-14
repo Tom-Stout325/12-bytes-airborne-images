@@ -4,12 +4,7 @@ from django.contrib.auth.models import User
 from datetime import timedelta, date
 from decimal import Decimal
 from django.conf import settings
-try:
-    from django.contrib.postgres.indexes import GinIndex
-    from django.contrib.postgres.search import SearchVectorField
-except ImportError:
-    GinIndex = None
-    SearchVectorField = None
+from django.contrib.postgres.indexes import GinIndex  # Add this import
 
 class Type(models.Model):
     trans_type = models.CharField(max_length=50, blank=True, null=True)
@@ -20,6 +15,8 @@ class Type(models.Model):
     def __str__(self):
         return self.trans_type
 
+# -------------------------------------------------------------------------------------------
+
 class Category(models.Model):
     category = models.CharField(max_length=500, blank=True, null=True)
     
@@ -28,6 +25,8 @@ class Category(models.Model):
 
     def __str__(self):
         return self.category
+
+# -------------------------------------------------------------------------------------------
 
 class SubCategory(models.Model):
     sub_cat = models.CharField(max_length=500, blank=True, null=True)
@@ -38,6 +37,8 @@ class SubCategory(models.Model):
     def __str__(self):
         return self.sub_cat
 
+# -------------------------------------------------------------------------------------------
+
 class Keyword(models.Model):
     name = models.CharField(max_length=500)
 
@@ -47,11 +48,15 @@ class Keyword(models.Model):
     def __str__(self):
         return self.name
 
+# -------------------------------------------------------------------------------------------
+
 class Team(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
    
     def __str__(self):
         return self.name
+
+# -------------------------------------------------------------------------------------------
 
 class Client(models.Model):
     business = models.CharField(max_length=500, blank=True, null=True)
@@ -65,12 +70,16 @@ class Client(models.Model):
     def __str__(self):
         return self.business
     
+# -------------------------------------------------------------------------------------------
+
 class Service(models.Model):
     service = models.CharField(max_length=500, blank=True, null=True) 
     
     def __str__(self):
         return self.service
     
+# -------------------------------------------------------------------------------------------
+
 class Transaction(models.Model):
     date = models.DateField(auto_now=False, auto_now_add=False)
     trans_type = models.ForeignKey(Type, on_delete=models.PROTECT)
@@ -111,6 +120,8 @@ class Transaction(models.Model):
     def __str__(self):
         return self.transaction
 
+# -------------------------------------------------------------------------------------------
+
 class Invoice(models.Model):
     invoice_numb = models.CharField(max_length=10, unique=True)
     client = models.ForeignKey('Client', on_delete=models.PROTECT)
@@ -127,7 +138,6 @@ class Invoice(models.Model):
         choices=[('Unpaid', 'Unpaid'), ('Paid', 'Paid'), ('Partial', 'Partial')],
         default='Unpaid'
     )
-    search_vector = SearchVectorField(null=True, blank=True) if SearchVectorField else None
 
     class Meta:
         indexes = [
@@ -139,9 +149,10 @@ class Invoice(models.Model):
             models.Index(fields=['keyword']),
             models.Index(fields=['service']),
         ]
-        if GinIndex and 'django.contrib.postgres' in settings.INSTALLED_APPS:
+        # Conditionally add GinIndex for PostgreSQL
+        if 'django.contrib.postgres' in settings.INSTALLED_APPS:
             indexes.append(
-                GinIndex(fields=['search_vector'], name='invoice_search_idx')
+                GinIndex(fields=['invoice_numb', 'client__business', 'service__service'], name='invoice_search_idx')
             )
         ordering = ['invoice_numb']
 
@@ -161,6 +172,8 @@ class Invoice(models.Model):
             return (self.paid_date - self.date).days
         return None
 
+# -------------------------------------------------------------------------------------------
+
 class InvoiceItem(models.Model):
     invoice = models.ForeignKey('Invoice', on_delete=models.CASCADE, related_name='items')
     item = models.ForeignKey(Service, on_delete=models.PROTECT)
@@ -174,6 +187,8 @@ class InvoiceItem(models.Model):
     def total(self):
         return (self.qty or 0) * (self.price or 0)
 
+# -------------------------------------------------------------------------------------------
+
 class MileageRate(models.Model):
     rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.70)
     
@@ -183,6 +198,8 @@ class MileageRate(models.Model):
     class Meta:
         verbose_name = "Mileage Rate"
         verbose_name_plural = "Mileage Rates"
+
+# -------------------------------------------------------------------------------------------
 
 class Miles(models.Model):
     MILEAGE_TYPE_CHOICES = [
@@ -219,6 +236,8 @@ class Miles(models.Model):
         else:
             self.total = None
         super().save(*args, **kwargs)
+
+# -------------------------------------------------------------------------------------------
 
 class RecurringTransaction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
