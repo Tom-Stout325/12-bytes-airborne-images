@@ -198,9 +198,9 @@ class Transactions(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['current_sort'] = self.request.GET.get('sort', '-date')
         # Add filter options
-        context['keywords'] = Keyword.objects.all().order_by('name')
-        context['categories'] = Category.objects.all().order_by('category')
-        context['subcategories'] = SubCategory.objects.all().order_by('sub_cat')
+        context['keywords'] = Keyword.objects.filter(transaction__isnull=False).distinct().order_by('name')
+        context['categories'] = Category.objects.filter(transaction__isnull=False).distinct().order_by('category')
+        context['subcategories'] = SubCategory.objects.filter(transaction__isnull=False).distinct().order_by('sub_cat')
         return context
 
 
