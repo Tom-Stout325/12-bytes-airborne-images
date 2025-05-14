@@ -115,7 +115,26 @@ textarea {
 }
 
 
+/* Ensure button group buttons touch with straight inner edges */
+.btn-group .btn {
+  margin: 0; /* Remove any default margins */
+}
 
+/* Fine-tune rounded corners for btn-outline-success */
+.btn-group .btn-outline-success.rounded-start {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.btn-group .btn-outline-success.rounded-end {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Optional: Adjust padding or styling for better alignment */
+.btn-group .btn-outline-success {
+  padding: 0.375rem 0.75rem; /* Match Bootstrap's default btn padding */
+}
 
 /* -=-=-=-=-=-=-=-=-=-  Navbar Logo -=-=-=-=-=-=-=-=-=-  */
 
