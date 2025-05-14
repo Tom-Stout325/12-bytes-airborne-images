@@ -7,15 +7,6 @@
 
 {% block content %}
 
-<style>
-  .sortable-header i {
-    margin-left: 5px;
-  }
-  .fa-sort-up, .fa-sort-down {
-    color: #007bff;
-  }
-</style>
-
 <div class="d-flex justify-content-end mb-3">
   <a href="{% url 'download_transactions_csv' %}?{% querystring %}" class="btn btn-outline-success">
     <i class="fa-solid fa-file-csv"></i> Download CSV
@@ -24,55 +15,32 @@
 
 <div class="table-responsive">
   <table class="table table-hover table-bordered text-center align-middle">
-    <thead>
-      <tr>
-        {% for col in 'date,trans_type__trans_type,transaction,keyword__name,amount,invoice_numb'|split:',' %}
-          {% if filters.sort == col and filters.direction == 'asc' %}
-            <th class="sortable-header">
-              <a href="?{% querystring sort=col direction='desc' %}">
-                {% if col == 'date' %}Date
-                {% elif col == 'trans_type__trans_type' %}Type
-                {% elif col == 'transaction' %}Transaction
-                {% elif col == 'keyword__name' %}Location
-                {% elif col == 'amount' %}Amount
-                {% elif col == 'invoice_numb' %}Inv. #
-                {% endif %}
-                <i class="fa-solid fa-sort-up"></i>
-              </a>
-            </th>
-          {% elif filters.sort == col and filters.direction == 'desc' %}
-            <th class="sortable-header">
-              <a href="?{% querystring sort=col direction='asc' %}">
-                {% if col == 'date' %}Date
-                {% elif col == 'trans_type__trans_type' %}Type
-                {% elif col == 'transaction' %}Transaction
-                {% elif col == 'keyword__name' %}Location
-                {% elif col == 'amount' %}Amount
-                {% elif col == 'invoice_numb' %}Inv. #
-                {% endif %}
-                <i class="fa-solid fa-sort-down"></i>
-              </a>
-            </th>
-          {% else %}
-            <th class="sortable-header">
-              <a href="?{% querystring sort=col direction='asc' %}">
-                {% if col == 'date' %}Date
-                {% elif col == 'trans_type__trans_type' %}Type
-                {% elif col == 'transaction' %}Transaction
-                {% elif col == 'keyword__name' %}Location
-                {% elif col == 'amount' %}Amount
-                {% elif col == 'invoice_numb' %}Inv. #
-                {% endif %}
-                <i class="fa-solid fa-sort text-muted"></i>
-              </a>
-            </th>
-          {% endif %}
-        {% endfor %}
-        <th>View</th>
-        <th>Edit</th>
-        <th>Delete</th>
-      </tr>
-    </thead>
+<thead>
+  <tr>
+    {% for col, label in [
+      ('date', 'Date'),
+      ('trans_type__trans_type', 'Type'),
+      ('transaction', 'Transaction'),
+      ('keyword__name', 'Location'),
+      ('amount', 'Amount'),
+      ('invoice_numb', 'Inv. #')
+    ] %}
+      {% if current_sort == col %}
+        {% if current_direction == 'asc' %}
+          <th><a href="?{% querystring sort=col direction='desc' %}">{{ label }} ▲</a></th>
+        {% else %}
+          <th><a href="?{% querystring sort=col direction='asc' %}">{{ label }} ▼</a></th>
+        {% endif %}
+      {% else %}
+        <th><a href="?{% querystring sort=col direction='asc' %}">{{ label }}</a></th>
+      {% endif %}
+    {% endfor %}
+    <th>View</th>
+    <th>Edit</th>
+    <th>Delete</th>
+  </tr>
+</thead>
+
 
     <tbody>
       {% for tx in transactions %}

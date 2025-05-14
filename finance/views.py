@@ -150,64 +150,41 @@ def transaction_search(request):
     return render(request, 'finance/transaction_search.html', context)
 
 
-
-
 # Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-
-from django.utils.timezone import now
-from django.views.generic import ListView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Transaction, SubCategory, Keyword
 
 class Transactions(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "finance/transactions.html"
-    paginate_by = 50
     context_object_name = "transactions"
+    paginate_by = 50
 
     def get_queryset(self):
-        queryset = Transaction.objects.select_related(
-            'trans_type', 'category', 'sub_cat', 'team', 'keyword'
-        )
+        sort = self.request.GET.get("sort", "date")
+        direction = self.request.GET.get("direction", "desc")
 
-        # Filtering
-        year = self.request.GET.get('year')
-        trans_type = self.request.GET.get('type')
-        sub_cat_id = self.request.GET.get('sub_cat')
-        keyword_id = self.request.GET.get('keyword')
+        valid_columns = {
+            "date", "transaction", "amount", "invoice_numb",
+            "trans_type__trans_type", "keyword__name"
+        }
 
-        if year:
-            queryset = queryset.filter(date__year=year)
-        if trans_type in ['Income', 'Expense']:
-            queryset = queryset.filter(trans_type__trans_type=trans_type)
-        if sub_cat_id:
-            queryset = queryset.filter(sub_cat__id=sub_cat_id)
-        if keyword_id:
-            queryset = queryset.filter(keyword__id=keyword_id)
+        if sort not in valid_columns:
+            sort = "date"
 
-        # Sorting
-        sort = self.request.GET.get('sort', 'date')
-        direction = self.request.GET.get('direction', 'desc')
-        if direction == 'asc':
-            queryset = queryset.order_by(sort)
-        else:
-            queryset = queryset.order_by(f'-{sort}')
+        ordering = sort if direction == "asc" else f"-{sort}"
 
-        return queryset
+        return Transaction.objects.select_related(
+            "trans_type", "category", "sub_cat", "team", "keyword"
+        ).order_by(ordering)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({
-            'filters': {
-                'sort': self.request.GET.get('sort', 'date'),
-                'direction': self.request.GET.get('direction', 'desc'),
-            },
-            'years': Transaction.objects.dates('date', 'year', order='DESC').distinct(),
-            'sub_categories': SubCategory.objects.order_by('sub_cat'),
-            'keywords': Keyword.objects.order_by('name'),
-        })
+        context["current_sort"] = self.request.GET.get("sort", "date")
+        context["current_direction"] = self.request.GET.get("direction", "desc")
         return context
+
+        return context
+
 
 
 
