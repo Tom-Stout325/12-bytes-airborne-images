@@ -17,15 +17,3 @@ def inline_logo():
     except FileNotFoundError:
         return ""  # Return an empty string if the image is not found
 
-
-from django import template
-
-register = template.Library()
-
-@register.simple_tag(takes_context=True)
-def querystring(context, **kwargs):
-    request = context['request']
-    query = request.GET.copy()
-    for k, v in kwargs.items():
-        query[k] = v
-    return query.urlencode()

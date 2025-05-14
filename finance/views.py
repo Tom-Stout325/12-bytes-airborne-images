@@ -160,29 +160,27 @@ class Transactions(LoginRequiredMixin, ListView):
     paginate_by = 50
 
     def get_queryset(self):
-        sort = self.request.GET.get("sort", "date")
-        direction = self.request.GET.get("direction", "desc")
-
-        valid_columns = {
-            "date", "transaction", "amount", "invoice_numb",
-            "trans_type__trans_type", "keyword__name"
-        }
-
-        if sort not in valid_columns:
-            sort = "date"
-
-        ordering = sort if direction == "asc" else f"-{sort}"
-
-        return Transaction.objects.select_related(
-            "trans_type", "category", "sub_cat", "team", "keyword"
-        ).order_by(ordering)
+        queryset = Transaction.objects.select_related(
+            'trans_type', 'category', 'sub_cat', 'team', 'keyword'
+        )
+        sort = self.request.GET.get('sort', '-date')  # Default to descending date
+        valid_sort_fields = [
+            'date', '-date',
+            'trans_type', '-trans_type',
+            'transaction', '-transaction',
+            'keyword', '-keyword',
+            'amount', '-amount',
+            'invoice_numb', '-invoice_numb',
+        ]
+        if sort in valid_sort_fields:
+            queryset = queryset.order_by(sort)
+        else:
+            queryset = queryset.order_by('-date')  # Fallback to default
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["current_sort"] = self.request.GET.get("sort", "date")
-        context["current_direction"] = self.request.GET.get("direction", "desc")
-        return context
-
+        context['current_sort'] = self.request.GET.get('sort', '-date')
         return context
 
 
