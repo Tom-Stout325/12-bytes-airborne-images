@@ -48,13 +48,13 @@ def get_range(start_year, offset):
     """
     return [start_year + i for i in range(int(offset) + 1)]
 
-@register.simple_tag(takes_context=True)
-def query_transform(context, **kwargs):
+@register.simple_tag
+def query_transform(query, **kwargs):
     """
     Returns the URL-encoded querystring with updated parameters.
     Usage: {% query_transform request.GET sort='date' direction='desc' %}
     """
-    query = context['request'].GET.copy()
+    query = query.copy()
     for key, value in kwargs.items():
         query[key] = value
     return query.urlencode()
