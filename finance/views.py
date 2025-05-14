@@ -458,10 +458,22 @@ class InvoiceListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         sort = self.request.GET.get('sort', 'invoice_numb')
         direction = self.request.GET.get('direction', 'desc')
-        ordering = f"-{sort}" if direction == "desc" else sort
 
-        queryset = Invoice.objects.order_by(ordering)
+        # Validate sort field
+        valid_sort_fields = [
+            'invoice_numb', 'client__business', 'keyword', 'service__service',
+            'amount', 'date', 'due', 'paid_date', 'days_to_pay'
+        ]
+        if sort not in valid_sort_fields:
+            sort = 'invoice_numb'
 
+        # Apply direction
+        ordering = f"-{sort}" if direction == 'desc' else sort
+
+        # Optimize with select_related for foreign keys
+        queryset = Invoice.objects.select_related('client', 'keyword', 'service').order_by(ordering)
+
+        # Apply search filter
         search_query = self.request.GET.get('search', '')
         if search_query:
             queryset = queryset.filter(
@@ -469,25 +481,14 @@ class InvoiceListView(LoginRequiredMixin, ListView):
                 Q(client__business__icontains=search_query) |
                 Q(service__service__icontains=search_query)
             )
+
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["search_query"] = self.request.GET.get('search', '')
-        context["current_sort"] = self.request.GET.get('sort', 'invoice_numb')
-        context["current_direction"] = self.request.GET.get('direction', 'desc')
-        context["new_direction"] = "asc" if context["current_direction"] == "desc" else "desc"
-        context["invoice_headers"] = [
-            ("invoice_numb", "Invoice #"),
-            ("client__business", "Client"),
-            ("keyword", "Location"),
-            ("service__service", "Service"),
-            ("amount", "Amount"),
-            ("date", "Date"),
-            ("due", "Due"),
-            ("paid_date", "Paid"),
-            ("days_to_pay", "Days to Pay"),
-        ]
+        context['search_query'] = self.request.GET.get('search', '')
+        context['current_sort'] = self.request.GET.get('sort', 'invoice_numb')
+        context['current_direction'] = self.request.GET.get('direction', 'desc')
         return context
 
 

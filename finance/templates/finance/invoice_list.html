@@ -1,8 +1,8 @@
-{% extends "index.html" %} 
-{% load static %} 
-{% load humanize %} 
+{% extends "index.html" %}
+{% load static %}
+{% load humanize %}
 
-{% block title%} Invoices {% endblock %} 
+{% block title %}Invoices{% endblock %}
 
 {% block breadcrumbs %}
   <h3>Finance Portal</h3>
@@ -15,8 +15,9 @@
   <h2 class="text-center text-primary">INVOICES</h2>
 </div>
 <div class="container bg-light border rounded p-4">
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
-    <h2 class="text-primary mb-3 mb-md-0">Invoices</h2>
+  <!-- <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4"> -->
+    <div class="d-flex flex-column flex-md-row align-items-center mb-4">
+    <h2 class="text-primary mb-3 mb-md-0">Search Invoices</h2>
     <form method="get" class="d-flex flex-column flex-md-row gap-2 w-100 w-md-auto">
       <div class="input-group">
         <input type="text" name="search" class="form-control" placeholder="Search invoices..." value="{{ search_query }}">
@@ -31,10 +32,10 @@
     <a href="{% url 'create_invoice' %}" class="btn btn-outline-primary">
       <i class="fas fa-plus"></i> New Invoice
     </a>
-    <a href="{% url 'export_invoices_csv' %}?search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}" class="btn btn-outline-success">
+    <a href="{% url 'export_invoices_csv' %}?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}" class="btn btn-outline-success">
       <i class="fa-solid fa-file-csv"></i> CSV
     </a>
-    <a href="{% url 'export_invoices_pdf' %}?search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}" class="btn btn-outline-danger">
+    <a href="{% url 'export_invoices_pdf' %}?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}" class="btn btn-outline-danger">
       <i class="fa-solid fa-file-pdf"></i> PDF
     </a>
   </div>
@@ -43,15 +44,78 @@
     <table class="table table-hover align-middle">
       <thead class="table-primary text-center">
         <tr>
-          <th>Invoice #</th>
-          <th>Client</th>
-          <th>Location</th>
-          <th>Service</th>
-          <th>Amount</th>
-          <th>Date</th>
-          <th>Due</th>
-          <th>Paid</th>
-          <th>Days</th>
+          <th>
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'direction' and key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}sort=invoice_numb&direction={% if current_sort == 'invoice_numb' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+              Invoice #
+              {% if current_sort == 'invoice_numb' %}
+                {% if current_direction == 'asc' %}↑{% else %}↓{% endif %}
+              {% endif %}
+            </a>
+          </th>
+          <th>
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'direction' and key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}sort=client__business&direction={% if current_sort == 'client__business' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+              Client
+              {% if current_sort == 'client__business' %}
+                {% if current_direction == 'asc' %}↑{% else %}↓{% endif %}
+              {% endif %}
+            </a>
+          </th>
+          <th>
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'direction' and key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}sort=keyword&direction={% if current_sort == 'keyword' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+              Location
+              {% if current_sort == 'keyword' %}
+                {% if current_direction == 'asc' %}↑{% else %}↓{% endif %}
+              {% endif %}
+            </a>
+          </th>
+          <th>
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'direction' and key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}sort=service__service&direction={% if current_sort == 'service__service' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+              Service
+              {% if current_sort == 'service__service' %}
+                {% if current_direction == 'asc' %}↑{% else %}↓{% endif %}
+              {% endif %}
+            </a>
+          </th>
+          <th>
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'direction' and key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}sort=amount&direction={% if current_sort == 'amount' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+              Amount
+              {% if current_sort == 'amount' %}
+                {% if current_direction == 'asc' %}↑{% else %}↓{% endif %}
+              {% endif %}
+            </a>
+          </th>
+          <th>
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'direction' and key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}sort=date&direction={% if current_sort == 'date' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+              Date
+              {% if current_sort == 'date' %}
+                {% if current_direction == 'asc' %}↑{% else %}↓{% endif %}
+              {% endif %}
+            </a>
+          </th>
+          <th>
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'direction' and key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}sort=due&direction={% if current_sort == 'due' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+              Due
+              {% if current_sort == 'due' %}
+                {% if current_direction == 'asc' %}↑{% else %}↓{% endif %}
+              {% endif %}
+            </a>
+          </th>
+          <th>
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'direction' and key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}sort=paid_date&direction={% if current_sort == 'paid_date' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+              Paid
+              {% if current_sort == 'paid_date' %}
+                {% if current_direction == 'asc' %}↑{% else %}↓{% endif %}
+              {% endif %}
+            </a>
+          </th>
+          <th>
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'sort' and key != 'direction' and key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}sort=days_to_pay&direction={% if current_sort == 'days_to_pay' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+              Days
+              {% if current_sort == 'days_to_pay' %}
+                {% if current_direction == 'asc' %}↑{% else %}↓{% endif %}
+              {% endif %}
+            </a>
+          </th>
           <th>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="View, edit, delete, review, or email this invoice.">
               Actions <i class="fa-solid fa-circle-info text-secondary ms-1"></i>
@@ -59,7 +123,6 @@
           </th>
         </tr>
       </thead>
-
       <tbody>
         {% for invoice in invoices %}
         <tr class="text-center">
@@ -100,13 +163,13 @@
     <nav>
       <ul class="pagination">
         {% if page_obj.has_previous %}
-        <li class="page-item"><a class="page-link" href="?page=1&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">« First</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">Previous</a></li>
+        <li class="page-item"><a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page=1">« First</a></li>
+        <li class="page-item"><a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">Previous</a></li>
         {% endif %}
         <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
         {% if page_obj.has_next %}
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">Next</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&search={{ search_query }}&sort={{ current_sort }}&direction={{ current_direction }}">Last »</a></li>
+        <li class="page-item"><a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">Next</a></li>
+        <li class="page-item"><a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">Last »</a></li>
         {% endif %}
       </ul>
     </nav>
