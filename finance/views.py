@@ -153,7 +153,6 @@ def transaction_search(request):
 # Transactions   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
-
 class Transactions(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "finance/transactions.html"
@@ -164,6 +163,21 @@ class Transactions(LoginRequiredMixin, ListView):
         queryset = Transaction.objects.select_related(
             'trans_type', 'category', 'sub_cat', 'team', 'keyword'
         )
+
+        # Apply filters
+        keyword_id = self.request.GET.get('keyword')
+        if keyword_id:
+            queryset = queryset.filter(keyword__id=keyword_id)
+
+        category_id = self.request.GET.get('category')
+        if category_id:
+            queryset = queryset.filter(category__id=category_id)
+
+        sub_cat_id = self.request.GET.get('sub_cat')
+        if sub_cat_id:
+            queryset = queryset.filter(sub_cat__id=sub_cat_id)
+
+        # Apply sorting
         sort = self.request.GET.get('sort', '-date')  # Default to descending date
         valid_sort_fields = [
             'date', '-date',
@@ -177,12 +191,18 @@ class Transactions(LoginRequiredMixin, ListView):
             queryset = queryset.order_by(sort)
         else:
             queryset = queryset.order_by('-date')  # Fallback to default
+
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['current_sort'] = self.request.GET.get('sort', '-date')
+        # Add filter options
+        context['keywords'] = Keyword.objects.all().order_by('name')
+        context['categories'] = Category.objects.all().order_by('category')
+        context['subcategories'] = SubCategory.objects.all().order_by('sub_cat')
         return context
+
 
 class DownloadTransactionsCSV(LoginRequiredMixin, View):
     def get(self, request):
