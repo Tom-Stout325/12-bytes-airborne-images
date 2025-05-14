@@ -1,4 +1,4 @@
-from django.views.generic import ListView, DetailView, UpdateView, DeleteView, CreateView
+from django.views.generic import ListView, DetailView, UpdateView, DeleteView, CreateView, TemplateView
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -30,7 +30,6 @@ import os
 from .models import *
 from .forms import *
 from django.views import View  
-
 
 
 class Dashboard(LoginRequiredMixin, TemplateView):
