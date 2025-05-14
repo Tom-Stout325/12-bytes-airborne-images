@@ -31,82 +31,24 @@ from .models import *
 from .forms import *
 from django.views import View  
 
-logger = logging.getLogger(__name__)
 
 
-class Dashboard(LoginRequiredMixin, ListView):
-    model = Transaction
+class Dashboard(LoginRequiredMixin, TemplateView):
     template_name = "finance/dashboard.html"
-    context_object_name = "transactions"
-    paginate_by = 20
-
-    def get_queryset(self):
-        return Transaction.objects.select_related('trans_type', 'sub_cat').order_by('-date')[:50]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        now = timezone.now()
-        current_year = now.year
-        start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        end_of_month = now.replace(day=28).replace(day=1).replace(month=now.month + 1) - timezone.timedelta(days=1)
-        end_of_month = end_of_month.replace(hour=23, minute=59, second=59, microsecond=999999)
-
-        # Recent and unpaid invoices
-        context['recent_invoices'] = Invoice.objects.order_by('-date')[:20]
-        context['unpaid_invoices'] = Invoice.objects.filter(status='Unpaid')
-
-        # Categories
-        context['categories'] = Category.objects.all()
-
-        # Current month totals
-        transactions_this_month = Transaction.objects.filter(date__gte=start_of_month, date__lte=end_of_month)
-        context['income_total'] = transactions_this_month.filter(trans_type__trans_type="Income").aggregate(Sum('amount'))['amount__sum'] or 0
-        context['expense_total'] = transactions_this_month.filter(trans_type__trans_type="Expense").aggregate(Sum('amount'))['amount__sum'] or 0
-
-        # YTD summary
-        try:
-            start_of_year = timezone.datetime(current_year, 1, 1, tzinfo=timezone.utc)
-            ytd_subcategory_totals = (
-                Transaction.objects
-                .filter(date__gte=start_of_year, sub_cat__isnull=False, trans_type__isnull=False)
-                .values('sub_cat__sub_cat', 'trans_type__trans_type')
-                .annotate(total=Sum('amount'))
-                .order_by('sub_cat__sub_cat', 'trans_type__trans_type')
-            )
-            ytd_income_total = sum(item['total'] for item in ytd_subcategory_totals if item['trans_type__trans_type'] == 'Income')
-            ytd_expense_total = sum(item['total'] for item in ytd_subcategory_totals if item['trans_type__trans_type'] == 'Expense')
-            ytd_net_profit = ytd_income_total - ytd_expense_total
-        except Exception as e:
-            logger.error(f"Error calculating YTD data: {e}")
-            ytd_subcategory_totals = []
-            ytd_income_total = ytd_expense_total = ytd_net_profit = 0
-
-        context.update({
-            'ytd_subcategory_totals': ytd_subcategory_totals,
-            'current_year': current_year,
-            'ytd_income_total': ytd_income_total,
-            'ytd_expense_total': ytd_expense_total,
-            'ytd_net_profit': ytd_net_profit,
-        })
-
-        # Mileage
-        try:
-            mileage_rate = MileageRate.objects.get(id=1).rate
-        except MileageRate.DoesNotExist:
-            mileage_rate = 0.70
-
-        taxable_miles = Miles.objects.filter(mileage_type='Taxable', date__year=current_year)
-        total_miles = taxable_miles.aggregate(Sum('total'))['total__sum'] or 0
-        taxable_dollars = total_miles * mileage_rate
-
-        context.update({
-            'mileage_list': Miles.objects.filter(date__year=current_year).order_by('-date'),
-            'mileage_rate': mileage_rate,
-            'total_miles': total_miles,
-            'taxable_dollars': taxable_dollars,
-        })
-
+        # Add URLs for navigation cards
+        context['navigation'] = {
+            'transactions': reverse_lazy('transactions'),
+            'invoices': reverse_lazy('invoice_list'),
+            'reports': reverse_lazy('reports_page'),
+            'mileage': reverse_lazy('mileage_log'),
+            'categories': reverse_lazy('category_page'),
+            'clients': reverse_lazy('client_list'),
+            'keywords': reverse_lazy('keyword_list'),
+            'recurring_transactions': reverse_lazy('recurring_list'),
+        }
         return context
 
 
