@@ -26,7 +26,7 @@ def get_by_id(queryset, value):
 
 @register.filter
 def get_item(dictionary, key):
-    return dictionary.get(key, {})
+    return dictionary.get(key)
 
 @register.filter
 def until(value, max_value):

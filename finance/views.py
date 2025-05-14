@@ -54,7 +54,7 @@ class Dashboard(LoginRequiredMixin, TemplateView):
         return context
 
 
-# Transactions
+# ---------------------------------------------------------------------------------------------------------------   Transactions
 class Transactions(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "finance/transactions.html"
@@ -237,7 +237,7 @@ def add_transaction_success(request):
     return render(request, 'finance/transaction_add_success.html')
 
 
-# ----------------------------------------------------------------------------------------------------- Invoices
+# ---------------------------------------------------------------------------------------------------------------  Invoices
 class InvoiceCreateView(LoginRequiredMixin, CreateView):
     model = Invoice
     form_class = InvoiceForm
@@ -446,7 +446,7 @@ def export_invoices_csv(request):
 def export_invoices_pdf(request):
     invoice_view = InvoiceListView()
     invoice_view.request = request
-    invoices = invoice_view.get_queryset()[:1000]  # Limit to prevent memory issues
+    invoices = invoice_view.get_queryset()[:1000]
 
     if not invoices.exists():
         messages.error(request, "No invoices to export.")
@@ -520,7 +520,7 @@ def invoice_review_pdf(request, pk):
         return redirect('invoice_detail', pk=pk)
 
 
-# ------------------------------------------------------------------------------------------------------- Categories
+# ---------------------------------------------------------------------------------------------------------------  Categories
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
     template_name = 'finance/category_page.html'
@@ -573,7 +573,7 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
             return redirect('category_page')
 
 
-# ------------------------------------------------------------------------------------------ Sub-Categories
+# ---------------------------------------------------------------------------------------------------------------   Sub-Categories
 
 class SubCategoryCreateView(LoginRequiredMixin, CreateView):
     model = SubCategory
@@ -617,7 +617,9 @@ class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
             return redirect('category_page')
 
 
-# ---------------------------------------------------------------------------------------Clients
+# ---------------------------------------------------------------------------------------------------------------  Clients
+
+
 class ClientListView(LoginRequiredMixin, ListView):
     model = Client
     template_name = "components/client_list.html"
@@ -666,7 +668,7 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
             return redirect('client_list')
 
 
-# -------------------------------------------------------------------------------------------Financial Reports
+# --------------------------------------------------------------------------------------------------------------- Financial Reports
 
 def get_summary_data(request, year):
     current_year = timezone.now().year
@@ -749,6 +751,7 @@ def nhra_summary(request):
     years = [current_year, current_year - 1, current_year - 2]
     excluded_ids = [35, 133, 34, 67, 100]
 
+    # Query transactions
     summary_data = Transaction.objects.filter(
         user=request.user
     ).exclude(keyword__id__in=excluded_ids).filter(
@@ -757,18 +760,34 @@ def nhra_summary(request):
         total=Sum('amount')
     ).order_by('keyword__name', 'date__year')
 
+    # Initialize result as defaultdict
     result = defaultdict(lambda: {y: {"income": 0, "expense": 0, "net": 0} for y in years})
+    
+    # Populate result
     for item in summary_data:
         keyword = item['keyword__name']
         year = item['date__year']
         trans_type = item['trans_type__trans_type'].lower()
-        result[keyword][year][trans_type] = item['total']
-        result[keyword][year]['net'] = result[keyword][year]['income'] - result[keyword][year]['expense']
+        if keyword:  # Ensure keyword is not None or empty
+            result[keyword][year][trans_type] = item['total']
+            result[keyword][year]['net'] = result[keyword][year]['income'] - result[keyword][year]['expense']
 
-    return render(request, "finance/nhra_summary.html", {
+    # Convert defaultdict to regular dict
+    result_dict = dict(result)
+    
+    # Log the result for debugging
+    logger.debug(f"NHRA summary data for user {request.user.id}: {result_dict}")
+
+    # Ensure urls context for breadcrumbs
+    context = {
         "years": years,
-        "summary_data": result,
-    })
+        "summary_data": result_dict,
+        "urls": {
+            "reports": "/finance/reports/"  # Adjust based on your URL structure
+        }
+    }
+
+    return render(request, "finance/nhra_summary.html", context)
 
 
 @login_required
@@ -776,7 +795,7 @@ def reports_page(request):
     return render(request, 'finance/reports.html')
 
 
-# Emails
+# ---------------------------------------------------------------------------------------------------------------   Emails
 @require_POST
 @login_required
 def send_invoice_email(request, invoice_id):
@@ -824,7 +843,7 @@ def send_invoice_email(request, invoice_id):
     # return JsonResponse({'status': 'queued', 'task_id': task.id})
 
 
-# -----------------------------------------------------------------------------------------------------------Mileage
+# ---------------------------------------------------------------------------------------------------------------  Mileage
 
 def get_mileage_context(request):
     try:
@@ -913,7 +932,9 @@ def update_mileage_rate(request):
     return render(request, 'components/update_mileage_rate.html', {'form': form})
 
 
-# ---------------------------------------------------------------------------------------------------Keywords
+# ---------------------------------------------------------------------------------------------------------------  Keywords
+
+
 class KeywordListView(LoginRequiredMixin, ListView):
     model = Keyword
     template_name = 'finance/keyword_list.html'
@@ -961,7 +982,7 @@ class KeywordDeleteView(LoginRequiredMixin, DeleteView):
             return redirect('keyword_list')
 
 
-# ------------------------------------------------------------------------------------------------Recurring Transactions
+# ---------------------------------------------------------------------------------------------------------------  Recurring Transactions
 
 class RecurringTransactionListView(LoginRequiredMixin, ListView):
     model = RecurringTransaction

@@ -2,13 +2,11 @@
 {% load static %}
 {% load finance_tags %}
 
-
 {% block title %} NHRA Review {% endblock %}
 
 {% block breadcrumbs %}
     <h3>Finance Portal</h3>
     {% include "components/breadcrumbs.html" with level1="Financial Reports" level1_url=urls.reports level2="NHRA Summary" %}
-
 {% endblock %}
 
 {% block content %}
@@ -19,10 +17,9 @@
     </div>
     <div class="card-body">
       <!-- Export Button -->
-    <div class="mb-3 text-end">
-      <button class="btn btn-success btn-sm export-btn">Export to CSV</button>
-    </div>
-
+      <div class="mb-3 text-end">
+        <button class="btn btn-success btn-sm export-btn">Export to CSV</button>
+      </div>
 
       <div class="table-responsive">
         <table id="summaryTable" class="table table-bordered table-hover table-sm align-middle">
@@ -98,6 +95,4 @@
     document.body.removeChild(link);
   });
 </script>
-
-
 {% endblock %}
