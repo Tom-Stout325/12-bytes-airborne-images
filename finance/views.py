@@ -453,27 +453,19 @@ class InvoiceListView(LoginRequiredMixin, ListView):
     model = Invoice
     template_name = "finance/invoices.html"
     context_object_name = "invoices"
-    paginate_by = 10
+    paginate_by = 20
 
     def get_queryset(self):
         sort = self.request.GET.get('sort', 'invoice_numb')
         direction = self.request.GET.get('direction', 'desc')
-
-        # Validate sort field
         valid_sort_fields = [
             'invoice_numb', 'client__business', 'keyword', 'service__service',
             'amount', 'date', 'due', 'paid_date', 'days_to_pay'
         ]
         if sort not in valid_sort_fields:
             sort = 'invoice_numb'
-
-        # Apply direction
         ordering = f"-{sort}" if direction == 'desc' else sort
-
-        # Optimize with select_related for foreign keys
         queryset = Invoice.objects.select_related('client', 'keyword', 'service').order_by(ordering)
-
-        # Apply search filter
         search_query = self.request.GET.get('search', '')
         if search_query:
             queryset = queryset.filter(
@@ -481,7 +473,6 @@ class InvoiceListView(LoginRequiredMixin, ListView):
                 Q(client__business__icontains=search_query) |
                 Q(service__service__icontains=search_query)
             )
-
         return queryset
 
     def get_context_data(self, **kwargs):

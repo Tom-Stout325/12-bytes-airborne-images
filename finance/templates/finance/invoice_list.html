@@ -15,18 +15,17 @@
   <h2 class="text-center text-primary">INVOICES</h2>
 </div>
 <div class="container bg-light border rounded p-4">
-  <!-- <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4"> -->
-    <div class="d-flex flex-column flex-md-row align-items-center mb-4">
-    <h2 class="text-primary mb-3 mb-md-0">Search Invoices</h2>
-    <form method="get" class="d-flex flex-column flex-md-row gap-2 w-100 w-md-auto">
-      <div class="input-group">
-        <input type="text" name="search" class="form-control" placeholder="Search invoices..." value="{{ search_query }}">
-        <button type="submit" class="btn btn-outline-secondary">
-          <i class="fa-solid fa-magnifying-glass-dollar fa-sm"></i>
-        </button>
-      </div>
-    </form>
-  </div>
+    <div class="d-flex flex-column flex-md-row align-items-center mb-4 w-50">
+      <h4 class="text-primary mb-3 mb-md-0">Search Invoices</h4>
+      <form method="get" class="d-flex flex-column flex-md-row gap-2 w-100 w-md-auto">
+        <div class="input-group">
+          <input type="text" name="search" class="form-control" placeholder="Search invoices..." value="{{ search_query }}">
+          <button type="submit" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-magnifying-glass-dollar fa-sm"></i>
+          </button>
+        </div>
+      </form>
+    </div>
 
   <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
     <a href="{% url 'create_invoice' %}" class="btn btn-outline-primary">
