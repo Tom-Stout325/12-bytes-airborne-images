@@ -136,7 +136,12 @@
 
     <!-- CSV Export -->
     <div class="mt-3">
-      <a href="{% url 'download_transactions_csv' %}" class="btn btn-success">Download CSV</a>
+      {% if selected_year %}
+        <a href="{% url 'download_transactions_csv' %}?year={{ selected_year }}" class="btn btn-success">Download CSV ({{ selected_year }})</a>
+      {% else %}
+        <a href="{% url 'download_transactions_csv' %}?year=" class="btn btn-success">Download CSV (Current Filters)</a>
+      {% endif %}
+      <a href="{% url 'download_transactions_csv' %}?all=true" class="btn btn-success">Download All Transactions</a>
     </div>
   </div>
 {% endblock %}

@@ -33,6 +33,8 @@ from .models import *
 from .forms import *
 
 
+logger = logging.getLogger(__name__)
+
 # Dashboard
 class Dashboard(LoginRequiredMixin, TemplateView):
     template_name = "finance/dashboard.html"
@@ -110,15 +112,27 @@ class Transactions(LoginRequiredMixin, ListView):
         return context
 
 
+
 class DownloadTransactionsCSV(LoginRequiredMixin, View):
     def get(self, request):
-        transactions_view = Transactions()
-        transactions_view.request = request
-        queryset = transactions_view.get_queryset()
+        # Check for 'all' parameter to download all transactions
+        if request.GET.get('all') == 'true':
+            queryset = Transaction.objects.filter(user=request.user).select_related('trans_type', 'keyword')
+        else:
+            # Use Transactions view to get filtered queryset
+            transactions_view = Transactions()
+            transactions_view.request = request
+            queryset = transactions_view.get_queryset()
+
+        # Apply year filter if provided (override Transactions view's year filter if needed)
+        year = request.GET.get('year')
+        if year and year.isdigit():
+            queryset = queryset.filter(date__year=int(year))
 
         class Echo:
             def write(self, value):
                 return value
+
         def stream_csv(queryset):
             writer = csv.writer(Echo())
             yield writer.writerow(['Date', 'Type', 'Transaction', 'Location', 'Amount', 'Invoice #'])
@@ -129,18 +143,24 @@ class DownloadTransactionsCSV(LoginRequiredMixin, View):
                     tx.transaction,
                     tx.keyword.name if tx.keyword else '',
                     tx.amount,
-                    tx.invoice_numb
+                    tx.invoice_numb if tx.invoice_numb else ''
                 ])
 
         try:
-            filename = "transactions.csv"
+            # Set filename based on year or all transactions
+            if request.GET.get('all') == 'true':
+                filename = "all_transactions.csv"
+            elif year and year.isdigit():
+                filename = f"transactions_{year}.csv"
+            else:
+                filename = "transactions.csv"
+                
             response = StreamingHttpResponse(stream_csv(queryset), content_type='text/csv')
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
             return response
         except Exception as e:
             logger.error(f"Error generating CSV for user {request.user.id}: {e}")
             return HttpResponse("Error generating CSV", status=500)
-
 
 class TransactionCreateView(LoginRequiredMixin, CreateView):
     model = Transaction
@@ -217,7 +237,7 @@ def add_transaction_success(request):
     return render(request, 'finance/transaction_add_success.html')
 
 
-# Invoices
+# ----------------------------------------------------------------------------------------------------- Invoices
 class InvoiceCreateView(LoginRequiredMixin, CreateView):
     model = Invoice
     form_class = InvoiceForm
@@ -500,7 +520,7 @@ def invoice_review_pdf(request, pk):
         return redirect('invoice_detail', pk=pk)
 
 
-# Categories
+# ------------------------------------------------------------------------------------------------------- Categories
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
     template_name = 'finance/category_page.html'
