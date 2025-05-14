@@ -47,7 +47,6 @@ class Keyword(models.Model):
     def __str__(self):
         return self.name
 
-
 # -------------------------------------------------------------------------------------------
 
 class Team(models.Model):
@@ -70,9 +69,7 @@ class Client(models.Model):
     def __str__(self):
         return self.business
     
-    
 # -------------------------------------------------------------------------------------------
-
 
 class Service(models.Model):
     service         = models.CharField(max_length=500, blank=True, null=True) 
@@ -80,7 +77,6 @@ class Service(models.Model):
     def __str__(self):
         return self.service
     
-
 # -------------------------------------------------------------------------------------------
 
 class Transaction(models.Model):
@@ -111,13 +107,11 @@ class Transaction(models.Model):
         ]
     
     def save(self, *args, **kwargs):
-        # Only calculate deductible_amount for Travel: Meals (sub_cat ID 26)
         if self.sub_cat_id == 26:
             self.deductible_amount = round(Decimal(self.amount) * Decimal('0.5'), 2)
         else:
-            self.deductible_amount = None  # clear or ignore for all others
+            self.deductible_amount = None 
         super().save(*args, **kwargs)
-
 
     class Meta:
         verbose_name_plural = "Transactions"
@@ -126,12 +120,8 @@ class Transaction(models.Model):
     def __str__(self):
         return self.transaction
 
-    
-
-    
 # -------------------------------------------------------------------------------------------
     
-
 class Invoice(models.Model):
     invoice_numb = models.CharField(max_length=10, unique=True)
     client = models.ForeignKey('Client', on_delete=models.PROTECT)
@@ -168,9 +158,7 @@ class Invoice(models.Model):
             return (self.paid_date - self.date).days
         return None
 
-
 # -------------------------------------------------------------------------------------------
-
 
 class InvoiceItem(models.Model):
     invoice = models.ForeignKey('Invoice', on_delete=models.CASCADE, related_name='items')
@@ -185,12 +173,8 @@ class InvoiceItem(models.Model):
     def total(self):
         return (self.qty or 0) * (self.price or 0)
 
-
-
-
  # -------------------------------------------------------------------------------------------
  
-
 class MileageRate(models.Model):
     rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.70)
     
@@ -200,9 +184,6 @@ class MileageRate(models.Model):
     class Meta:
         verbose_name = "Mileage Rate"
         verbose_name_plural = "Mileage Rates"
-
-
-
 
 
 class Miles(models.Model):
@@ -237,9 +218,7 @@ class Miles(models.Model):
             self.total = None
         super().save(*args, **kwargs)
 
-
  # -------------------------------------------------------------------------------------------
-
 
 class RecurringTransaction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
