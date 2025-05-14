@@ -8,55 +8,56 @@
 <div>
   <h2 class="text-primary text-center my-4">Transactions</h2>
 </div>
-<div class="mb-3">
-  <h4 class="text-primary text-center">Filters</h4>
-  <form method="get" class="row g-3">
-    <div class="col-md-4">
-      <label for="keyword" class="form-label">Keyword</label>
-      <select name="keyword" id="keyword" class="form-select">
-        <option value="">All</option>
-        {% for kw in keywords %}
-          <option value="{{ kw.id }}" {% if request.GET.keyword|add:"0" == kw.id|add:"0" %}selected{% endif %}>{{ kw.name }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-md-4">
-      <label for="category" class="form-label">Category</label>
-      <select name="category" id="category" class="form-select">
-        <option value="">All</option>
-        {% for cat in categories %}
-          <option value="{{ cat.id }}" {% if request.GET.category|add:"0" == cat.id|add:"0" %}selected{% endif %}>{{ cat.category }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-md-4">
-      <label for="sub_cat" class="form-label">Subcategory</label>
-      <select name="sub_cat" id="sub_cat" class="form-select">
-        <option value="">All</option>
-        {% for sub in subcategories %}
-          <option value="{{ sub.id }}" {% if request.GET.sub_cat|add:"0" == sub.id|add:"0" %}selected{% endif %}>{{ sub.sub_cat }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-12 text-center">
-      <button type="submit" class="btn btn-primary">Apply Filters</button>
-      <a href="{% url 'transactions' %}" class="btn btn-secondary">Clear Filters</a>
-    </div>
-  </form>
-</div>
+<div class="border-rounded bg-light my-4">
+  <div class="mb-3">
+    <h4 class="text-primary text-center">Filters</h4>
+    <form method="get" class="row g-3">
+      <div class="col-md-4">
+        <label for="keyword" class="form-label">Keyword</label>
+        <select name="keyword" id="keyword" class="form-select">
+          <option value="">All</option>
+          {% for kw in keywords %}
+            <option value="{{ kw.id }}" {% if request.GET.keyword|add:"0" == kw.id|add:"0" %}selected{% endif %}>{{ kw.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="category" class="form-label">Category</label>
+        <select name="category" id="category" class="form-select">
+          <option value="">All</option>
+          {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if request.GET.category|add:"0" == cat.id|add:"0" %}selected{% endif %}>{{ cat.category }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="sub_cat" class="form-label">Subcategory</label>
+        <select name="sub_cat" id="sub_cat" class="form-select">
+          <option value="">All</option>
+          {% for sub in subcategories %}
+            <option value="{{ sub.id }}" {% if request.GET.sub_cat|add:"0" == sub.id|add:"0" %}selected{% endif %}>{{ sub.sub_cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-12 text-center">
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
+        <a href="{% url 'transactions' %}" class="btn btn-secondary">Clear Filters</a>
+      </div>
+    </form>
+  </div>
 
-<div class="mb-3">
-  <h4 class="text-primary text-center">CSV Downloads</h4>
-  <div class="btn-group">
-    <a href="{% url 'download_transactions_csv' %}?{% for key, value in request.GET.items %}{% if key != 'page' and key != 'year' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}year=current" class="btn btn-outline-success">
-      <i class="fa-solid fa-file-csv"></i> Download Current Year
-    </a>
-    <a href="{% url 'download_transactions_csv' %}?{% for key, value in request.GET.items %}{% if key != 'page' and key != 'year' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}" class="btn btn-outline-success">
-      <i class="fa-solid fa-file-csv"></i> Download All Transactions
-    </a>
+  <div class="mb-3">
+    <h4 class="text-primary text-center">CSV Downloads</h4>
+    <div class="btn-group">
+      <a href="{% url 'download_transactions_csv' %}?{% for key, value in request.GET.items %}{% if key != 'page' and key != 'year' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}year=current" class="btn btn-outline-success">
+        <i class="fa-solid fa-file-csv"></i> Download Current Year
+      </a>
+      <a href="{% url 'download_transactions_csv' %}?{% for key, value in request.GET.items %}{% if key != 'page' and key != 'year' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}" class="btn btn-outline-success">
+        <i class="fa-solid fa-file-csv"></i> Download All Transactions
+      </a>
+    </div>
   </div>
 </div>
-
 <div class="table-responsive">
   <table class="table table-hover table-bordered text-center align-middle">
     <thead>
