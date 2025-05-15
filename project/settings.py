@@ -8,14 +8,12 @@ from django.core.exceptions import ImproperlyConfigured
 # Base directory must be declared first
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load environment variables properly
 env = environ.Env()
 
-# Point to .env.local if it exists, otherwise use .env
 env_file = BASE_DIR / ".env.local" if (BASE_DIR / ".env.local").exists() else BASE_DIR / ".env"
 env.read_env(env_file)
 
-# Now you can safely use env() calls
+
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
