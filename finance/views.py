@@ -314,7 +314,7 @@ class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
                 messages.error(self.request, "Error updating invoice. Please check the form.")
                 return self.form_invalid(form)
         else:
-            logger.error(f"Formset errors for invoice update: {formset.errors}")
+            logger.error(f"Formset errors for invoice update: {formset.errors}, Non-form errors: {formset.non_form_errors}")
             messages.error(self.request, "Error in invoice items. Please check the form.")
             return self.form_invalid(form)
 
