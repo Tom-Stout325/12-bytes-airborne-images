@@ -27,6 +27,7 @@ class TransForm(forms.ModelForm):
                 raise forms.ValidationError("Only PDF, JPG, or PNG files are allowed.")
         return receipt
 
+
 class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
@@ -45,13 +46,24 @@ class InvoiceItemForm(forms.ModelForm):
         model = InvoiceItem
         fields = ['item', 'qty', 'price']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make all fields optional
+        self.fields['item'].required = False
+        self.fields['qty'].required = False
+        self.fields['price'].required = False
+
 InvoiceItemFormSet = inlineformset_factory(
     Invoice,
     InvoiceItem,
     form=InvoiceItemForm,
     extra=5,
-    can_delete=True
-)
+    can_delete=True,
+    min_num=0, 
+    validate_min=False  
+)  
+        
+        
 
 class CategoryForm(forms.ModelForm):
     class Meta:

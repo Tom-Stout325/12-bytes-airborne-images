@@ -303,12 +303,11 @@ class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
         if formset.is_valid():
             try:
                 with transaction.atomic():
-                    form.save()
+                    self.object = form.save()
                     formset.save()
-                    invoice = self.object
-                    invoice.amount = invoice.items.aggregate(total=Sum('price'))['total'] or 0
-                    invoice.save()
-                    messages.success(self.request, f"Invoice #{invoice.invoice_numb} updated successfully.")
+                    self.object.amount = self.object.calculate_total()
+                    self.object.save()
+                    messages.success(self.request, f"Invoice #{self.object.invoice_numb} updated successfully.")
                     return super().form_valid(form)
             except Exception as e:
                 logger.error(f"Error updating invoice {self.object.id} for user {self.request.user.id}: {e}")

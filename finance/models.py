@@ -167,18 +167,20 @@ class Invoice(models.Model):
             return (self.paid_date - self.date).days
         return None
 
+
 class InvoiceItem(models.Model):
     invoice = models.ForeignKey('Invoice', on_delete=models.CASCADE, related_name='items')
-    item = models.ForeignKey(Service, on_delete=models.PROTECT)
-    qty = models.IntegerField(default=0)
-    price = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
+    item = models.ForeignKey(Service, on_delete=models.PROTECT, blank=True, null=True)
+    qty = models.IntegerField(default=0, blank=True, null=True)
+    price = models.DecimalField(max_digits=20, decimal_places=2, default=0.00, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.item.service} - {self.qty} x {self.price}"
+        return f"{self.item.service if self.item else 'No Item'} - {self.qty} x {self.price}"
 
     @property
     def total(self):
         return (self.qty or 0) * (self.price or 0)
+
 
 class MileageRate(models.Model):
     rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.70)

@@ -2,74 +2,101 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
+
+<head>
+     <style>
+        .formset-row { margin-bottom: 1rem; }
+        .errorlist { color: #dc3545; font-size: 0.875rem; }
+        .hidden { display: none; }
+    </style>
+</head>
 {% block content %}
-<div class="container mt-5">
-  <div class="card shadow-sm">
-    <div class="card-header bg-primary text-white">
-      <h3 class="mb-0">Edit Invoice</h3>
-    </div>
-    <div class="card-body">
-      <form method="post" novalidate>
-        {% csrf_token %}
-        
-        <!-- Main Invoice Form -->
-        <div class="row">
-          <div class="col-md-6 mb-3">{{ form.invoice_numb|as_crispy_field }}</div>
-          <div class="col-md-6 mb-3">{{ form.client|as_crispy_field }}</div>
-          <div class="col-md-6 mb-3">{{ form.event|as_crispy_field }}</div>
-          <div class="col-md-6 mb-3">{{ form.location|as_crispy_field }}</div>
-          <div class="col-md-6 mb-3">{{ form.keyword|as_crispy_field }}</div>
-          <div class="col-md-6 mb-3">{{ form.service|as_crispy_field }}</div>
-          <div class="col-md-6 mb-3">{{ form.amount|as_crispy_field }}</div>
-          <div class="col-md-6 mb-3">{{ form.date|as_crispy_field }}</div>
-          <div class="col-md-6 mb-3">{{ form.due|as_crispy_field }}</div>
-          <div class="col-md-6 mb-3">{{ form.paid_date|as_crispy_field }}</div>
-          <div class="col-md-6 mb-3">{{ form.status|as_crispy_field }}</div>
-        </div>
+  <body class="bg-light">
+      <div class="container py-5">
+          <h1 class="display-6 fw-bold mb-4">Update Invoice #{{ invoice.invoice_numb }}</h1>
+          
+          <form method="post" class="bg-white p-4 rounded shadow">
+              {% csrf_token %}
+              
+              <!-- Invoice Form -->
+              <div class="mb-4">
+                  <h2 class="h4 fw-semibold mb-3">Invoice Details</h2>
+                  {{ form.as_p }}
+                  {% if form.errors %}
+                      <div class="alert alert-danger">
+                          <p>Please correct the following errors:</p>
+                          {{ form.errors }}
+                      </div>
+                  {% endif %}
+              </div>
+              
+              <!-- Invoice Items Formset -->
+              <div class="mb-4">
+                  <h2 class="h4 fw-semibold mb-3">Invoice Items</h2>
+                  {{ formset.management_form }}
+                  <div id="formset-container">
+                      {% for form in formset %}
+                          <div class="formset-row d-flex align-items-center gap-3">
+                              <div class="flex-grow-1">
+                                  {{ form.item.label_tag }} {{ form.item }}
+                                  {{ form.qty.label_tag }} {{ form.qty }}
+                                  {{ form.price.label_tag }} {{ form.price }}
+                                  {% if form.errors %}
+                                      <div class="text-danger">
+                                          {{ form.errors }}
+                                      </div>
+                                  {% endif %}
+                              </div>
+                              {% if form.instance.pk %}
+                                  <div class="form-check">
+                                      {{ form.DELETE }}
+                                      <label for="{{ form.DELETE.id_for_label }}" class="form-check-label text-danger">Delete</label>
+                                  </div>
+                              {% endif %}
+                          </div>
+                      {% endfor %}
+                  </div>
+                  {% if formset.non_form_errors %}
+                      <div class="alert alert-danger">
+                          {{ formset.non_form_errors }}
+                      </div>
+                  {% endif %}
+                  <button type="button" id="add-formset-row" class="btn btn-primary mt-3">
+                      Add Item
+                  </button>
+              </div>
+              
+              <!-- Submit Button -->
+              <div>
+                  <button type="submit" class="btn btn-success">Update Invoice</button>
+                  <a href="{% url 'invoice_list' %}" class="btn btn-link text-primary">Cancel</a>
+              </div>
+          </form>
+      </div>
 
-        <hr class="mt-4 mb-4">
-
-        <!-- Invoice Items Formset -->
-        <h5 class="mb-3">Invoice Items</h5>
-
-        {{ formset.management_form }}
-        {% if formset.non_form_errors %}
-          <div class="alert alert-danger">
-            {{ formset.non_form_errors }}
-          </div>
-        {% endif %}
-
-        <div class="table-responsive">
-          <table class="table table-bordered table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item_form in formset %}
-                {% for hidden in item_form.hidden_fields %}
-                  {{ hidden }}
-                {% endfor %}
-                <tr>
-                  <td>{{ item_form.item|as_crispy_field }}</td>
-                  <td>{{ item_form.qty|as_crispy_field }}</td>
-                  <td>{{ item_form.price|as_crispy_field }}</td>
-                  <td class="text-center">{{ item_form.DELETE }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-
-        <div class="text-end mt-3">
-          <button type="submit" class="btn btn-success">Save Changes</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-{% endblock %}
+      <script>
+          document.getElementById('add-formset-row').addEventListener('click', function() {
+              const formsetContainer = document.getElementById('formset-container');
+              const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+              const formCount = parseInt(totalForms.value);
+              
+              // Clone the first empty form
+              const emptyForm = formsetContainer.querySelector('.formset-row').cloneNode(true);
+              // Update form indices
+              emptyForm.innerHTML = emptyForm.innerHTML.replace(/form-\d+/g, `form-${formCount}`);
+              // Clear input values
+              emptyForm.querySelectorAll('input, select').forEach(input => {
+                  if (input.type !== 'checkbox') input.value = '';
+                  if (input.type === 'checkbox') input.checked = false;
+              });
+              // Remove DELETE checkbox if present
+              const deleteField = emptyForm.querySelector('input[type="checkbox"]');
+              if (deleteField) deleteField.parentElement.remove();
+              
+              formsetContainer.appendChild(emptyForm);
+              totalForms.value = formCount + 1;
+          });
+      </script>
+  </body>
+  </html>
+  {% endblock %}
