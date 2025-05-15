@@ -5,11 +5,6 @@
 
 {% block title %}Transactions{% endblock %}
 
-{% block breadcrumbs %}
-  <h3>Finance Portal</h3>
-  {% include "components/breadcrumbs.html" with level1="Financial Reports" level1_url=urls.reports %}
-{% endblock %}
-
 {% block content %}
 <div class="container mt-5">
   <div class="row g-4 justify-content-center">
@@ -75,6 +70,21 @@
             <h5 class="card-title text-info fw-bold">Recurring Transactions</h5>
             <p class="card-text text-secondary small">
               Review Monthly Recurring Transactions
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-4">
+      <a href="{% url 'travel_expense_report' %}" class="text-decoration-none">
+        <div class="card h-100 border-0 shadow-sm custom-hover" style="background-color: #fef9e7">
+          <div class="card-body text-center py-4" style="border-radius: .5rem;">
+            <div class="mb-3">
+              <i class="fa-solid fa-tags fa-2x text-warning"></i>
+            </div>
+            <h5 class="card-title text-warning fw-bold">Travel Expense Report</h5>
+            <p class="card-text text-secondary small">
+              Review travel expenses over time.
             </p>
           </div>
         </div>

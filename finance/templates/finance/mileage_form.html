@@ -5,11 +5,6 @@
   {% if form.instance.pk %}Update Mileage{% else %}Add Mileage{% endif %}
 {% endblock %}
 
-{% block breadcrumbs %}
-  <h3>Finance Portal</h3>
-  {% include "components/breadcrumbs.html" with level1="Mileage Log" level1_url=urls.mileage_log level2="Add Mileage" %}
-{% endblock %}
-
 {% block content %}
 <div class="container my-4">
   <div class="row justify-content-center">

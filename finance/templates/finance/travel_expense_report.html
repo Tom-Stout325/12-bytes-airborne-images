@@ -1,0 +1,96 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load l10n %}
+{% load humanize %}
+{% load finance_filters %}
+
+{% block title %}Travel Expense Report{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Report Header -->
+    <div class="card shadow-lg border-0 mb-5">
+        <div class="card-header bg-primary text-white text-center py-3">
+            <h2 class="mb-0">Airborne Images</h2>
+            <h5 class="mb-0">Travel Expense Report ({{ years|join:", " }})</h5>
+        </div>
+        <div>
+            <h3><a href="{% url 'travel_expense_report_pdf' %}" class="btn btn-outline-primary my-5 w-100 mx-auto">Download This Report</a></h3>
+        </div>
+        <div class="card-body">
+            <!-- Travel Expenses by Keyword -->
+            {% for keyword, subcategories in summary_data.items %}
+            <div class="mb-5">
+                <h3 class="text-danger mb-4">{{ keyword }}</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle">
+                        <thead class="table-danger">
+                            <tr>
+                                <th class="px-4">Subcategory</th>
+                                {% for year in years %}
+                                <th class="text-end px-4">{{ year }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for subcategory in travel_subcategories %}
+                            <tr>
+                                <td class="px-4">{{ subcategory }}</td>
+                                {% for year in years %}
+                                <td class="text-end px-4">
+                                    {% with year_data=subcategories|lookup:subcategory %}
+                                    {% if year_data and year_data|lookup:year %}
+                                    $ {{ year_data|lookup:year|floatformat:2|intcomma }}
+                                    {% else %}
+                                    $ 0.00
+                                    {% endif %}
+                                    {% endwith %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="{{ years|length|add:1 }}" class="text-center text-muted py-3">
+                                    No travel expenses found for {{ keyword }}.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-light">
+                                <td class="fw-bold px-4">Total</td>
+                                {% for year in years %}
+                                <td class="fw-bold text-end px-4">
+                                    $ {{ keyword_totals|lookup:keyword|lookup:year|floatformat:2|intcomma|default:"0.00" }}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            {% empty %}
+            <div class="alert alert-warning text-center">
+                No travel expense data available for {{ years|join:", " }}.
+            </div>
+            {% endfor %}
+
+            <!-- Overall Totals -->
+            <div class="card bg-light p-3">
+                <div class="row align-items-center text-center text-md-end">
+                    <div class="col-12 col-md-auto">
+                        <h4 class="fw-bold mb-2 mb-md-0">Total Travel Expenses:</h4>
+                    </div>
+                    <div class="col-12 col-md">
+                        {% for year in years %}
+                        <h5 class="mb-0">
+                            {{ year }}: $ {{ yearly_totals|lookup:year|floatformat:2|intcomma|default:"0.00" }}
+                        </h5>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

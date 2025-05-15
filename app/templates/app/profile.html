@@ -1,15 +1,7 @@
 {% extends 'index.html' %}
 {% load time_filters %}
 
-
-{% block breadcrumbs %}
-  <nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'drone_portal' %}">Home</a></li>
-      <li class="breadcrumb-item active" aria-current="page">My Profile</li>
-    </ol>
-  </nav>
-{% endblock %}
+{% block title %}Pilot Profile{% endblock %}
 
 {% block content %}
 <div class="container mt-5">

@@ -2,11 +2,6 @@
 {% load crispy_forms_tags %}
 {% load finance_tags %}
 
-{% block breadcrumbs %}
-  <h3>Finance Portal</h3>
-  {% include "components/breadcrumbs.html" with level1="Recurring Transactions" level1_url=urls.recurring_list level2="Edit Recurring Transaction" %}
-{% endblock %}
-
 {% block content %}
 <div class="container mt-5">
   <div class="card shadow-sm">

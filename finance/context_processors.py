@@ -1,14 +1,14 @@
-from django.urls import reverse
+from django.urls import reverse_lazy
 
-def url_names(request):
+def navigation(request):
     return {
-        'urls': {
-            'transactions': reverse('transactions'),
-            'invoice_list': reverse('invoice_list'),
-            'mileage_log': reverse('mileage_log'),
-            'reports': reverse('reports'),
-            'recurring_list': reverse('recurring_list'),
-            'category_page': reverse('category_page'),
-
+        'finance_navigation': {  # Changed from 'navigation'
+            'dashboard': reverse_lazy('dashboard'),
+            'transactions': reverse_lazy('transactions'),
+            'invoices': reverse_lazy('invoice_list'),
+            'mileage': reverse_lazy('mileage_log'),
+            'categories': reverse_lazy('category_page'),
+            'reports': reverse_lazy('reports'),
+            'keywords': reverse_lazy('keyword_list'),
         }
     }

@@ -11,6 +11,7 @@ except ImportError:
     GinIndex = None
     SearchVectorField = None
 
+
 class Type(models.Model):
     trans_type = models.CharField(max_length=50, blank=True, null=True)
 
@@ -19,6 +20,7 @@ class Type(models.Model):
 
     def __str__(self):
         return self.trans_type
+
 
 class Category(models.Model):
     category = models.CharField(max_length=500, blank=True, null=True)
@@ -29,6 +31,7 @@ class Category(models.Model):
     def __str__(self):
         return self.category
 
+
 class SubCategory(models.Model):
     sub_cat = models.CharField(max_length=500, blank=True, null=True)
 
@@ -38,14 +41,17 @@ class SubCategory(models.Model):
     def __str__(self):
         return self.sub_cat
 
-class Keyword(models.Model):
-    name = models.CharField(max_length=500)
 
+class Keyword(models.Model):
+    name       = models.CharField(max_length=500)
+    order      = models.IntegerField(blank=True, null=True)
+    
     class Meta:
         ordering = ['name']
 
     def __str__(self):
         return self.name
+
 
 class Team(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
@@ -54,13 +60,13 @@ class Team(models.Model):
         return self.name
 
 class Client(models.Model):
-    business = models.CharField(max_length=500, blank=True, null=True)
-    first = models.CharField(max_length=500, blank=True, null=True)
-    last = models.CharField(max_length=500, blank=True, null=True)
-    street = models.CharField(max_length=500, blank=True, null=True)
-    address2 = models.CharField(max_length=500, blank=True, null=True)
-    email = models.EmailField(max_length=254)
-    phone = models.CharField(max_length=500, blank=True, null=True)
+    business  = models.CharField(max_length=500, blank=True, null=True)
+    first     = models.CharField(max_length=500, blank=True, null=True)
+    last      = models.CharField(max_length=500, blank=True, null=True)
+    street    = models.CharField(max_length=500, blank=True, null=True)
+    address2  = models.CharField(max_length=500, blank=True, null=True)
+    email     = models.EmailField(max_length=254)
+    phone     = models.CharField(max_length=500, blank=True, null=True)
     
     def __str__(self):
         return self.business

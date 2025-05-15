@@ -1,5 +1,7 @@
 {% extends 'index.html' %}
+{% load static %}
 {% load finance_tags %}
+
 
 {% block content %}
   <div class="container mt-4">
@@ -65,6 +67,9 @@
         {% endif %}
         <a href="{% url 'download_transactions_csv' %}?all=true" class="btn btn-outline-success rounded-end">Download All Transactions</a>
       </div>
+      <div>
+        <a href="{% url 'add_transaction' %}" class="btn btn-outline-primary w-100 mx-auto">Enter a Transaction</a>
+      </div>
     </div>
     <!-- Transactions Table -->
     <div class="table-responsive">
@@ -95,7 +100,7 @@
               <a href="?{% query_transform request.GET sort='invoice_numb' direction='asc' %}" class="{% if current_sort == 'invoice_numb' %}text-dark{% endif %}">Invoice #</a>
               {% if current_sort == 'invoice_numb' %}↑{% elif current_sort == '-invoice_numb' %}↓{% endif %}
             </th>
-            <th>Actions</th>
+            <th class="text-primary text-center">Actions</th>
           </tr>
         </thead>
         <tbody>

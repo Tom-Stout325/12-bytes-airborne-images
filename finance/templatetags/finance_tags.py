@@ -58,3 +58,8 @@ def query_transform(query, **kwargs):
     for key, value in kwargs.items():
         query[key] = value
     return query.urlencode()
+
+
+@register.filter
+def lookup(dictionary, key):
+    return dictionary.get(key, 0)

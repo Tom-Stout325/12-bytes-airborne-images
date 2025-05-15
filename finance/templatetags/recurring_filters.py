@@ -25,3 +25,5 @@ def get_range(start_year, offset):
     Generates: [2022, 2023, 2024, 2025]
     """
     return [start_year + i for i in range(int(offset) + 1)]
+
+

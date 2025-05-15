@@ -2,11 +2,6 @@
 {% load humanize %}
 
 
-{% block breadcrumbs %}
-    <h3>Finance Portal</h3>
-    {% include "components/breadcrumbs.html" with level1="Financial Reports" level1_url=urls.reports level2="Income & Expense Summary" %}
-{% endblock %}
-
 {% block content %}
 <div class="container mt-4">
     <h2 class="text-primary text-center mb-2">Income & Expense Summary</h2>

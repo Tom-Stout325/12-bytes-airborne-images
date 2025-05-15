@@ -3,15 +3,7 @@
 {% load l10n %}
 {% load humanize %}
 
-
 {% block title %}Income Statement{% endblock %}
-
-{% block breadcrumbs %}
-    <h3>Finance Portal</h3>
-    {% include "components/breadcrumbs.html" with level1="Financial Reports" level1_url=urls.reports level2="Income Statement" %}
-{% endblock %}
-
-
 
 {% block content %}
 <div class="container my-5">
@@ -29,8 +21,8 @@
                     <select name="year" id="year" class="form-select" onchange="this.form.submit()">
                         <option value="">All Years</option>
                         {% for year in available_years %}
-                        <option value="{{ year.year }}" {% if selected_year|slugify == year.year|slugify %}selected{% endif %}>
-                            {{ year.year }}
+                        <option value="{{ year }}" {% if selected_year|slugify == year|slugify %}selected{% endif %}>
+                            {{ year }}
                         </option>
                         {% endfor %}
                     </select>
@@ -58,7 +50,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for row in income_transactions %}
+                            {% for row in income_subcategory_totals %}
                             <tr>
                                 <td class="px-4">{{ row.sub_cat__sub_cat }}</td>
                                 <td class="text-end px-4">$ {{ row.total|floatformat:2|intcomma }}</td>
@@ -72,7 +64,7 @@
                         <tfoot>
                             <tr class="table-light">
                                 <td class="fw-bold px-4">Total Income</td>
-                                <td class="fw-bold text-end px-4">$ {{ total_income|floatformat:2|intcomma }}</td>
+                                <td class="fw-bold text-end px-4">$ {{ income_category_total|floatformat:2|intcomma }}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -91,7 +83,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for row in expense_transactions %}
+                            {% for row in expense_subcategory_totals %}
                             <tr>
                                 <td class="px-4">{{ row.sub_cat__sub_cat }}</td>
                                 <td class="text-end px-4">-$ {{ row.total|floatformat:2|intcomma }}</td>
@@ -105,7 +97,7 @@
                         <tfoot>
                             <tr class="table-light">
                                 <td class="fw-bold px-4">Total Expenses</td>
-                                <td class="fw-bold text-end px-4">$ {{ total_expenses|floatformat:2|intcomma }}</td>
+                                <td class="fw-bold text-end px-4">$ {{ expense_category_total|floatformat:2|intcomma }}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -115,17 +107,16 @@
             <!-- Net Profit/Loss -->
             <div class="card bg-light p-3">
                 <div class="row align-items-center text-center text-md-end">
-                  <div class="col-12 col-md-auto">
-                    <h4 class="fw-bold mb-2 mb-md-0">Net Profit/Loss:</h4>
-                  </div>
-                  <div class="col-12 col-md">
-                    <h4 class="{% if net_profit >= 0 %}text-success{% else %}text-danger{% endif %} mb-0">
-                      $ {{ net_profit|floatformat:2|intcomma }}
-                    </h4>
-                  </div>
+                    <div class="col-12 col-md-auto">
+                        <h4 class="fw-bold mb-2 mb-md-0">Net Profit/Loss:</h4>
+                    </div>
+                    <div class="col-12 col-md">
+                        <h4 class="{% if net_profit >= 0 %}text-success{% else %}text-danger{% endif %} mb-0">
+                            $ {{ net_profit|floatformat:2|intcomma }}
+                        </h4>
+                    </div>
                 </div>
-              </div>
-              
+            </div>
         </div>
     </div>
 </div>

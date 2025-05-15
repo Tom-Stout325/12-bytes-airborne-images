@@ -4,12 +4,6 @@
 
 {% block title %}Invoice #{{ invoice.invoice_numb }}{% endblock %}
 
-{% block breadcrumbs %}
-  <h3>Finance Portal</h3>
-  {% include "components/breadcrumbs.html" with level1="Invoices" level1_url=urls.invoice_list %}
-{% endblock %}
-
-
 {% block content %}
 
 <div class="text-end mt-4">

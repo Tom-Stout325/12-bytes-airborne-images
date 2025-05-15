@@ -25,6 +25,7 @@ from .views import (
     equipment_delete,
 
     # Drones
+    drone_portal,
     drone_list,
     drone_detail,
     drone_create,
@@ -65,6 +66,8 @@ wizard_forms = [
 urlpatterns = [
     # Incident Reporting
     path('docs', documents, name='documents'),
+    path('drone-portal/', drone_portal, name='drone_portal'),
+    
     path('incident-reporting', incident_reporting_system, name='incident_reporting_system'),
     path('incidents/', incident_report_list, name='incident_report_list'),
     path('incidents/<int:pk>/', incident_report_detail, name='incident_detail'),
@@ -90,7 +93,7 @@ urlpatterns = [
     path('drones/<int:pk>/edit/', drone_edit, name='drone_edit'),
     path('drones/<int:pk>/delete/', drone_delete, name='drone_delete'),
     path('drones/<int:pk>/pdf/', drone_detail_pdf, name='drone_detail_pdf'),
-    path('drones/<int:pk>/', drone_detail, name='drone_detail'),  # make sure this comes *after* create/edit/delete
+    path('drones/<int:pk>/', drone_detail, name='drone_detail'),
 
     # Flight Logs
     path('flightlogs/', flightlog_list, name='flightlog_list'),
@@ -101,6 +104,6 @@ urlpatterns = [
     path('flightlogs/<int:pk>/pdf/', flightlog_pdf, name='flightlog_pdf'),
 ]
 
-# Static/media file serving (only in DEBUG)
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,11 +1,5 @@
 {% extends 'index.html' %} 
 
-
-{% block breadcrumbs %}
-  <h3>Finance Portal</h3>
-  {% include "components/breadcrumbs.html" with level1="Transactions" level1_url=urls.transactions level2="Recurring Transactions" %}
-{% endblock %}
-
 {% block content %}
 <div class="container mt-4">
   <h2 class="text-center text-success mb-5">Recurring Transactions</h2>

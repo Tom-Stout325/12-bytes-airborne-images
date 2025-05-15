@@ -32,7 +32,6 @@ import os
 from .models import *
 from .forms import *
 
-
 logger = logging.getLogger(__name__)
 
 # Dashboard
@@ -41,20 +40,11 @@ class Dashboard(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['navigation'] = {
-            'transactions': reverse_lazy('transactions'),
-            'invoices': reverse_lazy('invoice_list'),
-            'reports': reverse_lazy('reports_page'),
-            'mileage': reverse_lazy('mileage_log'),
-            'categories': reverse_lazy('category_page'),
-            'clients': reverse_lazy('client_list'),
-            'keywords': reverse_lazy('keyword_list'),
-            'recurring_transactions': reverse_lazy('recurring_list'),
-        }
+        context['current_page'] = 'dashboard'
         return context
 
-
 # ---------------------------------------------------------------------------------------------------------------   Transactions
+
 class Transactions(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "finance/transactions.html"
@@ -66,7 +56,6 @@ class Transactions(LoginRequiredMixin, ListView):
             'trans_type', 'category', 'sub_cat', 'team', 'keyword'
         ).filter(user=self.request.user)
 
-        # Apply filters
         keyword_id = self.request.GET.get('keyword')
         if keyword_id and Keyword.objects.filter(id=keyword_id).exists():
             queryset = queryset.filter(keyword__id=keyword_id)
@@ -83,7 +72,6 @@ class Transactions(LoginRequiredMixin, ListView):
         if year and year.isdigit() and 1900 <= int(year) <= 9999:
             queryset = queryset.filter(date__year=year)
 
-        # Apply sorting
         sort = self.request.GET.get('sort', '-date')
         valid_sort_fields = [
             'date', '-date', 'trans_type__trans_type', '-trans_type__trans_type',
@@ -109,22 +97,18 @@ class Transactions(LoginRequiredMixin, ListView):
         context['selected_category'] = self.request.GET.get('category', '')
         context['selected_sub_cat'] = self.request.GET.get('sub_cat', '')
         context['selected_year'] = self.request.GET.get('year', '')
+        context['current_page'] = 'transactions'
         return context
-
-
 
 class DownloadTransactionsCSV(LoginRequiredMixin, View):
     def get(self, request):
-        # Check for 'all' parameter to download all transactions
         if request.GET.get('all') == 'true':
             queryset = Transaction.objects.filter(user=request.user).select_related('trans_type', 'keyword')
         else:
-            # Use Transactions view to get filtered queryset
             transactions_view = Transactions()
             transactions_view.request = request
             queryset = transactions_view.get_queryset()
 
-        # Apply year filter if provided (override Transactions view's year filter if needed)
         year = request.GET.get('year')
         if year and year.isdigit():
             queryset = queryset.filter(date__year=int(year))
@@ -147,7 +131,6 @@ class DownloadTransactionsCSV(LoginRequiredMixin, View):
                 ])
 
         try:
-            # Set filename based on year or all transactions
             if request.GET.get('all') == 'true':
                 filename = "all_transactions.csv"
             elif year and year.isdigit():
@@ -161,6 +144,7 @@ class DownloadTransactionsCSV(LoginRequiredMixin, View):
         except Exception as e:
             logger.error(f"Error generating CSV for user {request.user.id}: {e}")
             return HttpResponse("Error generating CSV", status=500)
+
 
 class TransactionCreateView(LoginRequiredMixin, CreateView):
     model = Transaction
@@ -179,6 +163,11 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
             logger.error(f"Error adding transaction for user {self.request.user.id}: {e}")
             messages.error(self.request, 'Error adding transaction. Please check the form.')
             return self.form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'transactions'
+        return context
 
 
 class TransactionUpdateView(LoginRequiredMixin, UpdateView):
@@ -200,6 +189,11 @@ class TransactionUpdateView(LoginRequiredMixin, UpdateView):
             logger.error(f"Error updating transaction {self.get_object().id} for user {self.request.user.id}: {e}")
             messages.error(self.request, 'Error updating transaction. Please check the form.')
             return self.form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'transactions'
+        return context
 
 
 class TransactionDeleteView(LoginRequiredMixin, DeleteView):
@@ -224,6 +218,11 @@ class TransactionDeleteView(LoginRequiredMixin, DeleteView):
             messages.error(self.request, "Error deleting transaction.")
             return redirect('transactions')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'transactions'
+        return context
+
 
 class TransactionDetailView(LoginRequiredMixin, DetailView):
     model = Transaction
@@ -233,11 +232,20 @@ class TransactionDetailView(LoginRequiredMixin, DetailView):
     def get_queryset(self):
         return Transaction.objects.filter(user=self.request.user)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'transactions'
+        return context
+
+@login_required
 def add_transaction_success(request):
-    return render(request, 'finance/transaction_add_success.html')
+    context = {'current_page': 'transactions'}
+    return render(request, 'finance/transaction_add_success.html', context)
 
 
 # ---------------------------------------------------------------------------------------------------------------  Invoices
+
+
 class InvoiceCreateView(LoginRequiredMixin, CreateView):
     model = Invoice
     form_class = InvoiceForm
@@ -247,6 +255,7 @@ class InvoiceCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['formset'] = InvoiceItemFormSet(self.request.POST or None)
+        context['current_page'] = 'invoices'
         return context
 
     def form_valid(self, form):
@@ -286,6 +295,7 @@ class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['formset'] = InvoiceItemFormSet(self.request.POST or None, instance=self.object)
         context['invoice'] = self.object
+        context['current_page'] = 'invoices'
         return context
 
     def form_valid(self, form):
@@ -341,9 +351,10 @@ class InvoiceListView(LoginRequiredMixin, ListView):
         context['search_query'] = self.request.GET.get('search', '')
         context['current_sort'] = self.request.GET.get('sort', 'invoice_numb')
         context['current_direction'] = self.request.GET.get('direction', 'desc')
+        context['current_page'] = 'invoices'
         return context
-    
-    
+
+
 class InvoiceDetailView(LoginRequiredMixin, DetailView):
     model = Invoice
     template_name = 'finance/invoice_detail.html'
@@ -361,6 +372,7 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
         ), None)
         context['logo_path'] = f'file://{logo_path}' if logo_path and os.path.exists(logo_path) else None
         context['rendering_for_pdf'] = self.request.GET.get('pdf', False)
+        context['current_page'] = 'invoices'
         return context
 
 
@@ -383,6 +395,12 @@ class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
             messages.error(self.request, "Error deleting invoice.")
             return redirect('invoice_list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'invoices'
+        return context
+
+
 @login_required
 def invoice_review(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
@@ -394,19 +412,24 @@ def invoice_review(request, pk):
     total_expenses = totals['total_expenses'] or 0
     total_income = totals['total_income'] or 0
     net_amount = total_income - total_expenses
-    return render(request, 'finance/invoice_review.html', {
+    context = {
         'invoice': invoice,
         'transactions': transactions,
         'total_expenses': total_expenses,
         'total_income': total_income,
         'net_amount': net_amount,
         'invoice_amount': invoice.amount,
-    })
+        'current_page': 'invoices'
+    }
+    return render(request, 'finance/invoice_review.html', context)
+
 
 @login_required
 def unpaid_invoices(request):
     invoices = Invoice.objects.filter(paid__iexact="No").select_related('client').order_by('due_date')
-    return render(request, 'components/unpaid_invoices.html', {'invoices': invoices})
+    context = {'invoices': invoices, 'current_page': 'invoices'}
+    return render(request, 'components/unpaid_invoices.html', context)
+
 
 @login_required
 def export_invoices_csv(request):
@@ -417,6 +440,7 @@ def export_invoices_csv(request):
     class Echo:
         def write(self, value):
             return value
+
     def stream_csv(queryset):
         writer = csv.writer(Echo())
         yield writer.writerow(['Invoice #', 'Client', 'Location', 'Service', 'Amount', 'Date', 'Due', 'Paid', 'Days to Pay'])
@@ -454,7 +478,7 @@ def export_invoices_pdf(request):
 
     try:
         template = get_template('finance/invoice_pdf_export.html')
-        html_string = template.render({'invoices': invoices})
+        html_string = template.render({'invoices': invoices, 'current_page': 'invoices'})
         with tempfile.NamedTemporaryFile(delete=True) as output:
             HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(output.name)
             output.seek(0)
@@ -466,20 +490,6 @@ def export_invoices_pdf(request):
         logger.error(f"Error generating PDF for user {request.user.id}: {e}")
         messages.error(request, "Error generating PDF.")
         return redirect('invoice_list')
-
-
-    # Celery example (uncomment if Celery is set up):
-    # from celery import shared_task
-    # @shared_task
-    # def generate_pdf(invoices, base_url):
-    #     template = get_template('finance/invoice_pdf_export.html')
-    #     html_string = template.render({'invoices': invoices})
-    #     with tempfile.NamedTemporaryFile(delete=False) as output:
-    #         HTML(string=html_string, base_url=base_url).write_pdf(output.name)
-    #         return output.name
-    # task = generate_pdf.delay(list(invoices), request.build_absolute_uri())
-    # messages.info(request, "PDF generation started.")
-    # return redirect('check_task_status', task_id=task.id)
 
 
 @login_required
@@ -498,6 +508,7 @@ def invoice_review_pdf(request, pk):
         'total_expenses': total_expenses,
         'net_amount': net_amount,
         'now': now(),
+        'current_page': 'invoices'
     }
 
     try:
@@ -521,6 +532,8 @@ def invoice_review_pdf(request, pk):
 
 
 # ---------------------------------------------------------------------------------------------------------------  Categories
+
+
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
     template_name = 'finance/category_page.html'
@@ -529,6 +542,7 @@ class CategoryListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['sub_cat'] = SubCategory.objects.order_by('sub_cat')
+        context['current_page'] = 'categories'
         return context
 
 
@@ -542,6 +556,11 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, "Category added successfully!")
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'categories'
+        return context
+
 
 class CategoryUpdateView(LoginRequiredMixin, UpdateView):
     model = Category
@@ -552,6 +571,11 @@ class CategoryUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, "Category updated successfully!")
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'categories'
+        return context
 
 
 class CategoryDeleteView(LoginRequiredMixin, DeleteView):
@@ -572,8 +596,14 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
             messages.error(self.request, "Error deleting category.")
             return redirect('category_page')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'categories'
+        return context
+
 
 # ---------------------------------------------------------------------------------------------------------------   Sub-Categories
+
 
 class SubCategoryCreateView(LoginRequiredMixin, CreateView):
     model = SubCategory
@@ -584,6 +614,11 @@ class SubCategoryCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         messages.success(self.request, "Sub-Category added successfully!")
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'categories'
+        return context
 
 
 class SubCategoryUpdateView(LoginRequiredMixin, UpdateView):
@@ -596,6 +631,11 @@ class SubCategoryUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, "Sub-Category updated successfully!")
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'categories'
+        return context
 
 
 class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
@@ -616,6 +656,11 @@ class SubCategoryDeleteView(LoginRequiredMixin, DeleteView):
             messages.error(self.request, "Error deleting sub-category.")
             return redirect('category_page')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'categories'
+        return context
+
 
 # ---------------------------------------------------------------------------------------------------------------  Clients
 
@@ -625,6 +670,11 @@ class ClientListView(LoginRequiredMixin, ListView):
     template_name = "components/client_list.html"
     context_object_name = "clients"
     ordering = ['business']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'clients'
+        return context
 
 
 class ClientCreateView(LoginRequiredMixin, CreateView):
@@ -637,6 +687,11 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, "Client added successfully!")
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'clients'
+        return context
+
 
 class ClientUpdateView(LoginRequiredMixin, UpdateView):
     model = Client
@@ -647,6 +702,11 @@ class ClientUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, "Client updated successfully!")
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'clients'
+        return context
 
 
 class ClientDeleteView(LoginRequiredMixin, DeleteView):
@@ -667,8 +727,14 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
             messages.error(self.request, "Error deleting client.")
             return redirect('client_list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'clients'
+        return context
+
 
 # --------------------------------------------------------------------------------------------------------------- Financial Reports
+
 
 def get_summary_data(request, year):
     current_year = timezone.now().year
@@ -681,29 +747,23 @@ def get_summary_data(request, year):
         year = current_year
         messages.error(request, "Invalid year selected.")
 
-    # Base queryset for transactions
     transactions = Transaction.objects.filter(
         user=request.user, date__year=year, trans_type__isnull=False
     ).select_related('trans_type', 'category', 'sub_cat')
 
-    # Income and expense querysets
     income_qs = transactions.filter(trans_type__trans_type='Income')
     expense_qs = transactions.filter(trans_type__trans_type='Expense')
 
-    # Category and subcategory totals
     income_category_totals = income_qs.values('category__category').annotate(total=Sum('amount')).order_by('category__category')
     expense_category_totals = expense_qs.values('category__category').annotate(total=Sum('amount')).order_by('category__category')
     income_subcategory_totals = income_qs.values('sub_cat__sub_cat').annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
     expense_subcategory_totals = expense_qs.values('sub_cat__sub_cat').annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
 
-    # Total income and expense
     income_category_total = income_qs.aggregate(total=Sum('amount'))['total'] or 0
     expense_category_total = expense_qs.aggregate(total=Sum('amount'))['total'] or 0
 
-    # Net profit
     net_profit = income_category_total - expense_category_total
 
-    # Available years for dropdown (optional, based on template)
     available_years = Transaction.objects.filter(user=request.user).dates('date', 'year')
 
     return {
@@ -718,6 +778,7 @@ def get_summary_data(request, year):
         'available_years': available_years,
     }
 
+
 @login_required
 def financial_statement(request):
     current_year = timezone.now().year
@@ -725,6 +786,7 @@ def financial_statement(request):
     context = get_summary_data(request, year)
     context['available_years'] = [d.year for d in Transaction.objects.filter(
         user=request.user).dates('date', 'year', order='DESC').distinct()]
+    context['current_page'] = 'reports'
     return render(request, 'finance/financial_statement.html', context)
 
 
@@ -735,6 +797,7 @@ def category_summary(request):
     context = get_summary_data(request, year)
     context['available_years'] = [d.year for d in Transaction.objects.filter(
         user=request.user).dates('date', 'year', order='DESC').distinct()]
+    context['current_page'] = 'reports'
     return render(request, 'finance/category_summary.html', context)
 
 
@@ -742,6 +805,7 @@ def category_summary(request):
 def print_category_summary(request):
     year = request.GET.get('year', str(timezone.now().year))
     context = get_summary_data(request, year)
+    context['current_page'] = 'reports'
     return render(request, 'finance/category_summary_print.html', context)
 
 
@@ -751,7 +815,6 @@ def nhra_summary(request):
     years = [current_year, current_year - 1, current_year - 2]
     excluded_ids = [35, 133, 34, 67, 100]
 
-    # Query transactions
     summary_data = Transaction.objects.filter(
         user=request.user
     ).exclude(keyword__id__in=excluded_ids).filter(
@@ -760,48 +823,165 @@ def nhra_summary(request):
         total=Sum('amount')
     ).order_by('keyword__name', 'date__year')
 
-    # Initialize result as defaultdict
     result = defaultdict(lambda: {y: {"income": 0, "expense": 0, "net": 0} for y in years})
     
-    # Populate result
     for item in summary_data:
         keyword = item['keyword__name']
         year = item['date__year']
         trans_type = item['trans_type__trans_type'].lower()
-        if keyword:  # Ensure keyword is not None or empty
+        if keyword:
             result[keyword][year][trans_type] = item['total']
             result[keyword][year]['net'] = result[keyword][year]['income'] - result[keyword][year]['expense']
 
-    # Convert defaultdict to regular dict
     result_dict = dict(result)
-    
-    # Log the result for debugging
+
     logger.debug(f"NHRA summary data for user {request.user.id}: {result_dict}")
 
-    # Ensure urls context for breadcrumbs
     context = {
         "years": years,
         "summary_data": result_dict,
         "urls": {
-            "reports": "/finance/reports/"  # Adjust based on your URL structure
-        }
+            "reports": "/finance/reports/"
+        },
+        'current_page': 'reports'
     }
-
     return render(request, "finance/nhra_summary.html", context)
 
 
 @login_required
+def travel_expense_report(request):
+    current_year = now().year
+    years = [current_year, current_year - 1, current_year - 2]  # e.g., [2025, 2024, 2023]
+
+    # Define travel-related subcategories
+    travel_subcategories = [
+        'Travel: Car Rental',
+        'Travel: Flights',
+        'Travel: Fuel',
+        'Travel: Hotel',
+        'Travel: Meals',
+        'Travel: Miscellaneous'
+    ]
+
+    # Query transactions for the user, expenses, travel subcategories, and specified years
+    transactions = Transaction.objects.filter(
+        user=request.user,
+        trans_type__trans_type='Expense',
+        sub_cat__sub_cat__in=travel_subcategories,
+        date__year__in=years
+    ).select_related('keyword', 'sub_cat')
+
+    # Log transaction count
+    logger.debug(f"Transaction count for user {request.user.id}: {transactions.count()}")
+
+    # Aggregate data by keyword, subcategory, and year
+    summary_data = transactions.values(
+        'keyword__name', 'sub_cat__sub_cat', 'date__year'
+    ).annotate(total=Sum('amount')).order_by('keyword__name', 'sub_cat__sub_cat', 'date__year')
+
+    # Structure data for template
+    result = defaultdict(lambda: defaultdict(lambda: {y: 0 for y in years}))
+    for item in summary_data:
+        keyword = item['keyword__name'] or 'Unspecified'
+        subcategory = item['sub_cat__sub_cat']
+        year = item['date__year']
+        result[keyword][subcategory][year] = item['total']
+
+    # Calculate totals per keyword and per year
+    keyword_totals = defaultdict(lambda: {y: 0 for y in years})
+    yearly_totals = {y: 0 for y in years}
+    for keyword, subcats in result.items():
+        for subcat, year_data in subcats.items():
+            for year, amount in year_data.items():
+                keyword_totals[keyword][year] += amount
+                yearly_totals[year] += amount
+
+    context = {
+        'years': years,
+        'summary_data': dict(result),
+        'keyword_totals': dict(keyword_totals),
+        'yearly_totals': yearly_totals,
+        'travel_subcategories': travel_subcategories,
+        'current_page': 'reports'
+    }
+
+    # Log context data
+    logger.debug(f"Context for user {request.user.id}: summary_data={dict(result)}, keyword_totals={dict(keyword_totals)}, yearly_totals={yearly_totals}")
+
+    return render(request, 'finance/travel_expense_report.html', context)
+
+
+@login_required
+def travel_expense_report_pdf(request):
+    current_year = now().year
+    years = [current_year, current_year - 1, current_year - 2]
+    travel_subcategories = [
+        'Travel: Car Rental', 'Travel: Flights', 'Travel: Fuel',
+        'Travel: Hotel', 'Travel: Meals', 'Travel: Miscellaneous'
+    ]
+    transactions = Transaction.objects.filter(
+        user=request.user,
+        trans_type__trans_type='Expense',
+        sub_cat__sub_cat__in=travel_subcategories,
+        date__year__in=years
+    ).select_related('keyword', 'sub_cat')
+    summary_data = transactions.values(
+        'keyword__name', 'sub_cat__sub_cat', 'date__year'
+    ).annotate(total=Sum('amount')).order_by('keyword__name', 'sub_cat__sub_cat', 'date__year')
+    result = defaultdict(lambda: defaultdict(lambda: {y: 0 for y in years}))
+    for item in summary_data:
+        keyword = item['keyword__name'] or 'Unspecified'
+        subcategory = item['sub_cat__sub_cat']
+        year = item['date__year']
+        result[keyword][subcategory][year] = item['total']
+    keyword_totals = defaultdict(lambda: {y: 0 for y in years})
+    yearly_totals = {y: 0 for y in years}
+    for keyword, subcats in result.items():
+        for subcat, year_data in subcats.items():
+            for year, amount in year_data.items():
+                keyword_totals[keyword][year] += amount
+                yearly_totals[year] += amount
+    context = {
+        'years': years,
+        'summary_data': dict(result),
+        'keyword_totals': dict(keyword_totals),
+        'yearly_totals': yearly_totals,
+        'travel_subcategories': travel_subcategories,
+        'current_page': 'reports'
+    }
+    try:
+        template = get_template('finance/travel_expense_report.html')
+        html_string = template.render(context)
+        html_string = "<style>@page { size: 8.5in 11in; margin: 1in; }</style>" + html_string
+        with tempfile.NamedTemporaryFile(delete=True) as output:
+            HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(output.name)
+            output.seek(0)
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="travel_expense_report.pdf"'
+            response.write(output.read())
+        return response
+    except Exception as e:
+        logger.error(f"Error generating PDF for user {request.user.id}: {e}")
+        messages.error(request, "Error generating PDF.")
+        return redirect('travel_expense_report')
+
+
+
+@login_required
 def reports_page(request):
-    return render(request, 'finance/reports.html')
+    context = {'current_page': 'reports'}
+    return render(request, 'finance/reports.html', context)
 
 
 # ---------------------------------------------------------------------------------------------------------------   Emails
+
+
 @require_POST
 @login_required
 def send_invoice_email(request, invoice_id):
     invoice = get_object_or_404(Invoice, pk=invoice_id)
     try:
-        html_string = render_to_string('finance/invoice_detail.html', {'invoice': invoice})
+        html_string = render_to_string('finance/invoice_detail.html', {'invoice': invoice, 'current_page': 'invoices'})
         html = HTML(string=html_string, base_url=request.build_absolute_uri())
         pdf_file = html.write_pdf()
         subject = f"Invoice #{invoice.invoice_numb} from Airborne Images"
@@ -829,21 +1009,8 @@ def send_invoice_email(request, invoice_id):
         return JsonResponse({'status': 'error', 'message': 'Failed to send email'}, status=500)
 
 
-    # Celery example (uncomment if Celery is set up):
-    # from celery import shared_task
-    # @shared_task
-    # def send_invoice_email_task(invoice_id, base_url):
-    #     invoice = Invoice.objects.get(pk=invoice_id)
-    #     html_string = render_to_string('finance/invoice_detail.html', {'invoice': invoice})
-    #     html = HTML(string=html_string, base_url=base_url)
-    #     pdf_file = html.write_pdf()
-    #     email = EmailMessage(...)
-    #     email.send()
-    # task = send_invoice_email_task.delay(invoice_id, request.build_absolute_uri())
-    # return JsonResponse({'status': 'queued', 'task_id': task.id})
-
-
 # ---------------------------------------------------------------------------------------------------------------  Mileage
+
 
 def get_mileage_context(request):
     try:
@@ -868,6 +1035,7 @@ def get_mileage_context(request):
         'taxable_dollars': total_miles * rate,
         'current_year': year,
         'mileage_rate': rate,
+        'current_page': 'mileage'
     }
 
 
@@ -888,6 +1056,11 @@ class MileageCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, "Mileage entry added successfully!")
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'mileage'
+        return context
+
 
 class MileageUpdateView(LoginRequiredMixin, UpdateView):
     model = Miles
@@ -902,6 +1075,11 @@ class MileageUpdateView(LoginRequiredMixin, UpdateView):
         messages.success(self.request, "Mileage entry updated successfully!")
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'mileage'
+        return context
+
 
 class MileageDeleteView(LoginRequiredMixin, DeleteView):
     model = Miles
@@ -914,6 +1092,11 @@ class MileageDeleteView(LoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, "Mileage entry deleted successfully!")
         return super().delete(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'mileage'
+        return context
 
 
 @login_required
@@ -929,7 +1112,8 @@ def update_mileage_rate(request):
             messages.error(request, "Error updating mileage rate. Please check the form.")
     else:
         form = MileageRateForm(instance=mileage_rate)
-    return render(request, 'components/update_mileage_rate.html', {'form': form})
+    context = {'form': form, 'current_page': 'mileage'}
+    return render(request, 'components/update_mileage_rate.html', context)
 
 
 # ---------------------------------------------------------------------------------------------------------------  Keywords
@@ -939,6 +1123,11 @@ class KeywordListView(LoginRequiredMixin, ListView):
     model = Keyword
     template_name = 'finance/keyword_list.html'
     context_object_name = 'keywords'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'keywords'
+        return context
 
 
 class KeywordCreateView(LoginRequiredMixin, CreateView):
@@ -951,6 +1140,11 @@ class KeywordCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, "Keyword added successfully!")
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'keywords'
+        return context
+
 
 class KeywordUpdateView(LoginRequiredMixin, UpdateView):
     model = Keyword
@@ -961,6 +1155,11 @@ class KeywordUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, "Keyword updated successfully!")
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'keywords'
+        return context
 
 
 class KeywordDeleteView(LoginRequiredMixin, DeleteView):
@@ -981,8 +1180,14 @@ class KeywordDeleteView(LoginRequiredMixin, DeleteView):
             messages.error(self.request, "Error deleting keyword.")
             return redirect('keyword_list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'keywords'
+        return context
+
 
 # ---------------------------------------------------------------------------------------------------------------  Recurring Transactions
+
 
 class RecurringTransactionListView(LoginRequiredMixin, ListView):
     model = RecurringTransaction
@@ -991,6 +1196,11 @@ class RecurringTransactionListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return RecurringTransaction.objects.filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'recurring_transactions'
+        return context
 
 
 class RecurringTransactionCreateView(LoginRequiredMixin, CreateView):
@@ -1003,6 +1213,11 @@ class RecurringTransactionCreateView(LoginRequiredMixin, CreateView):
         form.instance.user = self.request.user
         messages.success(self.request, "Recurring transaction added successfully!")
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'recurring_transactions'
+        return context
 
 
 class RecurringTransactionUpdateView(LoginRequiredMixin, UpdateView):
@@ -1018,6 +1233,11 @@ class RecurringTransactionUpdateView(LoginRequiredMixin, UpdateView):
         messages.success(self.request, "Recurring transaction updated successfully!")
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'recurring_transactions'
+        return context
+
 
 class RecurringTransactionDeleteView(LoginRequiredMixin, DeleteView):
     model = RecurringTransaction
@@ -1030,6 +1250,11 @@ class RecurringTransactionDeleteView(LoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, "Recurring transaction deleted successfully!")
         return super().delete(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_page'] = 'recurring_transactions'
+        return context
 
 
 @staff_member_required
@@ -1050,11 +1275,13 @@ def recurring_report_view(request):
         }
         data.append(row)
 
-    return render(request, 'finance/recurring_report.html', {
+    context = {
         'data': data,
         'months': [month_name[m] for m in months],
-        'year': year
-    })
+        'year': year,
+        'current_page': 'recurring_transactions'
+    }
+    return render(request, 'finance/recurring_report.html', context)
 
 
 @staff_member_required
@@ -1146,20 +1373,11 @@ def run_monthly_batch_view(request):
         messages.error(request, "Error running batch.")
         return redirect('recurring_report')
 
-    return render(request, 'finance/recurring_batch_success.html', {
+    context = {
         'created': created_transactions,
         'skipped': skipped,
         'run_year': year,
         'run_month': month,
-    })
-
-
-    # Celery example (uncomment if Celery is set up):
-    # from celery import shared_task
-    # @shared_task
-    # def run_monthly_batch(year, month, user_id):
-    #     ... (same logic as above)
-    #     return {'created': len(created_transactions), 'skipped': skipped}
-    # task = run_monthly_batch.delay(year, month, request.user.id)
-    # messages.info(request, "Batch processing started.")
-    # return redirect('check_task_status', task_id=task.id)
+        'current_page': 'recurring_transactions'
+    }
+    return render(request, 'finance/recurring_batch_success.html', context)

@@ -13,7 +13,8 @@ from .views import (
     mileage_log, MileageCreateView, MileageUpdateView, MileageDeleteView, update_mileage_rate,
     KeywordListView, KeywordCreateView, KeywordUpdateView, KeywordDeleteView,
     RecurringTransactionListView, RecurringTransactionCreateView, RecurringTransactionUpdateView,
-    RecurringTransactionDeleteView, run_recurring_now_view, run_monthly_batch_view, recurring_report_view
+    RecurringTransactionDeleteView, run_recurring_now_view, run_monthly_batch_view, recurring_report_view, 
+    travel_expense_report, travel_expense_report_pdf
 )
 
 urlpatterns = [
@@ -64,7 +65,9 @@ urlpatterns = [
     path('category-summary/', category_summary, name='category_summary'),
     path('print-category-summary/', print_category_summary, name='print_category_summary'),
     path('nhra-summary/', nhra_summary, name='nhra_summary'),
-
+    path('travel-expense-report/', travel_expense_report, name='travel_expense_report'),
+    path('travel-expense-report/pdf/', travel_expense_report_pdf, name='travel_expense_report_pdf'),
+    
     # Mileage
     path('mileage-log/', mileage_log, name='mileage_log'),
     path('mileage/add/', MileageCreateView.as_view(), name='mileage_create'),

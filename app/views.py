@@ -6,11 +6,12 @@ from django.contrib import messages
 from .models import *
 from .forms import *
 from django.http import HttpResponse
-
+from django.views.generic import TemplateView
 
 @login_required
 def home(request):
-    return render(request, 'home.html')
+    context = {'current_page': 'home'}  # Breadcrumb for home
+    return render(request, 'home.html', context)
 
 def register(request):
     if request.method == 'POST':
@@ -21,8 +22,8 @@ def register(request):
             return redirect('login')
     else:
         form = UserCreationForm()
-    return render(request, 'registration/register.html', {'form': form})
-
+    context = {'form': form, 'current_page': 'register'}  # Breadcrumb for register
+    return render(request, 'registration/register.html', context)
 
 @login_required
 def profile(request):
@@ -35,12 +36,13 @@ def profile(request):
 
     training_years = profile.trainings.dates('date_completed', 'year', order='DESC')
 
-    return render(request, 'app/profile.html', {
+    context = {
         'profile': profile,
         'trainings': trainings,
         'years': [y.year for y in training_years],
-    })
-
+        'current_page': 'profile'  # Breadcrumb for profile
+    }
+    return render(request, 'app/profile.html', context)
 
 @login_required
 def edit_profile(request):
@@ -52,8 +54,8 @@ def edit_profile(request):
             return redirect('profile')
     else:
         form = PilotProfileForm(instance=profile)
-    return render(request, 'app/edit_profile.html', {'form': form})
-
+    context = {'form': form, 'current_page': 'profile'}  # Breadcrumb for profile
+    return render(request, 'app/edit_profile.html', context)
 
 @login_required
 def delete_pilot_profile(request):
@@ -64,8 +66,8 @@ def delete_pilot_profile(request):
         user.delete()
         messages.success(request, "Your profile and account have been deleted.")
         return redirect('login')
-    return render(request, 'app/pilot_profile_delete.html', {'profile': profile})
-
+    context = {'profile': profile, 'current_page': 'profile'}  # Breadcrumb for profile
+    return render(request, 'app/pilot_profile_delete.html', context)
 
 @login_required
 def training_create(request):
@@ -79,7 +81,8 @@ def training_create(request):
             return redirect('profile')
     else:
         form = TrainingForm()
-    return render(request, 'app/training_form.html', {'form': form})
+    context = {'form': form, 'current_page': 'profile'}  # Breadcrumb for profile
+    return render(request, 'app/training_form.html', context)
 
 @login_required
 def training_edit(request, pk):
@@ -88,8 +91,8 @@ def training_edit(request, pk):
     if form.is_valid():
         form.save()
         return redirect('profile')
-    return render(request, 'app/training_form.html', {'form': form})
-
+    context = {'form': form, 'current_page': 'profile'}  # Breadcrumb for profile
+    return render(request, 'app/training_form.html', context)
 
 @login_required
 def training_delete(request, pk):
@@ -97,4 +100,5 @@ def training_delete(request, pk):
     if request.method == 'POST':
         training.delete()
         return redirect('profile')
-    return render(request, 'app/training_confirm_delete.html', {'training': training})
+    context = {'training': training, 'current_page': 'profile'}  # Breadcrumb for profile
+    return render(request, 'app/training_confirm_delete.html', context)
