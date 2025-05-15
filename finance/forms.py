@@ -57,10 +57,10 @@ InvoiceItemFormSet = inlineformset_factory(
     Invoice,
     InvoiceItem,
     form=InvoiceItemForm,
-    extra=5,
+    extra=3,
     can_delete=True,
-    min_num=0,  # Allow zero forms
-    validate_min=False  # Don't enforce minimum forms
+    min_num=0,
+    validate_min=False 
 )
         
         
