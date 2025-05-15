@@ -40,30 +40,22 @@ class InvoiceForm(forms.ModelForm):
             'due': forms.DateInput(attrs={'type': 'date'}),
             'paid_date': forms.DateInput(attrs={'type': 'date'}),
         }
+        
 
 class InvoiceItemForm(forms.ModelForm):
     class Meta:
         model = InvoiceItem
         fields = ['item', 'qty', 'price']
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Make all fields optional
-        self.fields['item'].required = False
-        self.fields['qty'].required = False
-        self.fields['price'].required = False
 
 InvoiceItemFormSet = inlineformset_factory(
     Invoice,
     InvoiceItem,
     form=InvoiceItemForm,
-    extra=3,
-    can_delete=True,
-    min_num=0,
-    validate_min=False 
+    extra=5,
+    can_delete=True
 )
-        
-        
+    
 
 class CategoryForm(forms.ModelForm):
     class Meta:

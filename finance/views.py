@@ -285,47 +285,34 @@ class InvoiceCreateView(LoginRequiredMixin, CreateView):
             return self.form_invalid(form)
 
 
-class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
-    model = Invoice
-    form_class = InvoiceForm
-    template_name = 'finance/invoice_update.html'
-    success_url = reverse_lazy('invoice_list')
+@login_required
+def update_invoice(request, pk):
+    invoice = get_object_or_404(Invoice, pk=pk)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['formset'] = InvoiceItemFormSet(self.request.POST or None, instance=self.object)
-        context['invoice'] = self.object
-        context['current_page'] = 'invoices'
-        return context
+    if request.method == 'POST':
+        form = InvoiceForm(request.POST, instance=invoice)
+        formset = InvoiceItemFormSet(request.POST, instance=invoice)
 
-    def form_valid(self, form):
-        formset = InvoiceItemFormSet(self.request.POST, instance=self.object)
-        if formset.is_valid():
-            try:
-                with transaction.atomic():
-                    self.object = form.save()
-                    formset.save()
-                    # Calculate total using aggregation to avoid joins
-                    total = self.object.items.aggregate(
-                        total=Sum(
-                            ExpressionWrapper(
-                                F('qty') * F('price'),
-                                output_field=DecimalField(max_digits=20, decimal_places=2)
-                            )
-                        )
-                    )['total'] or 0
-                    self.object.amount = total
-                    self.object.save()
-                    messages.success(self.request, f"Invoice #{self.object.invoice_numb} updated successfully.")
-                    return super().form_valid(form)
-            except Exception as e:
-                logger.error(f"Error updating invoice {self.object.id} for user {self.request.user.id}: {e}")
-                messages.error(self.request, "Error updating invoice. Please check the form.")
-                return self.form_invalid(form)
+        if form.is_valid() and formset.is_valid():
+            form.save()
+            formset.save()
+
+            invoice.amount = invoice.calculate_total()
+            invoice.save()
+            messages.success(request, f"Invoice # {invoice.invoice_numb} Updated successfully.")
+            return redirect('invoice_list')
         else:
-            logger.error(f"Formset errors for invoice update: {formset.errors}, Non-form errors: {formset.non_form_errors}")
-            messages.error(self.request, "Error in invoice items. Please check the form.")
-            return self.form_invalid(form)
+            print("FORM ERRORS:", form.errors)
+            print("FORMSET ERRORS:", formset.errors)
+    else:
+        form = InvoiceForm(instance=invoice)
+        formset = InvoiceItemFormSet(instance=invoice)
+
+    return render(request, 'finance/invoice_update.html', {
+        'form': form,
+        'formset': formset,
+        'invoice': invoice
+    })
 
 
 class InvoiceListView(LoginRequiredMixin, ListView):
