@@ -1,21 +1,5 @@
 from django.urls import path
-from .views import (
-    Dashboard, Transactions, DownloadTransactionsCSV,
-    TransactionCreateView, TransactionUpdateView, TransactionDetailView, TransactionDeleteView,
-    add_transaction_success,
-    InvoiceListView, invoice_review, invoice_review_pdf, InvoiceDetailView,
-    InvoiceCreateView, InvoiceUpdateView, InvoiceDeleteView, send_invoice_email,
-    unpaid_invoices, export_invoices_csv, export_invoices_pdf,
-    CategoryListView, CategoryCreateView, CategoryUpdateView, CategoryDeleteView,
-    SubCategoryCreateView, SubCategoryUpdateView, SubCategoryDeleteView,
-    ClientListView, ClientCreateView, ClientUpdateView, ClientDeleteView,
-    reports_page, financial_statement, category_summary, print_category_summary, nhra_summary,
-    mileage_log, MileageCreateView, MileageUpdateView, MileageDeleteView, update_mileage_rate,
-    KeywordListView, KeywordCreateView, KeywordUpdateView, KeywordDeleteView,
-    RecurringTransactionListView, RecurringTransactionCreateView, RecurringTransactionUpdateView,
-    RecurringTransactionDeleteView, run_recurring_now_view, run_monthly_batch_view, recurring_report_view, 
-    travel_expense_report, travel_expense_report_pdf
-)
+from .views import *
 
 urlpatterns = [
     # Dashboard
