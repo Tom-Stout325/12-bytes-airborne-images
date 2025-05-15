@@ -880,7 +880,8 @@ def travel_expense_report(request):
         keyword = item['keyword__name'] or 'Unspecified'
         subcategory = item['sub_cat__sub_cat']
         year = item['date__year']
-        order = item.get('keyword__order', 9999)
+        order = item.get('keyword__order') or 9999
+
 
         temp_result[keyword][subcategory][year] = item['total']
         keyword_order_map[keyword] = order
