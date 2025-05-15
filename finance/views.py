@@ -8,6 +8,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.postgres.indexes import GinIndex
 from django.template.loader import render_to_string
 from django.db.models.functions import ExtractYear
+from collections import defaultdict, OrderedDict
 from django.template.loader import get_template
 from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator
@@ -31,7 +32,6 @@ import csv
 import os
 from .models import *
 from .forms import *
-
 logger = logging.getLogger(__name__)
 
 # Dashboard
@@ -846,9 +846,8 @@ def nhra_summary(request):
 @login_required
 def travel_expense_report(request):
     current_year = now().year
-    years = [current_year, current_year - 1, current_year - 2]  # e.g., [2025, 2024, 2023]
+    years = [current_year, current_year - 1, current_year - 2]
 
-    # Define travel-related subcategories
     travel_subcategories = [
         'Travel: Car Rental',
         'Travel: Flights',
@@ -858,7 +857,6 @@ def travel_expense_report(request):
         'Travel: Miscellaneous'
     ]
 
-    # Query transactions for the user, expenses, travel subcategories, and specified years
     transactions = Transaction.objects.filter(
         user=request.user,
         trans_type__trans_type='Expense',
@@ -866,23 +864,30 @@ def travel_expense_report(request):
         date__year__in=years
     ).select_related('keyword', 'sub_cat')
 
-    # Log transaction count
     logger.debug(f"Transaction count for user {request.user.id}: {transactions.count()}")
 
-    # Aggregate data by keyword, subcategory, and year
     summary_data = transactions.values(
-        'keyword__name', 'sub_cat__sub_cat', 'date__year'
-    ).annotate(total=Sum('amount')).order_by('keyword__name', 'sub_cat__sub_cat', 'date__year')
+        'keyword__name',
+        'keyword__order',
+        'sub_cat__sub_cat',
+        'date__year'
+    ).annotate(total=Sum('amount')).order_by('keyword__order', 'sub_cat__sub_cat', 'date__year')
 
-    # Structure data for template
-    result = defaultdict(lambda: defaultdict(lambda: {y: 0 for y in years}))
+    temp_result = defaultdict(lambda: defaultdict(lambda: {y: 0 for y in years}))
+    keyword_order_map = {}
+
     for item in summary_data:
         keyword = item['keyword__name'] or 'Unspecified'
         subcategory = item['sub_cat__sub_cat']
         year = item['date__year']
-        result[keyword][subcategory][year] = item['total']
+        order = item.get('keyword__order', 9999)
 
-    # Calculate totals per keyword and per year
+        temp_result[keyword][subcategory][year] = item['total']
+        keyword_order_map[keyword] = order
+
+    sorted_keywords = sorted(temp_result.keys(), key=lambda k: keyword_order_map.get(k, 9999))
+    result = OrderedDict((k, temp_result[k]) for k in sorted_keywords)
+
     keyword_totals = defaultdict(lambda: {y: 0 for y in years})
     yearly_totals = {y: 0 for y in years}
     for keyword, subcats in result.items():
@@ -893,17 +898,17 @@ def travel_expense_report(request):
 
     context = {
         'years': years,
-        'summary_data': dict(result),
+        'summary_data': result,
         'keyword_totals': dict(keyword_totals),
         'yearly_totals': yearly_totals,
         'travel_subcategories': travel_subcategories,
         'current_page': 'reports'
     }
 
-    # Log context data
-    logger.debug(f"Context for user {request.user.id}: summary_data={dict(result)}, keyword_totals={dict(keyword_totals)}, yearly_totals={yearly_totals}")
+    logger.debug(f"Travel report context for user {request.user.id}: {context}")
 
     return render(request, 'finance/travel_expense_report.html', context)
+
 
 
 @login_required
