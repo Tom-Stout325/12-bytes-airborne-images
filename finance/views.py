@@ -286,7 +286,7 @@ class InvoiceCreateView(LoginRequiredMixin, CreateView):
 
 
 @login_required
-def update_invoice(request, pk):
+def invoice_update(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
 
     if request.method == 'POST':
