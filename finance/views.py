@@ -305,7 +305,16 @@ class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
                 with transaction.atomic():
                     self.object = form.save()
                     formset.save()
-                    self.object.amount = self.object.calculate_total()
+                    # Calculate total using aggregation to avoid joins
+                    total = self.object.items.aggregate(
+                        total=Sum(
+                            ExpressionWrapper(
+                                F('qty') * F('price'),
+                                output_field=DecimalField(max_digits=20, decimal_places=2)
+                            )
+                        )
+                    )['total'] or 0
+                    self.object.amount = total
                     self.object.save()
                     messages.success(self.request, f"Invoice #{self.object.invoice_numb} updated successfully.")
                     return super().form_valid(form)
