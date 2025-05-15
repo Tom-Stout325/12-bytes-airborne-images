@@ -5,24 +5,25 @@ import dj_database_url
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 
-# Base directory must be declared first
+# Load environment variables
+env = environ.Env()
+environ.Env.read_env()
+
+# Validate required environment variables
+required_env_vars = ['DJANGO_SECRET_KEY', 'ALLOWED_HOSTS', 'DATABASE_URL']
+for var in required_env_vars:
+    if not env(var, default=None):
+        raise ImproperlyConfigured(f"Environment variable {var} is not set")
+
+# Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load environment variables properly
-env = environ.Env()
-
-# Point to .env.local if it exists, otherwise use .env
-env_file = BASE_DIR / ".env.local" if (BASE_DIR / ".env.local").exists() else BASE_DIR / ".env"
-env.read_env(env_file)
-
-# Now you can safely use env() calls
+# Security settings
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
-# --------------------------------------------------
-# Application definition
-# --------------------------------------------------
+# Installed apps
 INSTALLED_APPS = [
     'storages',
     'jazzmin',
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'fontawesomefree',
 ]
 
+# Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -54,12 +56,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# URLs and WSGI
 ROOT_URLCONF = 'project.urls'
 WSGI_APPLICATION = 'project.wsgi.application'
 
-# --------------------------------------------------
 # Templates
-# --------------------------------------------------
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -78,23 +79,15 @@ TEMPLATES = [
     },
 ]
 
-# --------------------------------------------------
 # Database
-# --------------------------------------------------
 DATABASES = {
-    'default': {
-        'ENGINE': env('DB_ENGINE'),
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'), 
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default=env("DATABASE_URL"),
+        conn_max_age=600
+    )
 }
 
-# --------------------------------------------------
-# Static & Media
-# --------------------------------------------------
+# Static and media files
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -107,9 +100,7 @@ STATICFILES_STORAGE = (
     'django.contrib.staticfiles.storage.StaticFilesStorage'
 )
 
-# --------------------------------------------------
-# S3 File Storage
-# --------------------------------------------------
+# S3 configuration
 USE_S3 = env.bool("USE_S3", default=False)
 if USE_S3:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
@@ -122,16 +113,12 @@ if USE_S3:
 else:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
-# --------------------------------------------------
 # Authentication
-# --------------------------------------------------
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 LOGIN_URL = '/login/'
 
-# --------------------------------------------------
-# Session and Cache
-# --------------------------------------------------
+# Session and CSRF settings
 redis_url = env('REDISCLOUD_URL', default=env('REDIS_URL', default=None))
 if redis_url:
     SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
@@ -146,16 +133,12 @@ if redis_url:
     }
 else:
     SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        }
-    }
 
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 days
 SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
+
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
@@ -166,25 +149,19 @@ CSRF_TRUSTED_ORIGINS = [
     'https://airborne-images-12bytes-5d4382c082a9.herokuapp.com',
     'https://*.herokuapp.com',
     'https://12bytes.airborne-images.net',
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
 ]
 
-# --------------------------------------------------
-# Security Headers
-# --------------------------------------------------
+# Security headers
 SECURE_SSL_REDIRECT = not DEBUG
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
+SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
 
-# --------------------------------------------------
 # Miscellaneous
-# --------------------------------------------------
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 DATE_INPUT_FORMATS = ['%d-%m-%Y']
 
@@ -195,17 +172,11 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-# --------------------------------------------------
-# Email Settings
-# --------------------------------------------------
-EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend' if DEBUG else 'django.core.mail.backends.smtp.EmailBackend')
+# Email settings
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = env('EMAIL_HOST', default='smtp.office365.com')
 EMAIL_PORT = env.int('EMAIL_PORT', default=587)
 EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default=None)
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default=None)
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
-
-
-
-print(f"Loading environment from: {env_file}")
