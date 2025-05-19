@@ -180,41 +180,40 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const buttons = document.querySelectorAll(".send-email");
+btn.addEventListener("click", function (e) {
+  e.preventDefault();
 
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", function (e) {
-      e.preventDefault();
+  const invoiceId = this.dataset.invoiceId;
 
-      const invoiceId = this.dataset.invoiceId;
-      const spinner = this.querySelector(".spinner-border");
-      spinner.classList.remove("d-none");
+  const confirmed = confirm(`Are you sure you want to email Invoice #${invoiceId}?`);
+  if (!confirmed) return;
 
-      fetch(`/finance/invoice/${invoiceId}/email/`, {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": getCookie("csrftoken"),
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => {
-          spinner.classList.add("d-none");
-          if (!response.ok) {
-            throw new Error("Email send failed.");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          alert(data.message);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          alert("Failed to send invoice email.");
-        });
+  const spinner = this.querySelector(".spinner-border");
+  spinner.classList.remove("d-none");
+
+  fetch(`/finance/invoice/${invoiceId}/email/`, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      spinner.classList.add("d-none");
+      if (!response.ok) {
+        throw new Error("Email send failed.");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      alert(data.message);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("Failed to send invoice email.");
     });
-  });
 });
+
 
 // Helper to get CSRF token
 function getCookie(name) {
