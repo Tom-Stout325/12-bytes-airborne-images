@@ -851,9 +851,8 @@ def nhra_summary(request):
 @login_required
 def travel_expense_report(request):
     current_year = now().year
-    years = [current_year, current_year - 1, current_year - 2]  # e.g., [2025, 2024, 2023]
+    years = [current_year, current_year - 1, current_year - 2] 
 
-    # Define travel-related subcategories
     travel_subcategories = [
         'Travel: Car Rental',
         'Travel: Flights',
@@ -863,7 +862,6 @@ def travel_expense_report(request):
         'Travel: Miscellaneous'
     ]
 
-    # Query transactions for the user, expenses, travel subcategories, and specified years
     transactions = Transaction.objects.filter(
         user=request.user,
         trans_type__trans_type='Expense',
@@ -871,15 +869,12 @@ def travel_expense_report(request):
         date__year__in=years
     ).select_related('keyword', 'sub_cat')
 
-    # Log transaction count
     logger.debug(f"Transaction count for user {request.user.id}: {transactions.count()}")
 
-    # Aggregate data by keyword, subcategory, and year
     summary_data = transactions.values(
         'keyword__name', 'sub_cat__sub_cat', 'date__year'
     ).annotate(total=Sum('amount')).order_by('keyword__name', 'sub_cat__sub_cat', 'date__year')
 
-    # Structure data for template
     result = defaultdict(lambda: defaultdict(lambda: {y: 0 for y in years}))
     for item in summary_data:
         keyword = item['keyword__name'] or 'Unspecified'
@@ -887,7 +882,6 @@ def travel_expense_report(request):
         year = item['date__year']
         result[keyword][subcategory][year] = item['total']
 
-    # Calculate totals per keyword and per year
     keyword_totals = defaultdict(lambda: {y: 0 for y in years})
     yearly_totals = {y: 0 for y in years}
     for keyword, subcats in result.items():
@@ -904,9 +898,6 @@ def travel_expense_report(request):
         'travel_subcategories': travel_subcategories,
         'current_page': 'reports'
     }
-
-    # Log context data
-    logger.debug(f"Context for user {request.user.id}: summary_data={dict(result)}, keyword_totals={dict(keyword_totals)}, yearly_totals={yearly_totals}")
 
     return render(request, 'finance/travel_expense_report.html', context)
 
