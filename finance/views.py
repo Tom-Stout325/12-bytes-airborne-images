@@ -968,7 +968,7 @@ def reports_page(request):
 
 
 @require_POST
-@login_required
+
 def send_invoice_email(request, invoice_id):
     invoice = get_object_or_404(Invoice, pk=invoice_id)
     try:
