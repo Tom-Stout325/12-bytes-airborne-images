@@ -1,1 +1,1 @@
-web: gunicorn project.wsgi
+web: gunicorn project.wsgi worker: celery -A airborne_images worker --loglevel=info

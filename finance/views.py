@@ -12,6 +12,7 @@ from collections import defaultdict, OrderedDict
 from django.template.loader import get_template
 from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator
+from .tasks import send_invoice_email_task
 from django.core.mail import EmailMessage
 from django.utils.timezone import now
 from django.contrib import messages
@@ -33,6 +34,12 @@ import os
 from .models import *
 from .forms import *
 logger = logging.getLogger(__name__)
+
+
+
+
+
+
 
 # Dashboard
 class Dashboard(LoginRequiredMixin, TemplateView):
@@ -976,38 +983,49 @@ def reports_page(request):
 
 # ---------------------------------------------------------------------------------------------------------------   Emails
 
-
 @require_POST
 @login_required
 def send_invoice_email(request, invoice_id):
     invoice = get_object_or_404(Invoice, pk=invoice_id)
     try:
-        html_string = render_to_string('finance/invoice_detail.html', {'invoice': invoice, 'current_page': 'invoices'})
-        html = HTML(string=html_string, base_url=request.build_absolute_uri())
-        pdf_file = html.write_pdf()
-        subject = f"Invoice #{invoice.invoice_numb} from Airborne Images"
-        body = f"""
-        Hi {invoice.client.first},<br><br>
-        Attached is your invoice for the event: <strong>{invoice.event}</strong>.<br><br>
-        Let me know if you have any questions!<br><br>
-        Thank you!,<br>
-        <strong>Tom Stout</strong><br>
-        Airborne Images<br>
-        <a href="http://www.airborneimages.com" target="_blank">www.AirborneImages.com</a><br>
-        "Views From Above!"<br>
-        """
-        from_email = "tom@tom-stout.com"
-        recipient = [invoice.client.email or settings.DEFAULT_EMAIL]
-        if not invoice.client.email and not hasattr(settings, 'DEFAULT_EMAIL'):
-            raise ValueError("No valid email address provided.")
-        email = EmailMessage(subject, body, from_email, recipient)
-        email.content_subtype = 'html'
-        email.attach(f"Invoice_{invoice.invoice_numb}.pdf", pdf_file, "application/pdf")
-        email.send()
-        return JsonResponse({'status': 'success', 'message': 'Invoice emailed successfully!'})
+        send_invoice_email_task.delay(invoice_id, request.build_absolute_uri())
+        messages.success(request, 'Email is being sent in the background.')
+        return redirect('invoice_list')
     except Exception as e:
-        logger.error(f"Error sending email for invoice {invoice_id} by user {request.user.id}: {e}")
-        return JsonResponse({'status': 'error', 'message': 'Failed to send email'}, status=500)
+        messages.error(request, f'Failed to queue email: {str(e)}')
+        return redirect('invoice_list')
+
+# @require_POST
+# @login_required
+# def send_invoice_email(request, invoice_id):
+#     invoice = get_object_or_404(Invoice, pk=invoice_id)
+#     try:
+#         html_string = render_to_string('finance/invoice_detail.html', {'invoice': invoice, 'current_page': 'invoices'})
+#         html = HTML(string=html_string, base_url=request.build_absolute_uri())
+#         pdf_file = html.write_pdf()
+#         subject = f"Invoice #{invoice.invoice_numb} from Airborne Images"
+#         body = f"""
+#         Hi {invoice.client.first},<br><br>
+#         Attached is your invoice for the event: <strong>{invoice.event}</strong>.<br><br>
+#         Let me know if you have any questions!<br><br>
+#         Thank you!,<br>
+#         <strong>Tom Stout</strong><br>
+#         Airborne Images<br>
+#         <a href="http://www.airborneimages.com" target="_blank">www.AirborneImages.com</a><br>
+#         "Views From Above!"<br>
+#         """
+#         from_email = "tom@tom-stout.com"
+#         recipient = [invoice.client.email or settings.DEFAULT_EMAIL]
+#         if not invoice.client.email and not hasattr(settings, 'DEFAULT_EMAIL'):
+#             raise ValueError("No valid email address provided.")
+#         email = EmailMessage(subject, body, from_email, recipient)
+#         email.content_subtype = 'html'
+#         email.attach(f"Invoice_{invoice.invoice_numb}.pdf", pdf_file, "application/pdf")
+#         email.send()
+#         return JsonResponse({'status': 'success', 'message': 'Invoice emailed successfully!'})
+#     except Exception as e:
+#         logger.error(f"Error sending email for invoice {invoice_id} by user {request.user.id}: {e}")
+#         return JsonResponse({'status': 'error', 'message': 'Failed to send email'}, status=500)
 
 
 # ---------------------------------------------------------------------------------------------------------------  Mileage
