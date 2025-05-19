@@ -8,11 +8,9 @@ from django.views.decorators.http import require_POST
 from django.contrib.postgres.indexes import GinIndex
 from django.template.loader import render_to_string
 from django.db.models.functions import ExtractYear
-from collections import defaultdict, OrderedDict
 from django.template.loader import get_template
 from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator
-from .tasks import send_invoice_email_task
 from django.core.mail import EmailMessage
 from django.utils.timezone import now
 from django.contrib import messages
@@ -33,13 +31,8 @@ import csv
 import os
 from .models import *
 from .forms import *
+
 logger = logging.getLogger(__name__)
-
-
-
-
-
-
 
 # Dashboard
 class Dashboard(LoginRequiredMixin, TemplateView):
@@ -292,34 +285,39 @@ class InvoiceCreateView(LoginRequiredMixin, CreateView):
             return self.form_invalid(form)
 
 
-@login_required
-def invoice_update(request, pk):
-    invoice = get_object_or_404(Invoice, pk=pk)
+class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
+    model = Invoice
+    form_class = InvoiceForm
+    template_name = 'finance/invoice_update.html'
+    success_url = reverse_lazy('invoice_list')
 
-    if request.method == 'POST':
-        form = InvoiceForm(request.POST, instance=invoice)
-        formset = InvoiceItemFormSet(request.POST, instance=invoice)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['formset'] = InvoiceItemFormSet(self.request.POST or None, instance=self.object)
+        context['invoice'] = self.object
+        context['current_page'] = 'invoices'
+        return context
 
-        if form.is_valid() and formset.is_valid():
-            form.save()
-            formset.save()
-
-            invoice.amount = invoice.calculate_total()
-            invoice.save()
-            messages.success(request, f"Invoice # {invoice.invoice_numb} Updated successfully.")
-            return redirect('invoice_list')
+    def form_valid(self, form):
+        formset = InvoiceItemFormSet(self.request.POST, instance=self.object)
+        if formset.is_valid():
+            try:
+                with transaction.atomic():
+                    form.save()
+                    formset.save()
+                    invoice = self.object
+                    invoice.amount = invoice.items.aggregate(total=Sum('price'))['total'] or 0
+                    invoice.save()
+                    messages.success(self.request, f"Invoice #{invoice.invoice_numb} updated successfully.")
+                    return super().form_valid(form)
+            except Exception as e:
+                logger.error(f"Error updating invoice {self.object.id} for user {self.request.user.id}: {e}")
+                messages.error(self.request, "Error updating invoice. Please check the form.")
+                return self.form_invalid(form)
         else:
-            print("FORM ERRORS:", form.errors)
-            print("FORMSET ERRORS:", formset.errors)
-    else:
-        form = InvoiceForm(instance=invoice)
-        formset = InvoiceItemFormSet(instance=invoice)
-
-    return render(request, 'finance/invoice_update.html', {
-        'form': form,
-        'formset': formset,
-        'invoice': invoice
-    })
+            logger.error(f"Formset errors for invoice update: {formset.errors}")
+            messages.error(self.request, "Error in invoice items. Please check the form.")
+            return self.form_invalid(form)
 
 
 class InvoiceListView(LoginRequiredMixin, ListView):
@@ -853,8 +851,9 @@ def nhra_summary(request):
 @login_required
 def travel_expense_report(request):
     current_year = now().year
-    years = [current_year, current_year - 1, current_year - 2]
+    years = [current_year, current_year - 1, current_year - 2]  # e.g., [2025, 2024, 2023]
 
+    # Define travel-related subcategories
     travel_subcategories = [
         'Travel: Car Rental',
         'Travel: Flights',
@@ -864,6 +863,7 @@ def travel_expense_report(request):
         'Travel: Miscellaneous'
     ]
 
+    # Query transactions for the user, expenses, travel subcategories, and specified years
     transactions = Transaction.objects.filter(
         user=request.user,
         trans_type__trans_type='Expense',
@@ -871,31 +871,23 @@ def travel_expense_report(request):
         date__year__in=years
     ).select_related('keyword', 'sub_cat')
 
+    # Log transaction count
     logger.debug(f"Transaction count for user {request.user.id}: {transactions.count()}")
 
+    # Aggregate data by keyword, subcategory, and year
     summary_data = transactions.values(
-        'keyword__name',
-        'keyword__order',
-        'sub_cat__sub_cat',
-        'date__year'
-    ).annotate(total=Sum('amount')).order_by('keyword__order', 'sub_cat__sub_cat', 'date__year')
+        'keyword__name', 'sub_cat__sub_cat', 'date__year'
+    ).annotate(total=Sum('amount')).order_by('keyword__name', 'sub_cat__sub_cat', 'date__year')
 
-    temp_result = defaultdict(lambda: defaultdict(lambda: {y: 0 for y in years}))
-    keyword_order_map = {}
-
+    # Structure data for template
+    result = defaultdict(lambda: defaultdict(lambda: {y: 0 for y in years}))
     for item in summary_data:
         keyword = item['keyword__name'] or 'Unspecified'
         subcategory = item['sub_cat__sub_cat']
         year = item['date__year']
-        order = item.get('keyword__order') or 9999
+        result[keyword][subcategory][year] = item['total']
 
-
-        temp_result[keyword][subcategory][year] = item['total']
-        keyword_order_map[keyword] = order
-
-    sorted_keywords = sorted(temp_result.keys(), key=lambda k: keyword_order_map.get(k, 9999))
-    result = OrderedDict((k, temp_result[k]) for k in sorted_keywords)
-
+    # Calculate totals per keyword and per year
     keyword_totals = defaultdict(lambda: {y: 0 for y in years})
     yearly_totals = {y: 0 for y in years}
     for keyword, subcats in result.items():
@@ -906,17 +898,17 @@ def travel_expense_report(request):
 
     context = {
         'years': years,
-        'summary_data': result,
+        'summary_data': dict(result),
         'keyword_totals': dict(keyword_totals),
         'yearly_totals': yearly_totals,
         'travel_subcategories': travel_subcategories,
         'current_page': 'reports'
     }
 
-    logger.debug(f"Travel report context for user {request.user.id}: {context}")
+    # Log context data
+    logger.debug(f"Context for user {request.user.id}: summary_data={dict(result)}, keyword_totals={dict(keyword_totals)}, yearly_totals={yearly_totals}")
 
     return render(request, 'finance/travel_expense_report.html', context)
-
 
 
 @login_required
@@ -983,49 +975,38 @@ def reports_page(request):
 
 # ---------------------------------------------------------------------------------------------------------------   Emails
 
+
 @require_POST
 @login_required
 def send_invoice_email(request, invoice_id):
     invoice = get_object_or_404(Invoice, pk=invoice_id)
     try:
-        send_invoice_email_task.delay(invoice_id, request.build_absolute_uri())
-        messages.success(request, 'Email is being sent in the background.')
-        return redirect('invoice_list')
+        html_string = render_to_string('finance/invoice_detail.html', {'invoice': invoice, 'current_page': 'invoices'})
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        pdf_file = html.write_pdf()
+        subject = f"Invoice #{invoice.invoice_numb} from Airborne Images"
+        body = f"""
+        Hi {invoice.client.first},<br><br>
+        Attached is your invoice for the event: <strong>{invoice.event}</strong>.<br><br>
+        Let me know if you have any questions!<br><br>
+        Thank you!,<br>
+        <strong>Tom Stout</strong><br>
+        Airborne Images<br>
+        <a href="http://www.airborneimages.com" target="_blank">www.AirborneImages.com</a><br>
+        "Views From Above!"<br>
+        """
+        from_email = "tom@tom-stout.com"
+        recipient = [invoice.client.email or settings.DEFAULT_EMAIL]
+        if not invoice.client.email and not hasattr(settings, 'DEFAULT_EMAIL'):
+            raise ValueError("No valid email address provided.")
+        email = EmailMessage(subject, body, from_email, recipient)
+        email.content_subtype = 'html'
+        email.attach(f"Invoice_{invoice.invoice_numb}.pdf", pdf_file, "application/pdf")
+        email.send()
+        return JsonResponse({'status': 'success', 'message': 'Invoice emailed successfully!'})
     except Exception as e:
-        messages.error(request, f'Failed to queue email: {str(e)}')
-        return redirect('invoice_list')
-
-# @require_POST
-# @login_required
-# def send_invoice_email(request, invoice_id):
-#     invoice = get_object_or_404(Invoice, pk=invoice_id)
-#     try:
-#         html_string = render_to_string('finance/invoice_detail.html', {'invoice': invoice, 'current_page': 'invoices'})
-#         html = HTML(string=html_string, base_url=request.build_absolute_uri())
-#         pdf_file = html.write_pdf()
-#         subject = f"Invoice #{invoice.invoice_numb} from Airborne Images"
-#         body = f"""
-#         Hi {invoice.client.first},<br><br>
-#         Attached is your invoice for the event: <strong>{invoice.event}</strong>.<br><br>
-#         Let me know if you have any questions!<br><br>
-#         Thank you!,<br>
-#         <strong>Tom Stout</strong><br>
-#         Airborne Images<br>
-#         <a href="http://www.airborneimages.com" target="_blank">www.AirborneImages.com</a><br>
-#         "Views From Above!"<br>
-#         """
-#         from_email = "tom@tom-stout.com"
-#         recipient = [invoice.client.email or settings.DEFAULT_EMAIL]
-#         if not invoice.client.email and not hasattr(settings, 'DEFAULT_EMAIL'):
-#             raise ValueError("No valid email address provided.")
-#         email = EmailMessage(subject, body, from_email, recipient)
-#         email.content_subtype = 'html'
-#         email.attach(f"Invoice_{invoice.invoice_numb}.pdf", pdf_file, "application/pdf")
-#         email.send()
-#         return JsonResponse({'status': 'success', 'message': 'Invoice emailed successfully!'})
-#     except Exception as e:
-#         logger.error(f"Error sending email for invoice {invoice_id} by user {request.user.id}: {e}")
-#         return JsonResponse({'status': 'error', 'message': 'Failed to send email'}, status=500)
+        logger.error(f"Error sending email for invoice {invoice_id} by user {request.user.id}: {e}")
+        return JsonResponse({'status': 'error', 'message': 'Failed to send email'}, status=500)
 
 
 # ---------------------------------------------------------------------------------------------------------------  Mileage
