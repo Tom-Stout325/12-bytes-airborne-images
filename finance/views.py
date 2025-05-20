@@ -1407,4 +1407,4 @@ def run_monthly_batch_view(request):
 
 
 def real_estate_view(request):
-    return render(request, 'real_estate.html')
+    return render(request, 'finance/real_estate.html')
