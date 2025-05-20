@@ -72,7 +72,8 @@
             </tr>
             {% endfor %}
           </tbody>
-          <tfoot>
+        </table>
+
             <!-- Summary Section -->
             <div class="summary">
               <p><strong>Invoice Amount:</strong> ${{ invoice_amount|floatformat:2|intcomma }}</p>
@@ -82,8 +83,7 @@
               <p><strong>Net Income (Income - Expenses):</strong> ${{ net_income|floatformat:2|intcomma }}</p>
               <p class="net-amount text-success"><strong>Taxable Income (Net - Mileage):</strong> ${{ taxable_income|floatformat:2|intcomma }}</p>
             </div>
-          </tfoot>
-        </table>
+
       </div>
     </div>
   </div>
