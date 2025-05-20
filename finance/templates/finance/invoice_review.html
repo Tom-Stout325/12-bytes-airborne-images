@@ -72,19 +72,15 @@
             </tr>
             {% endfor %}
           </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="3" class="text-end fw-bold">Invoice Amount:</td>
-              <td colspan="2" class="fw-bold">${{ invoice_amount|floatformat:2|intcomma }}</td>
-            </tr>
-            <tr>
-              <td colspan="3" class="text-end fw-bold">Total Expenses:</td>
-              <td colspan="2" class="fw-bold text-danger">-${{ total_expenses|floatformat:2|intcomma }}</td>
-            </tr>
-            <tr>
-              <td colspan="3" class="text-end fw-bold">Net Amount:</td>
-              <td colspan="2" class="fw-bold text-success">${{ net_amount|floatformat:2|intcomma }}</td>
-            </tr>
+            <!-- Summary Section -->
+            <div class="summary">
+              <p><strong>Invoice Amount:</strong> ${{ invoice_amount|floatformat:2|intcomma }}</p>
+              <p><strong>Total Income:</strong> ${{ total_income|floatformat:2|intcomma }}</p>
+              <p><strong>Total Expenses:</strong> -${{ total_expenses|floatformat:2|intcomma }}</p>
+              <p><strong>Total Mileage Deduction:</strong> -${{ mileage_dollars|floatformat:2|intcomma }}</p>
+              <p><strong>Net Income (Income - Expenses):</strong> ${{ net_income|floatformat:2|intcomma }}</p>
+              <p class="net-amount text-success"><strong>Taxable Income (Net - Mileage):</strong> ${{ taxable_income|floatformat:2|intcomma }}</p>
+            </div>
           </tfoot>
         </table>
       </div>

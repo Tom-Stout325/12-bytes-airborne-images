@@ -404,24 +404,51 @@ class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def invoice_review(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
+
     transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb).select_related('trans_type')
+
+    mileage_entries = Miles.objects.filter(
+        invoice=invoice.invoice_numb,
+        user=request.user,
+        tax__iexact="Yes",
+        mileage_type="Taxable"
+    )
+
+    try:
+        rate = MileageRate.objects.first().rate if MileageRate.objects.exists() else 0.70
+    except Exception as e:
+        logger.error(f"Error fetching mileage rate: {e}")
+        rate = 0.70
+
+    total_mileage_miles = mileage_entries.aggregate(Sum('total'))['total__sum'] or 0
+    mileage_dollars = round(total_mileage_miles * rate, 2)
+
     totals = transactions.aggregate(
         total_expenses=Sum('amount', filter=Q(trans_type__trans_type='Expense')),
         total_income=Sum('amount', filter=Q(trans_type__trans_type='Income'))
     )
     total_expenses = totals['total_expenses'] or 0
     total_income = totals['total_income'] or 0
-    net_amount = total_income - total_expenses
+
+    net_income = total_income - total_expenses
+    taxable_income = net_income - mileage_dollars
+
     context = {
         'invoice': invoice,
         'transactions': transactions,
+        'mileage_entries': mileage_entries,
+        'mileage_dollars': mileage_dollars,
+        'mileage_rate': rate,
         'total_expenses': total_expenses,
         'total_income': total_income,
-        'net_amount': net_amount,
+        'net_income': net_income,
+        'taxable_income': taxable_income,
         'invoice_amount': invoice.amount,
         'current_page': 'invoices'
     }
     return render(request, 'finance/invoice_review.html', context)
+
+
 
 
 @login_required

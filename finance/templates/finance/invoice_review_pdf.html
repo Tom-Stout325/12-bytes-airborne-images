@@ -94,6 +94,11 @@
       margin-top: 40px;
       color: #777;
     }
+    .net-amount {
+      font-size: 13.5px;
+      color: #2E8B57;
+}
+
   </style>
 </head>
 
@@ -134,6 +139,15 @@
         <td>{{ transaction.category }}</td>
         <td>{{ transaction.sub_cat }}</td>
         <td>${{ transaction.amount|floatformat:2 }}</td>
+        {% for mileage in mileage_entries %}
+          <tr>
+            <td>{{ mileage.date }}</td>
+            <td>Mileage</td>
+            <td>{{ mileage.job }}</td>
+            <td>${{ mileage.total|floatformat:1 }} mi × {{ mileage_rate|floatformat:2 }} = ${{ mileage.total|floatformat:1|floatformat:2|add:"0"|floatformat:2|floatformat:""|add:"0"|floatformat:2|intcomma }}</td>
+          </tr>
+        {% endfor %}
+
       </tr>
       {% empty %}
       <tr>
@@ -144,12 +158,15 @@
   </table>
 
   <!-- Summary Section -->
-  <div class="section-title">Summary</div>
-  <div class="summary">
-    <p>Total Invoice Amount: ${{ invoice_amount|floatformat:2|intcomma }}</p>
-    <p>Total Expenses: -${{ total_expenses|floatformat:2|intcomma }}</p>
-    <p class="net-amount text-success">Net Amount: ${{ net_amount|floatformat:2|intcomma }}</p>
-  </div>
+<div class="summary">
+  <p><strong>Invoice Amount:</strong> ${{ invoice_amount|floatformat:2|intcomma }}</p>
+  <p><strong>Total Income:</strong> ${{ total_income|floatformat:2|intcomma }}</p>
+  <p><strong>Total Expenses:</strong> -${{ total_expenses|floatformat:2|intcomma }}</p>
+  <p><strong>Total Mileage Deduction:</strong> -${{ mileage_dollars|floatformat:2|intcomma }}</p>
+  <p><strong>Net Income (Income - Expenses):</strong> ${{ net_income|floatformat:2|intcomma }}</p>
+  <p class="net-amount text-success"><strong>Taxable Income (Net - Mileage):</strong> ${{ taxable_income|floatformat:2|intcomma }}</p>
+</div>
+
 
   <!-- Footer -->
   <div class="footer">
