@@ -4,6 +4,21 @@
 
 {% block title %}Invoice #{{ invoice.invoice_numb }}{% endblock %}
 
+<head>
+  <style>
+    .summary {
+      margin-top: 20px;
+      border-top: 2px solid #ccc;
+      padding-top: 10px;
+    }
+    
+    .summary p {
+      font-weight: bold;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
 {% block content %}
 
 <div class="text-end mt-4">
@@ -74,20 +89,19 @@
             {% endfor %}
           </tbody>
         </table>
-
-            <!-- Summary Section -->
-            <div class="summary d-flex justify-content-end my-2">
-              <p><strong>Invoice Amount:</strong> &nbsp;&nbsp;${{ invoice_amount|floatformat:2|intcomma }}</p>
-              <p><strong>Total Income:</strong> &nbsp;&nbsp;${{ total_income|floatformat:2|intcomma }}</p>
-              <p><strong>Total Expenses:</strong> &nbsp;&nbsp;-${{ total_expenses|floatformat:2|intcomma }}</p>
-              <p><strong>Total Mileage Deduction:</strong> &nbsp;&nbsp;-${{ mileage_dollars|floatformat:2|intcomma }}</p>
-              <p><strong>Net Income (Income - Expenses):</strong>&nbsp;&nbsp; ${{ net_income|floatformat:2|intcomma }}</p>
-              <p class="net-amount text-success"><strong>Taxable Income:</strong> &nbsp;&nbsp;${{ taxable_income|floatformat:2|intcomma }}</p>
-            </div>
-
+        <!-- Summary Section -->
+        <div class="summary d-flex justify-content-end my-2">
+          <div class="text-end" style="min-width: 300px;">
+            <p><strong>Invoice Amount:</strong> &nbsp;&nbsp;${{ invoice_amount|floatformat:2|intcomma }}</p>
+            <p><strong>Total Income:</strong> &nbsp;&nbsp;${{ total_income|floatformat:2|intcomma }}</p>
+            <p><strong>Total Expenses:</strong> &nbsp;&nbsp;-{{ total_expenses|floatformat:2|intcomma }}</p>
+            <p><strong>Total Mileage Deduction:</strong> &nbsp;&nbsp;-{{ mileage_dollars|floatformat:2|intcomma }}</p>
+            <p><strong>Net Income (Income - Expenses):</strong> &nbsp;&nbsp;${{ net_income|floatformat:2|intcomma }}</p>
+            <p class="net-amount text-success"><strong>Taxable Income:</strong> &nbsp;&nbsp;${{ taxable_income|floatformat:2|intcomma }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
 </div>
 {% endblock %}
