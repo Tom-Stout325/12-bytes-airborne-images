@@ -24,14 +24,14 @@
     <div class="card-body">
       <div class="row mb-3">
         <div class="col-md-6">
-          <p><strong>Invoice #:</strong> {{ invoice.invoice_numb }}</p>
-          <p><strong>Client:</strong> {{ invoice.client }}</p>
-          <p><strong>Event:</strong> {{ invoice.keyword }}</p>
+          <p><strong>Invoice #:</strong> &nbsp;&nbsp;{{ invoice.invoice_numb }}</p>
+          <p><strong>Client:</strong> &nbsp;&nbsp;{{ invoice.client }}</p>
+          <p><strong>Event:</strong> &nbsp;&nbsp;{{ invoice.keyword }}</p>
           
         </div>
         <div class="col-md-6">
-          <p><strong>Service:</strong> {{ invoice.service }}</p>
-          <p><strong>Invoice Amount:</strong> ${{ invoice.amount|floatformat:2|intcomma }}</p>
+          <p><strong>Service:</strong>&nbsp;&nbsp; {{ invoice.service }}</p>
+          <p><strong>Invoice Amount:</strong> &nbsp;&nbsp;${{ invoice.amount|floatformat:2|intcomma }}</p>
         </div>
       </div>
     </div>
@@ -76,13 +76,13 @@
         </table>
 
             <!-- Summary Section -->
-            <div class="summary justify-content-end">
-              <p><strong>Invoice Amount:</strong> ${{ invoice_amount|floatformat:2|intcomma }}</p>
-              <p><strong>Total Income:</strong> ${{ total_income|floatformat:2|intcomma }}</p>
-              <p><strong>Total Expenses:</strong> -${{ total_expenses|floatformat:2|intcomma }}</p>
-              <p><strong>Total Mileage Deduction:</strong> -${{ mileage_dollars|floatformat:2|intcomma }}</p>
-              <p><strong>Net Income (Income - Expenses):</strong> ${{ net_income|floatformat:2|intcomma }}</p>
-              <p class="net-amount text-success"><strong>Taxable Income (Net - Mileage):</strong> ${{ taxable_income|floatformat:2|intcomma }}</p>
+            <div class="summary justify-content-end my-5">
+              <p><strong>Invoice Amount:</strong> &nbsp;&nbsp;${{ invoice_amount|floatformat:2|intcomma }}</p>
+              <p><strong>Total Income:</strong> &nbsp;&nbsp;${{ total_income|floatformat:2|intcomma }}</p>
+              <p><strong>Total Expenses:</strong> &nbsp;&nbsp;-${{ total_expenses|floatformat:2|intcomma }}</p>
+              <p><strong>Total Mileage Deduction:</strong> &nbsp;&nbsp;-${{ mileage_dollars|floatformat:2|intcomma }}</p>
+              <p><strong>Net Income (Income - Expenses):</strong>&nbsp;&nbsp; ${{ net_income|floatformat:2|intcomma }}</p>
+              <p class="net-amount text-success"><strong>Taxable Income:</strong> &nbsp;&nbsp;${{ taxable_income|floatformat:2|intcomma }}</p>
             </div>
 
       </div>
