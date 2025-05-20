@@ -19,14 +19,15 @@
 <div class="container mt-5">
   <div class="card shadow-sm">
     <div class="card-header bg-primary text-white">
-      <h4 class="mb-0">Invoice Details</h4>
+      <h4 class="mb-0 text-center">Invoice Details: {{ invoice.event}}</h4>
     </div>
     <div class="card-body">
       <div class="row mb-3">
         <div class="col-md-6">
           <p><strong>Invoice #:</strong> {{ invoice.invoice_numb }}</p>
           <p><strong>Client:</strong> {{ invoice.client }}</p>
-          <p><strong>Event:</strong> {{ invoice.event }}</p>
+          <p><strong>Event:</strong> {{ invoice.keyword }}</p>
+          
         </div>
         <div class="col-md-6">
           <p><strong>Service:</strong> {{ invoice.service }}</p>
