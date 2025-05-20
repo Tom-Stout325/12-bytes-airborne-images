@@ -1399,3 +1399,12 @@ def run_monthly_batch_view(request):
         'current_page': 'recurring_transactions'
     }
     return render(request, 'finance/recurring_batch_success.html', context)
+
+
+
+
+
+
+
+def real_estate_view(request):
+    return render(request, 'real_estate.html')

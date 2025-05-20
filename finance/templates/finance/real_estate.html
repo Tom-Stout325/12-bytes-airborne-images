@@ -1,0 +1,50 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero" style="position: relative; height: 500px; overflow: hidden;">
+    <img src="{% static 'images/real_estate_hero.jpg' %}" alt="Real Estate Photography Hero" style="width: 100%; height: 100%; object-fit: cover;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">
+        <h1>Real Estate Photography</h1>
+        <p>Showcasing Properties with Stunning Visuals</p>
+    </div>
+</section>
+
+<!-- Links Section -->
+<section class="links" style="padding: 40px 20px; text-align: center; background-color: #f8f8f8;">
+    <h2>Featured Real Estate Listings on Zillow</h2>
+    <div style="max-width: 800px; margin: 0 auto;">
+        <p><a href="https://www.zillow.com/homedetails/4204-Omaha-Dr-Bargersville-IN-46106/447757426_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Luxury Downtown Condo</a></p>
+        <p><a href="https://www.zillow.com/homedetails/14413-Arnett-Dr-Carmel-IN-46033/145630026_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Suburban Family Home</a></p>
+        <p><a href="https://www.zillow.com/homedetails/13351-Grosbeak-Ct-Carmel-IN-46033/73230607_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Waterfront Estate</a></p>
+        <p><a href="https://www.zillow.com/homedetails/542-Hadleigh-Ct-Westfield-IN-46074/94405641_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Luxury Downtown Condo</a></p>
+        <p><a href="https://www.zillow.com/homedetails/14814-Edgebrook-Dr-Fishers-IN-46040/126779800_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Suburban Family Home</a></p>
+        <p><a href="https://www.zillow.com/homedetails/2229-N-Arsenal-Ave-Indianapolis-IN-46218/1099565_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Waterfront Estate</a></p>
+        <p><a href="https://www.zillow.com/homedetails/1158-Burdsal-Pkwy-Indianapolis-IN-46208/308924079_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Luxury Downtown Condo</a></p>
+        <p><a href="https://www.zillow.com/homedetails/379-Antioch-St-Greenfield-IN-46140/377046786_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Suburban Family Home</a></p>
+        <p><a href="https://www.zillow.com/homedetails/4905-Candy-Spots-Dr-Indianapolis-IN-46237/1131335_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Waterfront Estate</a></p>
+        <p><a href="https://www.zillow.com/homedetails/10358-Pronghorn-Ln-Indianapolis-IN-46239/450164588_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Luxury Downtown Condo</a></p>
+        <p><a href="https://www.zillow.com/homedetails/7418-Bluebird-Ct-Indianapolis-IN-46254/1209151_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Suburban Family Home</a></p>
+    </div>
+</section>
+
+<!-- Image Gallery Section -->
+<section class="gallery" style="padding: 40px 20px;">
+    <h2 style="text-align: center;">Sample Gallery</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto;">
+        <img src="{% static 'images/property1.jpg' %}" alt="Property 1" style="width: 100%; height: auto; border-radius: 8px;">
+        <img src="{% static 'images/property2.jpg' %}" alt="Property 2" style="width: 100%; height: auto; border-radius: 8px;">
+        <img src="{% static 'images/property3.jpg' %}" alt="Property 3" style="width: 100%; height: auto; border-radius: 8px;">
+        <img src="{% static 'images/property4.jpg' %}" alt="Property 4" style="width: 100%; height: auto; border-radius: 8px;">
+        <img src="{% static 'images/property5.jpg' %}" alt="Property 1" style="width: 100%; height: auto; border-radius: 8px;">
+        <img src="{% static 'images/property6.jpg' %}" alt="Property 2" style="width: 100%; height: auto; border-radius: 8px;">
+        <img src="{% static 'images/property7.jpg' %}" alt="Property 3" style="width: 100%; height: auto; border-radius: 8px;">
+        <img src="{% static 'images/property8.jpg' %}" alt="Property 4" style="width: 100%; height: auto; border-radius: 8px;">
+        <img src="{% static 'images/property9.jpg' %}" alt="Property 1" style="width: 100%; height: auto; border-radius: 8px;">
+        <img src="{% static 'images/property10.jpg' %}" alt="Property 2" style="width: 100%; height: auto; border-radius: 8px;">
+        <img src="{% static 'images/property11.jpg' %}" alt="Property 3" style="width: 100%; height: auto; border-radius: 8px;">
+        <img src="{% static 'images/property12.jpg' %}" alt="Property 4" style="width: 100%; height: auto; border-radius: 8px;">
+    </div>
+</section>
+{% endblock %}
