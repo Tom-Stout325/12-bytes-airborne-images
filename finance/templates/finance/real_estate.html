@@ -29,22 +29,58 @@
     </div>
 </section>
 
-<!-- Image Gallery Section -->
+<!-- Image Gallery Section with Lightbox -->
 <section class="gallery" style="padding: 40px 20px;">
     <h2 style="text-align: center;">Sample Gallery</h2>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto;">
-        <img src="{% static 'images/property1.jpg' %}" alt="Property 1" style="width: 100%; height: auto; border-radius: 8px;">
-        <img src="{% static 'images/property2.jpg' %}" alt="Property 2" style="width: 100%; height: auto; border-radius: 8px;">
-        <img src="{% static 'images/property3.jpg' %}" alt="Property 3" style="width: 100%; height: auto; border-radius: 8px;">
-        <img src="{% static 'images/property4.jpg' %}" alt="Property 4" style="width: 100%; height: auto; border-radius: 8px;">
-        <img src="{% static 'images/property5.jpg' %}" alt="Property 1" style="width: 100%; height: auto; border-radius: 8px;">
-        <img src="{% static 'images/property6.jpg' %}" alt="Property 2" style="width: 100%; height: auto; border-radius: 8px;">
-        <img src="{% static 'images/property7.jpg' %}" alt="Property 3" style="width: 100%; height: auto; border-radius: 8px;">
-        <img src="{% static 'images/property8.jpg' %}" alt="Property 4" style="width: 100%; height: auto; border-radius: 8px;">
-        <img src="{% static 'images/property9.jpg' %}" alt="Property 1" style="width: 100%; height: auto; border-radius: 8px;">
-        <img src="{% static 'images/property10.jpg' %}" alt="Property 2" style="width: 100%; height: auto; border-radius: 8px;">
-        <img src="{% static 'images/property11.jpg' %}" alt="Property 3" style="width: 100%; height: auto; border-radius: 8px;">
-        <img src="{% static 'images/property12.jpg' %}" alt="Property 4" style="width: 100%; height: auto; border-radius: 8px;">
+        <a href="{% static 'images/property1_full.jpg' %}" data-lightbox="gallery" data-title="Property 1">
+            <img src="{% static 'images/property1.jpg' %}" alt="Property 1" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property2_full.jpg' %}" data-lightbox="gallery" data-title="Property 2">
+            <img src="{% static 'images/property2.jpg' %}" alt="Property 2" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property3_full.jpg' %}" data-lightbox="gallery" data-title="Property 3">
+            <img src="{% static 'images/property3.jpg' %}" alt="Property 3" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property4_full.jpg' %}" data-lightbox="gallery" data-title="Property 4">
+            <img src="{% static 'images/property4.jpg' %}" alt="Property 4" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property5_full.jpg' %}" data-lightbox="gallery" data-title="Property 5">
+            <img src="{% static 'images/property5.jpg' %}" alt="Property 5" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property6_full.jpg' %}" data-lightbox="gallery" data-title="Property 6">
+            <img src="{% static 'images/property6.jpg' %}" alt="Property 6" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property7_full.jpg' %}" data-lightbox="gallery" data-title="Property 7">
+            <img src="{% static 'images/property7.jpg' %}" alt="Property 7" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property8_full.jpg' %}" data-lightbox="gallery" data-title="Property 8">
+            <img src="{% static 'images/property8.jpg' %}" alt="Property 8" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property9_full.jpg' %}" data-lightbox="gallery" data-title="Property 9">
+            <img src="{% static 'images/property9.jpg' %}" alt="Property 9" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property10_full.jpg' %}" data-lightbox="gallery" data-title="Property 10">
+            <img src="{% static 'images/property10.jpg' %}" alt="Property 10" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property11_full.jpg' %}" data-lightbox="gallery" data-title="Property 11">
+            <img src="{% static 'images/property11.jpg' %}" alt="Property 11" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property12_full.jpg' %}" data-lightbox="gallery" data-title="Property 12">
+            <img src="{% static 'images/property12.jpg' %}" alt="Property 12" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Lightbox2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+<script>
+    lightbox.option({
+        'resizeDuration': 200,
+        'wrapAround': true,
+        'fitImagesInViewport': true
+    });
+</script>
 {% endblock %}
