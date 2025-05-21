@@ -6,7 +6,7 @@
 {% block content %}
 <!-- Hero Section -->
 <section class="hero" style="position: relative; height: 500px; overflow: hidden;">
-    <img src="{% static 'images/IMG_8325.jpg' %}" alt="Real Estate Photography Hero" style="width: 100%; height: 100%; object-fit: cover;">
+    <img src="{% static 'images/IMG_8325.jpg' %}" alt="Real Estate Photography Hero" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;;">
     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">
         <h1>Real Estate Photography</h1>
         <p>By Tom Stout</p>
@@ -103,12 +103,17 @@
 <div class="container">
     <h3 class="text-center">Equipment</h3>
     <div class="row text-center">
-        <div class="col-sm-6">
-            <a href="www.tom-stout.com" class="text-decoration-none">Tom Stout Photography</a>
+        <div class="col-sm-3">
+            <a href="www.tom-stout.com" class="text-decoration-none text-center">Tom Stout Photography</a>
         </div>
-
-        <div class="col-sm-6">
-            <a href="www.airborne-images.net" class="text-decoration-none">Airborne Images - Aerial Cinematography</a>
+        <div class="col-sm-4 text-center">
+            <h5>Tom Stout</h5>
+            <h4>317.987.7387</h4>
+            <h4 class="text-decoration-none">tom@tom-stout.com</h4>
+            <h4>Westfield, Indiana</h4>
+        </div>
+        <div class="col-sm-3">
+            <a href="www.airborne-images.net" class="text-decoration-none text-center">Airborne Images - Aerial Cinematography</a>
         </div>
     </div>
 </div>
