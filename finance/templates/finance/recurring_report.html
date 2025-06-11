@@ -1,39 +1,11 @@
-{% extends 'index.html' %}
-{% load finance_tags %}
 
+{% extends 'index.html' %}
+{% load recurring_filters %}
 
 {% block content %}
 <div class="container mt-4">
   <h2 class="mb-4 text-success text-center">Recurring Transactions Report</h2>
 
-  {% if has_data %}
-    <table class="table table-bordered table-striped">
-      <thead>
-        <tr>
-          <th>Transaction</th>
-          <th>Amount</th>
-          <th>Run Months</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in summary %}
-          <tr>
-            <td>{{ item.template.transaction }}</td>
-            <td>${{ item.template.amount }}</td>
-            <td>{{ item.months|join:", " }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <div class="alert alert-warning">No recurring transactions found.</div>
-  {% endif %}
-</div>
-
-<hr>
-<hr>
-
-<div>
   <form method="get" class="mb-4">
     <label for="year" class="form-label me-2">Year:</label>
     <select name="year" id="year" class="form-select d-inline-block w-auto">
@@ -43,28 +15,28 @@
     </select>
     <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Go</button>
   </form>
-</div>
-<div class="table-responsive mt-4">
-  <table class="table table-bordered table-sm text-center align-middle">
-    <thead class="table-light">
-      <tr>
-        <th>Transaction</th>
-        {% for m in months %}
-          <th>{{ m|slice:":3" }}</th>
-        {% endfor %}
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in data %}
+
+  <div class="table-responsive mt-4">
+    <table class="table table-bordered table-sm text-center align-middle">
+      <thead class="table-light">
         <tr>
-          <td class="text-start">{{ row.template.transaction }}</td>
-          {% for exists in row.monthly_checks %}
-            <td>{% if exists %}✅{% else %}&mdash;{% endif %}</td>
+          <th>Transaction</th>
+          {% for m in months %}
+            <th>{{ m|slice:":3" }}</th>
           {% endfor %}
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for row in data %}
+          <tr>
+            <td class="text-start">{{ row.template.transaction }}</td>
+            {% for exists in row.monthly_checks %}
+              <td>{% if exists %}✅{% else %}&mdash;{% endif %}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
-
 {% endblock %}

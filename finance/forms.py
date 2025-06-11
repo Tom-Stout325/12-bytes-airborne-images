@@ -6,14 +6,15 @@ class TransForm(forms.ModelForm):
     keyword = forms.ModelChoiceField(
         queryset=Keyword.objects.order_by('name'),
         label='Keyword',
-        widget=forms.Select(attrs={'class': 'form-control'})
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False
     )
 
     class Meta:
         model = Transaction
         fields = (
             'date', 'trans_type', 'category', 'sub_cat', 'amount', 'invoice_numb',
-            'keyword', 'paid', 'team', 'transaction', 'receipt'
+            'keyword', 'team', 'transaction', 'receipt'
         )
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
@@ -22,8 +23,7 @@ class TransForm(forms.ModelForm):
     def clean_receipt(self):
         receipt = self.cleaned_data.get('receipt')
         if receipt and hasattr(receipt, 'content_type'):
-            content_type = receipt.content_type
-            if content_type not in ['application/pdf', 'image/jpeg', 'image/png']:
+            if receipt.content_type not in ['application/pdf', 'image/jpeg', 'image/png']:
                 raise forms.ValidationError("Only PDF, JPG, or PNG files are allowed.")
         return receipt
 
@@ -103,6 +103,7 @@ class KeywordForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
 
 class RecurringTransactionForm(forms.ModelForm):
     class Meta:

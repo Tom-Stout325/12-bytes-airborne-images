@@ -78,22 +78,26 @@ class Service(models.Model):
         return self.service
     
 class Transaction(models.Model):
-    date = models.DateField(auto_now=False, auto_now_add=False)
-    trans_type = models.ForeignKey(Type, on_delete=models.PROTECT)
-    category = models.ForeignKey(Category, on_delete=models.PROTECT)
-    sub_cat = models.ForeignKey(SubCategory, on_delete=models.PROTECT)
-    date_created = models.DateField(auto_now_add=True)
-    amount = models.DecimalField(max_digits=20, decimal_places=2, blank=False)
-    invoice_numb = models.CharField(max_length=500, blank=True, null=True)
-    paid = models.CharField(max_length=500, blank=True, null=True, default="No")
-    team = models.ForeignKey('Team', null=True, on_delete=models.PROTECT)
-    transaction = models.CharField(max_length=500, blank=True, null=True)
-    tax = models.CharField(max_length=500, blank=True, null=True, default="Yes")
-    keyword = models.ForeignKey(Keyword, on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    trans_type = models.ForeignKey('Type', on_delete=models.PROTECT)
+    category = models.ForeignKey('Category', on_delete=models.PROTECT)
+    sub_cat = models.ForeignKey('SubCategory', on_delete=models.PROTECT, null=True, blank=True)
+    amount = models.DecimalField(max_digits=20, decimal_places=2)
+    transaction = models.CharField(max_length=255)
+    team = models.ForeignKey('Team', null=True, blank=True, on_delete=models.PROTECT)
+    keyword = models.ForeignKey('Keyword', null=True, blank=True, on_delete=models.PROTECT)
+    tax = models.CharField(max_length=10, default="Yes")
     receipt = models.FileField(upload_to='receipts/', blank=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
-    deductible_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    recurring_template = models.ForeignKey('RecurringTransaction', null=True, blank=True, on_delete=models.SET_NULL, related_name='generated_transactions')
+    account = models.CharField(max_length=255, blank=True, null=True)
+    date = models.DateField()
+    invoice_numb = models.CharField(max_length=255, blank=True, null=True)
+    recurring_template = models.ForeignKey(
+        'RecurringTransaction',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='transactions' 
+        )
 
     class Meta:
         indexes = [
@@ -106,6 +110,15 @@ class Transaction(models.Model):
         ]
         verbose_name_plural = "Transactions"
         ordering = ['date']
+        
+    @property
+    def deductible_amount(self):
+        if self.sub_cat_id == 26:
+            return round(self.amount * 0.5, 2)
+        return self.amount
+
+    def __str__(self):
+        return f"{self.transaction} - {self.amount}"
     
     def save(self, *args, **kwargs):
         if self.sub_cat_id == 26:
@@ -114,8 +127,6 @@ class Transaction(models.Model):
             self.deductible_amount = None 
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return self.transaction
 
 class Invoice(models.Model):
     invoice_numb = models.CharField(max_length=10, unique=True)
@@ -228,11 +239,12 @@ class Miles(models.Model):
             self.total = None
         super().save(*args, **kwargs)
 
+
 class RecurringTransaction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    trans_type = models.ForeignKey(Type, on_delete=models.PROTECT)
-    category = models.ForeignKey(Category, on_delete=models.PROTECT)
-    sub_cat = models.ForeignKey(SubCategory, on_delete=models.PROTECT)
+    trans_type = models.ForeignKey('Type', on_delete=models.PROTECT)
+    category = models.ForeignKey('Category', on_delete=models.PROTECT)
+    sub_cat = models.ForeignKey('SubCategory', on_delete=models.PROTECT, null=True, blank=True)
     amount = models.DecimalField(max_digits=20, decimal_places=2)
     transaction = models.CharField(max_length=255)
     day = models.IntegerField(help_text="Day of the month to apply")
@@ -248,6 +260,4 @@ class RecurringTransaction(models.Model):
         return f"{self.transaction} - {self.amount} on day {self.day}"
 
     class Meta:
-        indexes = [
-            models.Index(fields=['user', 'day', 'active']),
-        ]
+        indexes = [models.Index(fields=['user', 'day', 'active'])]
