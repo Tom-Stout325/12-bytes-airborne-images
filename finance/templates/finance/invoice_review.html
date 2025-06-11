@@ -101,10 +101,9 @@
         <div class="summary d-flex justify-content-end my-2 mx-3">
           <div class="text-end" style="min-width: 300px;">
             <p><strong>Invoice Amount:</strong> &nbsp;&nbsp;${{ invoice_amount|floatformat:2|intcomma }}</p>
-            <p><strong>Total Income:</strong> &nbsp;&nbsp;${{ total_income|floatformat:2|intcomma }}</p>
-            <p><strong>Total Expenses:</strong> &nbsp;&nbsp;-{{ total_expenses|floatformat:2|intcomma }}</p>
-            <p><strong>Total Mileage Deduction:</strong> &nbsp;&nbsp;-{{ mileage_dollars|floatformat:2|intcomma }}</p>
-            <p><strong>Net Income (Income - Expenses):</strong> &nbsp;&nbsp;${{ net_income|floatformat:2|intcomma }}</p>
+            <p><strong>Expenses:</strong> &nbsp;&nbsp;-{{ total_expenses|floatformat:2|intcomma }}</p>
+            <p><strong>Mileage:</strong> &nbsp;&nbsp;-{{ mileage_dollars|floatformat:2|intcomma }}</p>
+            <p><strong>Net Income:(Income - Expenses):</strong> &nbsp;&nbsp;${{ net_income|floatformat:2|intcomma }}</p>
             <p class="net-amount text-success"><strong>Taxable Income:</strong> &nbsp;&nbsp;${{ taxable_income|floatformat:2|intcomma }}</p>
           </div>
         </div>
