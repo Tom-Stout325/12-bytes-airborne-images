@@ -117,6 +117,7 @@ class Transaction(models.Model):
             return round(self.amount * 0.5, 2)
         return self.amount
 
+
     def __str__(self):
         return f"{self.transaction} - {self.amount}"
     
