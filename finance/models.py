@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from datetime import timedelta, date
 from decimal import Decimal
 from django.conf import settings
+from decimal import Decimal
 try:
     from django.contrib.postgres.indexes import GinIndex
     from django.contrib.postgres.search import SearchVectorField
@@ -113,11 +114,11 @@ class Transaction(models.Model):
         verbose_name_plural = "Transactions"
         ordering = ['date']
         
-    @property
-    def deductible_amount(self):
-        if self.sub_cat_id == 26:
-            return round(self.amount * 0.5, 2)
-        return self.amount
+@property
+def deductible_amount(self):
+    if self.sub_cat_id == 26:
+        return round(self.amount * Decimal('0.5'), 2)
+    return self.amount
 
     def __str__(self):
         return f"{self.transaction} - {self.amount}"
