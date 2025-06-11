@@ -110,7 +110,7 @@
               <td>{{ transaction.trans_type.trans_type }}</td>
               <td>{{ transaction.transaction }}</td>
               <td>{{ transaction.keyword.name|default:"" }}</td>
-              <td>{{ transaction.amount }}</td>
+              <td>${{ transaction.amount }}</td>
               <td>{{ transaction.invoice_numb|default:"" }}</td>
               <td>
                 <a href="{% url 'transaction_detail' transaction.pk %}" class="btn btn-sm btn-info">View</a>

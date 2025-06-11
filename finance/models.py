@@ -78,6 +78,13 @@ class Service(models.Model):
         return self.service
     
 class Transaction(models.Model):
+    
+    TRANSPORT_CHOICES = [
+        ('personal_vehicle', 'Personal Vehicle'),
+        ('rental_car', 'Rental Car'),
+        ('flight', 'Flight'),
+        ('public_transport', 'Public Transport'),
+    ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     trans_type = models.ForeignKey('Type', on_delete=models.PROTECT)
     category = models.ForeignKey('Category', on_delete=models.PROTECT)
@@ -91,13 +98,8 @@ class Transaction(models.Model):
     account = models.CharField(max_length=255, blank=True, null=True)
     date = models.DateField()
     invoice_numb = models.CharField(max_length=255, blank=True, null=True)
-    recurring_template = models.ForeignKey(
-        'RecurringTransaction',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name='transactions' 
-        )
+    recurring_template = models.ForeignKey('RecurringTransaction', null=True, blank=True, on_delete=models.SET_NULL, related_name='transactions')
+    transport_type = models.CharField(max_length=30, choices=TRANSPORT_CHOICES, null=True, blank=True, help_text="Used to identify if actual expenses apply")
 
     class Meta:
         indexes = [
@@ -116,7 +118,6 @@ class Transaction(models.Model):
         if self.sub_cat_id == 26:
             return round(self.amount * 0.5, 2)
         return self.amount
-
 
     def __str__(self):
         return f"{self.transaction} - {self.amount}"

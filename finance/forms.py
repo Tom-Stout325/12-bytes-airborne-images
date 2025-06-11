@@ -2,6 +2,7 @@ from django import forms
 from django.forms import inlineformset_factory
 from .models import *
 
+
 class TransForm(forms.ModelForm):
     keyword = forms.ModelChoiceField(
         queryset=Keyword.objects.order_by('name'),
@@ -13,11 +14,13 @@ class TransForm(forms.ModelForm):
     class Meta:
         model = Transaction
         fields = (
-            'date', 'trans_type', 'category', 'sub_cat', 'amount', 'invoice_numb',
-            'keyword', 'team', 'transaction', 'receipt'
+            'date', 'trans_type', 'category', 'sub_cat', 'amount',
+            'invoice_numb', 'keyword', 'team', 'transaction',
+            'receipt', 'transport_type'
         )
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
+            'transport_type': forms.Select(attrs={'class': 'form-control'}),
         }
 
     def clean_receipt(self):
@@ -26,6 +29,18 @@ class TransForm(forms.ModelForm):
             if receipt.content_type not in ['application/pdf', 'image/jpeg', 'image/png']:
                 raise forms.ValidationError("Only PDF, JPG, or PNG files are allowed.")
         return receipt
+
+    def clean(self):
+        cleaned_data = super().clean()
+        transport = cleaned_data.get("transport_type")
+        sub_cat = cleaned_data.get("sub_cat")
+
+        if transport == "personal_vehicle" and sub_cat and sub_cat.sub_cat.lower() in ['fuel', 'gas', 'gasoline']:
+            raise forms.ValidationError(
+                "Gas expenses are not deductible when using a personal vehicle. Use mileage instead."
+            )
+        return cleaned_data
+
 
 
 class InvoiceForm(forms.ModelForm):

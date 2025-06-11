@@ -3,7 +3,7 @@
 {% load humanize %}
 
 {% block content %}
-<div class="container mt-5 mb-5">
+<div class="container mt-5">
   <div class="card shadow-sm rounded-3">
     <div class="card-header bg-primary text-white">
       <h4 class="mb-0">Transaction Details</h4>
@@ -77,42 +77,10 @@
         {% endif %}
       </dl>
 
-      <div class="d-none d-md-flex justify-content-end mt-4 gap-2">
-        <a href="{% url 'edit_transaction' transaction.id %}" class="btn btn-warning">Edit</a>
-        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
-          Delete
-        </button>
-        <a href="{% url 'transactions' %}" class="btn btn-secondary">Back</a>
+      <div class="text-end mt-4 d-flex justify-content-end gap-2">
+        <a href="{% url 'edit_transaction' transaction.id %}" class="btn btn-warning">Edit Transaction</a>
+        <a href="{% url 'transactions' %}" class="btn btn-secondary">Back to Transactions</a>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- Floating Action Bar (Mobile Only) -->
-<div class="d-md-none fixed-bottom bg-white border-top shadow-sm p-2 d-flex justify-content-around">
-  <a href="{% url 'edit_transaction' transaction.id %}" class="btn btn-sm btn-outline-warning w-100 me-1">Edit</a>
-  <button type="button" class="btn btn-sm btn-outline-danger w-100 me-1" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Delete</button>
-  <a href="{% url 'transactions' %}" class="btn btn-sm btn-outline-secondary w-100">Back</a>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <form method="post" action="{% url 'delete_transaction' transaction.id %}?next={% url 'transactions' %}">
-        {% csrf_token %}
-        <div class="modal-header">
-          <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Delete</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          Are you sure you want to permanently delete this transaction?
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-danger">Yes, Delete</button>
-        </div>
-      </form>
     </div>
   </div>
 </div>
