@@ -32,6 +32,7 @@ from datetime import timedelta
 from drones.models import Drone, FlightLog
 
 
+@login_required
 def drone_portal(request):
     total_drones = Drone.objects.count()
     total_flights = FlightLog.objects.count()
@@ -70,6 +71,7 @@ def drone_portal(request):
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Drone Views
 
+@login_required
 def drone_list(request):
     drones = Drone.objects.all()
     soon = now() + timedelta(days=30)
@@ -80,6 +82,7 @@ def drone_list(request):
     }
     return render(request, 'drones/drone_list.html', context)
 
+@login_required
 def drone_create(request):
     form = DroneForm(request.POST or None, request.FILES or None)
     if form.is_valid():
@@ -92,6 +95,8 @@ def drone_create(request):
     }
     return render(request, 'drones/drone_form.html', context)
 
+
+@login_required
 def drone_edit(request, pk):
     drone = get_object_or_404(Drone, pk=pk)
     form = DroneForm(request.POST or None, request.FILES or None, instance=drone)
@@ -105,6 +110,8 @@ def drone_edit(request, pk):
     }
     return render(request, 'drones/drone_form.html', context)
 
+
+@login_required
 def drone_delete(request, pk):
     drone = get_object_or_404(Drone, pk=pk)
     if request.method == 'POST':
@@ -116,6 +123,8 @@ def drone_delete(request, pk):
     }
     return render(request, 'drones/drone_confirm_delete.html', context)
 
+
+@login_required
 def drone_detail(request, pk):
     drone = get_object_or_404(Drone, pk=pk)
     flights = FlightLog.objects.filter(drone_serial=drone.serial_number)
@@ -129,6 +138,8 @@ def drone_detail(request, pk):
     }
     return render(request, 'drones/drone_detail.html', context)
 
+
+@login_required
 def drone_detail_pdf(request, pk):
     drone = get_object_or_404(Drone, pk=pk)
     flights = FlightLog.objects.filter(drone_serial=drone.serial_number)
@@ -152,6 +163,8 @@ def drone_detail_pdf(request, pk):
         response.write(tmp_file.read())
     return response
 
+
+@login_required
 def export_drones_csv(request):
     drones = Drone.objects.all()
     response = HttpResponse(content_type='text/csv')
@@ -170,10 +183,14 @@ def export_drones_csv(request):
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Documents Views
 
+
+@login_required
 def documents(request):
     context = {'current_page': 'document'}  
     return render(request, 'drones/drone_portal.html', context)
 
+
+@login_required
 def incident_reporting_system(request):
     query = request.GET.get('q', '').strip()
     reports = DroneIncidentReport.objects.all().order_by('-report_date')
@@ -191,6 +208,8 @@ def incident_reporting_system(request):
     }
     return render(request, 'drones/incident_reporting_system.html', context)
 
+
+@login_required
 def incident_report_pdf(request, pk):
     report = get_object_or_404(DroneIncidentReport, pk=pk)
     logo_path = request.build_absolute_uri(static("images/logo2.png"))
@@ -229,7 +248,7 @@ TEMPLATES = {
     "followup": "drones/wizard_form.html",
 }
 
-class IncidentReportWizard(SessionWizardView):
+class IncidentReportWizard(SessionWizardView, LoginRequiredMixin):
     template_name = 'drones/incident_report_form.html'
 
     def get(self, request, *args, **kwargs):
@@ -275,12 +294,16 @@ class IncidentReportWizard(SessionWizardView):
         }
         return render(self.request, 'drones/incident_report_success.html', context)
 
+
+@login_required
 def incident_report_success(request):
     pdf_url = request.GET.get('pdf_url', None)
     context = {'pdf_url': pdf_url, 'current_page': 'incidents'} 
     
     return render(request, 'drones/report_success.html', context)
 
+
+@login_required
 def incident_report_list(request):
     query = request.GET.get('q', '')
     reports = DroneIncidentReport.objects.all()
@@ -298,12 +321,16 @@ def incident_report_list(request):
     }
     return render(request, 'drones/incident_list.html', context)
 
+
+@login_required
 def incident_report_detail(request, pk):
     report = get_object_or_404(DroneIncidentReport, pk=pk)
     context = {'report': report, 'current_page': 'incidents'} 
     
     return render(request, 'drones/incident_report_detail.html', context)
 
+
+@login_required
 def sop_upload(request):
     if request.method == 'POST':
         form = SOPDocumentForm(request.POST, request.FILES)
@@ -318,6 +345,8 @@ def sop_upload(request):
     context = {'form': form, 'current_page': 'sop'} 
     return render(request, 'sop_manager/sop_upload.html', context)
 
+
+@login_required
 def sop_list(request):
     sops = SOPDocument.objects.order_by('-created_at')
     paginator = Paginator(sops, 10)
@@ -330,6 +359,8 @@ def sop_list(request):
     }
     return render(request, 'sop_manager/sop_list.html', context)
 
+
+@login_required
 def general_document_list(request):
     search_query = request.GET.get('q', '').strip()
     selected_category = request.GET.get('category', '')
@@ -352,6 +383,8 @@ def general_document_list(request):
     }
     return render(request, 'drones/general_list.html', context)
 
+
+@login_required
 def upload_general_document(request):
     if request.method == 'POST':
         form = GeneralDocumentForm(request.POST, request.FILES)
@@ -368,11 +401,15 @@ def upload_general_document(request):
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- EQUIPMENT Views
 
+
+@login_required
 def equipment_list(request):
     equipment = Equipment.objects.all()
     context = {'equipment': equipment, 'current_page': 'equipment'}  
     return render(request, 'drones/equipment_list.html', context)
 
+
+@login_required
 def equipment_create(request):
     form = EquipmentForm(request.POST or None)
     if form.is_valid():
@@ -381,6 +418,8 @@ def equipment_create(request):
     context = {'form': form, 'current_page': 'equipment'}  
     return render(request, 'drones/equipment_form.html', context)
 
+
+@login_required
 def equipment_edit(request, pk):
     equipment = get_object_or_404(Equipment, pk=pk)
     form = EquipmentForm(request.POST or None, instance=equipment)
@@ -390,6 +429,8 @@ def equipment_edit(request, pk):
     context = {'form': form, 'current_page': 'equipment'}  
     return render(request, 'drones/equipment_form.html', context)
 
+
+@login_required
 def equipment_delete(request, pk):
     equipment = get_object_or_404(Equipment, pk=pk)
     if request.method == 'POST':
@@ -401,6 +442,8 @@ def equipment_delete(request, pk):
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- FlightLog Views
 
+
+@login_required
 def flightlog_list(request):
     log_list = FlightLog.objects.all().order_by('-flight_date')
     paginator = Paginator(log_list, 50)
@@ -409,11 +452,15 @@ def flightlog_list(request):
     context = {'logs': page_obj, 'current_page': 'flightlogs'}  
     return render(request, 'drones/flightlog_list.html', context)
 
+
+@login_required
 def flightlog_detail(request, pk):
     log = get_object_or_404(FlightLog, pk=pk)
     context = {'log': log, 'current_page': 'flightlogs'}  
     return render(request, 'drones/flightlog_detail.html', context)
 
+
+@login_required
 def flightlog_edit(request, pk):
     log = get_object_or_404(FlightLog, pk=pk)
     if request.method == 'POST':
@@ -426,6 +473,8 @@ def flightlog_edit(request, pk):
     context = {'form': form, 'log': log, 'current_page': 'flightlogs'}  
     return render(request, 'drones/flightlog_form.html', context)
 
+
+@login_required
 def flightlog_business(request, pk):
     log = get_object_or_404(FlightLog, pk=pk)
     if request.method == 'POST':
@@ -438,6 +487,8 @@ def flightlog_business(request, pk):
     context = {'form': form, 'log': log, 'current_page': 'flightlogs'}  
     return render(request, 'drones/flightlog_form.html', context)
 
+
+@login_required
 def flightlog_delete(request, pk):
     log = get_object_or_404(FlightLog, pk=pk)
     if request.method == 'POST':
@@ -446,6 +497,8 @@ def flightlog_delete(request, pk):
     context = {'log': log, 'current_page': 'flightlogs'}  
     return render(request, 'drones/flightlog_confirm_delete.html', context)
 
+
+@login_required
 def flightlog_pdf(request, pk):
     log = get_object_or_404(FlightLog, pk=pk)
     context = {'log': log, 'current_page': 'flightlogs'}  
@@ -469,6 +522,8 @@ def safe_int(value):
     except:
         return None
 
+
+@login_required
 def upload_flightlog_csv(request):
     if request.method == 'POST':
         form = FlightLogCSVUploadForm(request.POST, request.FILES)

@@ -1,0 +1,138 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}Real Estate Photography {% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero" style="position: relative; height: 500px; overflow: hidden;">
+    <img src="{% static 'images/IMG_8325.jpg' %}" alt="Real Estate Photography Hero" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">
+        <h1>Real Estate Photography</h1>
+        <p>By Tom Stout</p>
+    </div>
+</section>
+
+<!-- Links Section -->
+<section class="links" style="padding: 40px 20px; text-align: center; background-color: #f8f8f8;">
+    <h2 class="text-center">Featured Real Estate Listings on Zillow</h2>
+    <p>Over 40 Zillow listings in recent 90 days, featuring Virtual Walkthroughs, Interactive Floorplans, High Resolution HDR Photography, and Aerial Photos and Videos when requested. </p>
+    <div style="max-width: 800px; margin: 0 auto;">
+        <p><a href="https://www.zillow.com/homedetails/4204-Omaha-Dr-Bargersville-IN-46106/447757426_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Bargersville, IN</a></p>
+        <p><a href="https://www.zillow.com/homedetails/14413-Arnett-Dr-Carmel-IN-46033/145630026_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Carmel, IN</a></p>
+        <p><a href="https://www.zillow.com/homedetails/13351-Grosbeak-Ct-Carmel-IN-46033/73230607_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Carmel, IN</a></p>
+        <p><a href="https://www.zillow.com/homedetails/542-Hadleigh-Ct-Westfield-IN-46074/94405641_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Westfield, IN</a></p>
+        <p><a href="https://www.zillow.com/homedetails/14814-Edgebrook-Dr-Fishers-IN-46040/126779800_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Fishers, IN</a></p>
+        <p><a href="https://www.zillow.com/homedetails/2229-N-Arsenal-Ave-Indianapolis-IN-46218/1099565_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Indianapolis, IN</a></p>
+        <p><a href="https://www.zillow.com/homedetails/1158-Burdsal-Pkwy-Indianapolis-IN-46208/308924079_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Indianapolis, IN</a></p>
+        <p><a href="https://www.zillow.com/homedetails/379-Antioch-St-Greenfield-IN-46140/377046786_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Greenfield, IN</a></p>
+        <p><a href="https://www.zillow.com/homedetails/4905-Candy-Spots-Dr-Indianapolis-IN-46237/1131335_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Indianapolis, IN</a></p>
+        <p><a href="https://www.zillow.com/homedetails/10358-Pronghorn-Ln-Indianapolis-IN-46239/450164588_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Indianapolis, IN</a></p>
+        <p><a href="https://www.zillow.com/homedetails/7418-Bluebird-Ct-Indianapolis-IN-46254/1209151_zpid/" target="_blank" style="color: #007bff; text-decoration: none;">Indianapolis, IN</a></p>
+    </div>
+</section>
+
+<!-- Image Gallery Section with Lightbox -->
+<section class="gallery" style="padding: 40px 20px;">
+    <h2 style="text-align: center;">Sample Gallery</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto;">
+        <a href="{% static 'images/property1.jpg' %}" data-lightbox="gallery" data-title="Property 1" target="_blank">
+            <img src="{% static 'images/property1.jpg' %}" alt="Property 1" style="width: 100%; height: auto; border-radius: 8px;" >
+        </a>
+        <a href="{% static 'images/property2.jpg' %}" data-lightbox="gallery" data-title="Property 2" target="_blank">
+            <img src="{% static 'images/property2.jpg' %}" alt="Property 2" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property3.jpg' %}" data-lightbox="gallery" data-title="Property 3" target="_blank">
+            <img src="{% static 'images/property3.jpg' %}" alt="Property 3" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property4.jpg' %}" data-lightbox="gallery" data-title="Property 4" target="_blank">
+            <img src="{% static 'images/property4.jpg' %}" alt="Property 4" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property5.jpg' %}" data-lightbox="gallery" data-title="Property 5" target="_blank">
+            <img src="{% static 'images/property5.jpg' %}" alt="Property 5" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property6.jpg' %}" data-lightbox="gallery" data-title="Property 6" target="_blank">
+            <img src="{% static 'images/property6.jpg' %}" alt="Property 6" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property7.jpg' %}" data-lightbox="gallery" data-title="Property 7" target="_blank">
+            <img src="{% static 'images/property7.jpg' %}" alt="Property 7" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property8.jpg' %}" data-lightbox="gallery" data-title="Property 8" target="_blank">
+            <img src="{% static 'images/property8.jpg' %}" alt="Property 8" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property9.jpg' %}" data-lightbox="gallery" data-title="Property 9" target="_blank">
+            <img src="{% static 'images/property9.jpg' %}" alt="Property 9" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property10.jpg' %}" data-lightbox="gallery" data-title="Property 10" target="_blank">
+            <img src="{% static 'images/property10.jpg' %}" alt="Property 10" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property11.jpg' %}" data-lightbox="gallery" data-title="Property 11" target="_blank">
+            <img src="{% static 'images/property11.jpg' %}" alt="Property 11" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+        <a href="{% static 'images/property12.jpg' %}" data-lightbox="gallery" data-title="Property 12" target="_blank">
+            <img src="{% static 'images/property12.jpg' %}" alt="Property 12" style="width: 100%; height: auto; border-radius: 8px;">
+        </a>
+    </div>
+</section>
+<div class="container rounded bg-light">
+    <div class="row text-center">
+        <h3 class="text-center my-4">Equipment</h3>
+        <div class="col-sm-3">
+            <h4>Cameras</h4>
+            <hr>
+            <h5>Canon EOS R 5</h5>
+            <h5>Canon EOS R 8</h5>
+        </div>
+        <div class="col-sm-6">
+            <h4>Lenses</h4>
+            <hr>
+            <h5 >Canon RF 14 - 35mm f4 L IS USM</h5>
+            <h5>Canon RF 16mm f2.8 STM</h5>
+            <h5>Canon RF 24 - 105mm f4 L IS USM</h5>
+            <h5>Canon RF 70 - 200mm f2.8 L IS USM </h5>
+            <h5>Canon EF 135mm f2 L USM </h5>
+        </div>
+        <div class="col-sm-3">
+            <h4>Drones</h4>
+            <hr>
+            <h5>DJI Mavic 3 Pro</h5>
+            <h5>DJI Mavic 3 Classic</h5>
+            <h5>DJI Air 3s</h5>
+            <h5>DJI Avata 2</h5>
+        </div>
+    </div>
+</div>
+<hr>
+<footer class="bg-dark text-white py-4">
+    <div class="container mx-auto">
+        <div class="row text-center">
+            <div class="col-sm-4 d-flex align-items-center justify-content-center">
+                <a href="https://www.tom-stout.com" class="text-white text-decoration-none" target="_blank">Tom Stout Photography</a>
+            </div>
+            <div class="col-sm-4 d-flex align-items-center justify-content-center">
+                <div>
+                    <p class="mb-1"><a href="https://airborne-images.net/about/" class="text-white text-decoration-none" target="_blank">Tom Stout</a></p>
+                    <p class="mb-1"><a href="tel:+13179877387" class="text-white text-decoration-none">317.987.7387</a></p>
+                    <p class="mb-1"><a href="mailto:tom@tom-stout.com" class="text-white text-decoration-none">tom@tom-stout.com</a></p>
+                    <p class="mb-1">Westfield, Indiana</p>
+                </div>
+            </div>
+            <div class="col-sm-4 d-flex align-items-center justify-content-center">
+                <a href="https://www.airborne-images.net" class="text-white text-decoration-none" target="_blank">Airborne Images - Aerial Cinematography</a>
+            </div>
+        </div>
+    </div>
+</footer>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Lightbox2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+<script>
+    lightbox.option({
+        'resizeDuration': 200,
+        'wrapAround': true,
+        'fitImagesInViewport': true
+    });
+</script>
+{% endblock %}

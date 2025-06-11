@@ -193,6 +193,8 @@ class InvoiceItem(models.Model):
         return (self.qty or 0) * (self.price or 0)
 
 
+
+
 class MileageRate(models.Model):
     rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.70)
     
@@ -202,6 +204,8 @@ class MileageRate(models.Model):
     class Meta:
         verbose_name = "Mileage Rate"
         verbose_name_plural = "Mileage Rates"
+
+
 
 class Miles(models.Model):
     MILEAGE_TYPE_CHOICES = [

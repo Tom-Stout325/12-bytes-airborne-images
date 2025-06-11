@@ -404,24 +404,51 @@ class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def invoice_review(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
+
     transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb).select_related('trans_type')
+
+    mileage_entries = Miles.objects.filter(
+        invoice=invoice.invoice_numb,
+        user=request.user,
+        tax__iexact="Yes",
+        mileage_type="Taxable"
+    )
+
+    try:
+        rate = MileageRate.objects.first().rate if MileageRate.objects.exists() else 0.70
+    except Exception as e:
+        logger.error(f"Error fetching mileage rate: {e}")
+        rate = 0.70
+
+    total_mileage_miles = mileage_entries.aggregate(Sum('total'))['total__sum'] or 0
+    mileage_dollars = round(total_mileage_miles * rate, 2)
+
     totals = transactions.aggregate(
         total_expenses=Sum('amount', filter=Q(trans_type__trans_type='Expense')),
         total_income=Sum('amount', filter=Q(trans_type__trans_type='Income'))
     )
     total_expenses = totals['total_expenses'] or 0
     total_income = totals['total_income'] or 0
-    net_amount = total_income - total_expenses
+
+    net_income = total_income - total_expenses
+    taxable_income = net_income - mileage_dollars
+
     context = {
         'invoice': invoice,
         'transactions': transactions,
+        'mileage_entries': mileage_entries,
+        'mileage_dollars': mileage_dollars,
+        'mileage_rate': rate,
         'total_expenses': total_expenses,
         'total_income': total_income,
-        'net_amount': net_amount,
+        'net_income': net_income,
+        'taxable_income': taxable_income,
         'invoice_amount': invoice.amount,
         'current_page': 'invoices'
     }
     return render(request, 'finance/invoice_review.html', context)
+
+
 
 
 @login_required
@@ -966,15 +993,21 @@ def reports_page(request):
 
 # ---------------------------------------------------------------------------------------------------------------   Emails
 
+logger = logging.getLogger(__name__)
 
 @require_POST
-@login_required
 def send_invoice_email(request, invoice_id):
     invoice = get_object_or_404(Invoice, pk=invoice_id)
     try:
-        html_string = render_to_string('finance/invoice_detail.html', {'invoice': invoice, 'current_page': 'invoices'})
+        # Generate invoice HTML and PDF
+        html_string = render_to_string('finance/invoice_detail.html', {
+            'invoice': invoice,
+            'current_page': 'invoices'
+        })
         html = HTML(string=html_string, base_url=request.build_absolute_uri())
         pdf_file = html.write_pdf()
+
+        # Email content
         subject = f"Invoice #{invoice.invoice_numb} from Airborne Images"
         body = f"""
         Hi {invoice.client.first},<br><br>
@@ -986,18 +1019,29 @@ def send_invoice_email(request, invoice_id):
         <a href="http://www.airborneimages.com" target="_blank">www.AirborneImages.com</a><br>
         "Views From Above!"<br>
         """
+
         from_email = "tom@tom-stout.com"
-        recipient = [invoice.client.email or settings.DEFAULT_EMAIL]
-        if not invoice.client.email and not hasattr(settings, 'DEFAULT_EMAIL'):
+        recipient = [invoice.client.email or getattr(settings, 'DEFAULT_EMAIL', None)]
+        if not recipient[0]:
             raise ValueError("No valid email address provided.")
-        email = EmailMessage(subject, body, from_email, recipient)
+
+        # Construct and send email with BCC
+        email = EmailMessage(
+            subject=subject,
+            body=body,
+            from_email=from_email,
+            to=recipient,
+            bcc=["tom@tom-stout.com"]
+        )
         email.content_subtype = 'html'
         email.attach(f"Invoice_{invoice.invoice_numb}.pdf", pdf_file, "application/pdf")
         email.send()
+
         return JsonResponse({'status': 'success', 'message': 'Invoice emailed successfully!'})
     except Exception as e:
         logger.error(f"Error sending email for invoice {invoice_id} by user {request.user.id}: {e}")
         return JsonResponse({'status': 'error', 'message': 'Failed to send email'}, status=500)
+
 
 
 # ---------------------------------------------------------------------------------------------------------------  Mileage
@@ -1372,3 +1416,12 @@ def run_monthly_batch_view(request):
         'current_page': 'recurring_transactions'
     }
     return render(request, 'finance/recurring_batch_success.html', context)
+
+
+
+
+
+
+
+def real_estate_view(request):
+    return render(request, 'finance/real_estate.html')

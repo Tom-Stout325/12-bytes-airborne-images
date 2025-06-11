@@ -4,6 +4,21 @@
 
 {% block title %}Invoice #{{ invoice.invoice_numb }}{% endblock %}
 
+<head>
+  <style>
+    .summary {
+      margin-top: 20px;
+      border-top: 2px solid #ccc;
+      padding-top: 10px;
+    }
+    
+    .summary p {
+      font-weight: bold;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
 {% block content %}
 
 <div class="text-end mt-4">
@@ -19,18 +34,19 @@
 <div class="container mt-5">
   <div class="card shadow-sm">
     <div class="card-header bg-primary text-white">
-      <h4 class="mb-0">Invoice Details</h4>
+      <h4 class="mb-0 text-center">Invoice Details:&nbsp;&nbsp; {{ invoice.keyword}}</h4>
     </div>
     <div class="card-body">
       <div class="row mb-3">
         <div class="col-md-6">
-          <p><strong>Invoice #:</strong> {{ invoice.invoice_numb }}</p>
-          <p><strong>Client:</strong> {{ invoice.client }}</p>
-          <p><strong>Event:</strong> {{ invoice.event }}</p>
+          <p><strong>Invoice #:</strong> &nbsp;&nbsp;{{ invoice.invoice_numb }}</p>
+          <p><strong>Client:</strong> &nbsp;&nbsp;{{ invoice.client }}</p>
+          <p><strong>Event:</strong> &nbsp;&nbsp;{{ invoice.event }}</p>
+          
         </div>
         <div class="col-md-6">
-          <p><strong>Service:</strong> {{ invoice.service }}</p>
-          <p><strong>Invoice Amount:</strong> ${{ invoice.amount|floatformat:2|intcomma }}</p>
+          <p><strong>Service:</strong>&nbsp;&nbsp; {{ invoice.service }}</p>
+          <p><strong>Invoice Amount:</strong> &nbsp;&nbsp;${{ invoice.amount|floatformat:2|intcomma }}</p>
         </div>
       </div>
     </div>
@@ -72,24 +88,20 @@
             </tr>
             {% endfor %}
           </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="3" class="text-end fw-bold">Invoice Amount:</td>
-              <td colspan="2" class="fw-bold">${{ invoice_amount|floatformat:2|intcomma }}</td>
-            </tr>
-            <tr>
-              <td colspan="3" class="text-end fw-bold">Total Expenses:</td>
-              <td colspan="2" class="fw-bold text-danger">-${{ total_expenses|floatformat:2|intcomma }}</td>
-            </tr>
-            <tr>
-              <td colspan="3" class="text-end fw-bold">Net Amount:</td>
-              <td colspan="2" class="fw-bold text-success">${{ net_amount|floatformat:2|intcomma }}</td>
-            </tr>
-          </tfoot>
         </table>
+        <!-- Summary Section -->
+        <div class="summary d-flex justify-content-end my-2">
+          <div class="text-end" style="min-width: 300px;">
+            <p><strong>Invoice Amount:</strong> &nbsp;&nbsp;${{ invoice_amount|floatformat:2|intcomma }}</p>
+            <p><strong>Total Income:</strong> &nbsp;&nbsp;${{ total_income|floatformat:2|intcomma }}</p>
+            <p><strong>Total Expenses:</strong> &nbsp;&nbsp;-{{ total_expenses|floatformat:2|intcomma }}</p>
+            <p><strong>Total Mileage Deduction:</strong> &nbsp;&nbsp;-{{ mileage_dollars|floatformat:2|intcomma }}</p>
+            <p><strong>Net Income (Income - Expenses):</strong> &nbsp;&nbsp;${{ net_income|floatformat:2|intcomma }}</p>
+            <p class="net-amount text-success"><strong>Taxable Income:</strong> &nbsp;&nbsp;${{ taxable_income|floatformat:2|intcomma }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
 </div>
 {% endblock %}

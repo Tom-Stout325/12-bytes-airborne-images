@@ -133,7 +133,7 @@
           </td>
           <td>{% if invoice.paid_date %}{{ invoice.days_to_pay }} days{% else %}<span class="text-muted">—</span>{% endif %}</td>
           <td class="text-nowrap">
-            <a href="{% url 'invoice_detail' invoice.pk %}" class="text-decoration-none me-2"><i class="fa-solid fa-eye text-primary"></i></a>
+            <a href="{% url 'invoice_detail' invoice.pk %}" class="text-decoration-none me-2" target="_blank"><i class="fa-solid fa-eye text-primary"></i></a>
             <a href="{% url 'update_invoice' invoice.pk %}" class="text-decoration-none me-2"><i class="fa-solid fa-pencil text-primary"></i></a>
             <a href="{% url 'invoice_review' invoice.pk %}" class="text-decoration-none me-2"><i class="fa-regular fa-file text-primary"></i></a>
             <a href="{% url 'invoice_delete' invoice.pk %}" class="text-decoration-none me-2"><i class="fa-solid fa-trash-can text-primary"></i></a>
@@ -171,38 +171,66 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    // Bootstrap tooltips (already included)
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.forEach(function (tooltipTriggerEl) {
       new bootstrap.Tooltip(tooltipTriggerEl);
     });
+
+    // Add click listeners to all send-email buttons
+    document.querySelectorAll(".send-email").forEach((btn) => {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        const invoiceId = this.dataset.invoiceId;
+
+        const confirmed = confirm(`Are you sure you want to email Invoice #${invoiceId}?`);
+        if (!confirmed) return;
+
+        const spinner = this.querySelector(".spinner-border");
+        spinner.classList.remove("d-none");
+
+        fetch(`/finance/invoice/${invoiceId}/email/`, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => {
+            spinner.classList.add("d-none");
+            if (!response.ok) {
+              throw new Error("Email send failed.");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            alert(data.message);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Failed to send invoice email.");
+          });
+      });
+    });
+
+    // CSRF helper
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
   });
 </script>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-  $(document).ready(function () {
-    $(".send-email").click(function (e) {
-      e.preventDefault();
-      const invoiceId = $(this).data("invoice-id");
-      const $link = $(this);
-      const $spinner = $link.find(".spinner-border");
-      if (confirm("Are you sure you want to email this invoice?")) {
-        $spinner.removeClass("d-none");
-        $.ajax({
-          url: `/invoice/${invoiceId}/email/`,
-          type: "POST",
-          data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
-          success: function () {
-            $spinner.addClass("d-none");
-            alert("Invoice emailed successfully!");
-          },
-          error: function (_, __, error) {
-            $spinner.addClass("d-none");
-            alert("Failed to send email: " + error);
-          },
-        });
-      }
-    });
-  });
-</script>
+ 
 {% endblock %}
