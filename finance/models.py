@@ -122,11 +122,8 @@ class Transaction(models.Model):
         return f"{self.transaction} - {self.amount}"
     
     def save(self, *args, **kwargs):
-        if self.sub_cat_id == 26:
-            self.deductible_amount = round(Decimal(self.amount) * Decimal('0.5'), 2)
-        else:
-            self.deductible_amount = None 
         super().save(*args, **kwargs)
+
 
 
 class Invoice(models.Model):
