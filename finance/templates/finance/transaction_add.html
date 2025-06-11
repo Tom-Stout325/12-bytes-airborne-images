@@ -64,4 +64,57 @@
   document.addEventListener("DOMContentLoaded", function () {
     const dropZone = document.getElementById("drop-zone");
     const fileInput = document.getElementById("id_receipt");
-    const imagePreview = document.getElementB
+    const imagePreview = document.getElementById("receipt-image");
+    const pdfLink = document.getElementById("receipt-pdf");
+    const previewContainer = document.getElementById("receipt-preview");
+
+    dropZone.addEventListener("click", () => fileInput.click());
+
+    dropZone.addEventListener("dragover", function (e) {
+      e.preventDefault();
+      dropZone.classList.add("border-primary");
+    });
+
+    dropZone.addEventListener("dragleave", function () {
+      dropZone.classList.remove("border-primary");
+    });
+
+    dropZone.addEventListener("drop", function (e) {
+      e.preventDefault();
+      dropZone.classList.remove("border-primary");
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        fileInput.files = e.dataTransfer.files;
+        previewFile(file);
+      }
+    });
+
+    fileInput.addEventListener("change", function () {
+      const file = fileInput.files[0];
+      if (file) previewFile(file);
+    });
+
+    function previewFile(file) {
+      const fileType = file.type;
+      const fileURL = URL.createObjectURL(file);
+
+      if (fileType === "application/pdf") {
+        imagePreview.style.display = "none";
+        pdfLink.href = fileURL;
+        pdfLink.style.display = "block";
+      } else if (fileType === "image/jpeg" || fileType === "image/png") {
+        pdfLink.style.display = "none";
+        imagePreview.src = fileURL;
+        imagePreview.style.display = "block";
+      } else {
+        alert("Only PDF, JPG, or PNG files are supported.");
+        fileInput.value = "";
+        previewContainer.style.display = "none";
+        return;
+      }
+
+      previewContainer.style.display = "block";
+    }
+  });
+</script>
+{% endblock %}
