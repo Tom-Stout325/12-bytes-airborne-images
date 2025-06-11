@@ -114,11 +114,11 @@ class Transaction(models.Model):
         verbose_name_plural = "Transactions"
         ordering = ['date']
         
-@property
-def deductible_amount(self):
-    if self.sub_cat_id == 26:
-        return round(self.amount * Decimal('0.5'), 2)
-    return self.amount
+    @property
+    def deductible_amount(self):
+        if self.sub_cat_id == 26:
+            return round(self.amount * Decimal('0.5'), 2)
+        return self.amount
 
     def __str__(self):
         return f"{self.transaction} - {self.amount}"
