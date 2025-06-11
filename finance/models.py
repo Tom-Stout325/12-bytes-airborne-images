@@ -121,9 +121,6 @@ class Transaction(models.Model):
     def __str__(self):
         return f"{self.transaction} - {self.amount}"
     
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
 
 
 class Invoice(models.Model):

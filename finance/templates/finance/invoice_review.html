@@ -75,7 +75,15 @@
               <td>{{ transaction.date }}</td>
               <td>{{ transaction.category }}</td>
               <td>{{ transaction.sub_cat }}</td>
-              <td>${{ transaction.amount|floatformat:2 }}</td>
+              <td>
+                {% if transaction.sub_cat.id == 26 %}
+                  ${{ transaction.deductible_amount|floatformat:2 }}
+                  <small class="text-muted">(50% deductible)</small>
+                {% else %}
+                  ${{ transaction.amount|floatformat:2 }}
+                {% endif %}
+              </td>
+
               <td class="text-center">
                 <a href="{% url 'transaction_detail' transaction.id %}" class="text-info me-2"><i class="fa-solid fa-eye"></i></a>
                 <a href="{% url 'edit_transaction' transaction.id %}" class="text-warning me-2"><i class="fa-solid fa-pencil"></i></a>
