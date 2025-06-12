@@ -813,7 +813,14 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
 def get_summary_data(request, year):
     current_year = timezone.now().year
     try:
-        year = int(year) if year and year.isdigit() else current_year
+        if isinstance(year, int):
+            pass 
+        elif isinstance(year, str) and year.isdigit():
+            year = int(year)
+        else:
+            year = current_year
+            messages.error(request, "Invalid year selected.")
+
         if year < 1900 or year > 9999:
             year = current_year
             messages.error(request, "Invalid year selected.")
@@ -862,6 +869,7 @@ def financial_statement(request):
         user=request.user).dates('date', 'year', order='DESC').distinct()]
     context['current_page'] = 'reports'
     return render(request, 'finance/financial_statement.html', context)
+
 
 
 @login_required

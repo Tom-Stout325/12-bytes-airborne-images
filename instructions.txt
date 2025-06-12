@@ -1,6 +1,9 @@
 PRODUCTION UPDATES
 
+fix catetory reports to show year options.  
+Add pdf preview and download to category report
 
+-------------------------------------------
 cache heavy views:
 
 from django.views.decorators.cache import cache_page
