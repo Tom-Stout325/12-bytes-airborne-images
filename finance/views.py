@@ -865,6 +865,26 @@ def financial_statement(request):
 
 
 @login_required
+def financial_statement_pdf(request, year):
+    context = get_summary_data(request, str(year))
+    context['selected_year'] = year
+
+    template = get_template('finance/financial_statement_pdf.html')
+    html_string = template.render(context)
+    html_string = "<style>@page { size: A4; margin: 1in; }</style>" + html_string
+
+    if request.GET.get("preview") == "1":
+        return HttpResponse(html_string)
+
+    with tempfile.NamedTemporaryFile(delete=True) as tmp:
+        HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(tmp.name)
+        tmp.seek(0)
+        response = HttpResponse(tmp.read(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="financial_statement_{year}.pdf"'
+        return response
+
+
+@login_required
 def category_summary(request):
     current_year = timezone.now().year
     year = request.GET.get('year', str(current_year))

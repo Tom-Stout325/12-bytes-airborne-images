@@ -47,6 +47,7 @@ urlpatterns = [
     # Reports
     path('reports/', reports_page, name='reports'),
     path('financial-statement/', financial_statement, name='financial_statement'),
+    path('finance/financial-statement/pdf/<int:year>/', financial_statement_pdf, name='financial_statement_pdf'),
     path('category-summary/', category_summary, name='category_summary'),
     path('print-category-summary/', print_category_summary, name='print_category_summary'),
     path('nhra-summary/', nhra_summary, name='nhra_summary'),
