@@ -400,8 +400,6 @@ class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
         context = super().get_context_data(**kwargs)
         context['current_page'] = 'invoices'
         return context
-
-
 @login_required
 def invoice_review(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
@@ -413,7 +411,6 @@ def invoice_review(request, pk):
         mileage_type="Taxable"
     )
 
-    # Mileage rate
     try:
         rate = MileageRate.objects.first().rate if MileageRate.objects.exists() else 0.70
     except Exception as e:
@@ -437,11 +434,10 @@ def invoice_review(request, pk):
             is_gas = t.sub_cat and t.sub_cat.id == 27
             is_personal_vehicle = t.transport_type == 'personal_vehicle'
 
-            # Deductibility logic
             if is_meal:
-                deductible_expenses += t.deductible_amount  # 50% of amount
+                deductible_expenses += t.deductible_amount
             elif is_gas and is_personal_vehicle:
-                continue  # not deductible
+                continue
             else:
                 deductible_expenses += t.amount
 

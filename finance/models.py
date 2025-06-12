@@ -72,14 +72,16 @@ class Client(models.Model):
     def __str__(self):
         return self.business
     
+    
 class Service(models.Model):
     service = models.CharField(max_length=500, blank=True, null=True) 
     
     def __str__(self):
         return self.service
     
-class Transaction(models.Model):
     
+    
+class Transaction(models.Model):
     TRANSPORT_CHOICES = [
         ('personal_vehicle', 'Personal Vehicle'),
         ('rental_car', 'Rental Car'),
