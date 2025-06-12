@@ -37,7 +37,7 @@
           <tr>
             <td>{{ entry.date|date:"Y-m-d" }}</td>
             <td>{{ entry.client.business|default:"—" }}</td>
-            <td>{{ entry.purpose|truncatechars:50|default:"—" }}</td>
+            <td>{{ entry.invoice }}</td>
             <td>{{ entry.mileage_type|default:"—" }}</td>
             <td>{{ entry.begin|floatformat:1 }}</td>
             <td>{{ entry.end|floatformat:1 }}</td>
