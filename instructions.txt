@@ -1,7 +1,5 @@
 PRODUCTION UPDATES
 
-change all keyword id 18 to keyword id 7
-
 
 cache heavy views:
 
@@ -15,11 +13,13 @@ def category_summary(request):
 
 Add Invoice filtering by year and keyword
 
-Only show log in if user is not logged in
+
 Add flight statistics to drones in Drone Detail
 
 
-Add Keyword CRUD
+
+
+
 
 
 Replace the following images:

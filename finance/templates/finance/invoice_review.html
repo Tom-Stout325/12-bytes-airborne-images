@@ -1,6 +1,8 @@
 {% extends "index.html" %}
 {% load humanize %}
 {% load l10n %}
+{% load finance_filters %}
+
 
 {% block title %}Invoice #{{ invoice.invoice_numb }}{% endblock %}
 
