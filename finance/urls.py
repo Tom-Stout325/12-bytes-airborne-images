@@ -1,23 +1,6 @@
 from django.urls import path
 from .views import *
-# from .views import (
-#     Dashboard, Transactions, DownloadTransactionsCSV, TransactionCreateView,
-#     add_transaction_success, TransactionDetailView, TransactionUpdateView,
-#     TransactionDeleteView, run_monthly_batch_view, InvoiceListView,
-#     InvoiceDeleteView, InvoiceDetailView, invoice_review, invoice_review_pdf,
-#     InvoiceCreateView, invoice_update, send_invoice_email, unpaid_invoices,
-#     export_invoices_csv, export_invoices_pdf, CategoryListView, CategoryCreateView,
-#     CategoryUpdateView, CategoryDeleteView, SubCategoryCreateView,
-#     SubCategoryUpdateView, SubCategoryDeleteView, ClientListView,
-#     ClientCreateView, ClientUpdateView, ClientDeleteView, reports_page,
-#     financial_statement, category_summary, print_category_summary, nhra_summary,
-#     travel_expense_report, travel_expense_report_pdf, mileage_log,
-#     MileageCreateView, MileageUpdateView, MileageDeleteView, update_mileage_rate,
-#     KeywordListView, KeywordCreateView, KeywordUpdateView, KeywordDeleteView,
-#     RecurringTransactionListView, RecurringTransactionCreateView,
-#     RecurringTransactionUpdateView, RecurringTransactionDeleteView,
-#     run_recurring_now_view, recurring_report_view
-# )
+
 
 urlpatterns = [
     # Dashboard
@@ -74,7 +57,7 @@ urlpatterns = [
     path('mileage-log/', mileage_log, name='mileage_log'),
     path('mileage/add/', MileageCreateView.as_view(), name='mileage_create'),
     path('mileage/<int:pk>/edit/', MileageUpdateView.as_view(), name='mileage_update'),
-    path('mileage/<int:pk>/delete/', MileageDeleteView.as_view(), name='mileage_update'),
+    path('mileage/<int:pk>/delete/', MileageDeleteView.as_view(), name='mileage_delete'),
     path('mileage/update-rate/', update_mileage_rate, name='update_mileage_rate'),
 
     # Keywords
