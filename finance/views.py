@@ -14,7 +14,7 @@ from django.core.paginator import Paginator
 from django.core.mail import EmailMessage
 from django.utils.timezone import now
 from django.contrib import messages
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, F, ExpressionWrapper, DecimalField
 from collections import defaultdict
 from datetime import datetime, date
 from django.db import transaction
@@ -401,65 +401,55 @@ class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
         return context
 
 
-from django.db.models import Q, Sum
+from django.db.models import Sum, Q, F, ExpressionWrapper, DecimalField
+from decimal import Decimal
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from decimal import Decimal
-from .models import Invoice, Transaction, Miles, MileageRate
+from finance.models import Invoice, Transaction, Miles, MileageRate
 
 @login_required
 def invoice_review(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
+    user = request.user
+    transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb).select_related(
+        'trans_type', 'sub_cat', 'category'
+    )
 
-    # Fetch related transactions
-    transactions = Transaction.objects.filter(
-        invoice_numb=invoice.invoice_numb
-    ).select_related('trans_type', 'sub_cat')
+    # Filter expenses only
+    expense_transactions = transactions.filter(trans_type__trans_type='Expense')
 
-    # Fetch mileage
+    # Total full-cost expenses
+    total_expenses = expense_transactions.aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+
+    # Deductible expenses calculation
+    taxable_expenses = Decimal('0.00')
+    for tx in expense_transactions:
+        # Meal sub-category (50% deductible)
+        if tx.sub_cat_id == 26:
+            taxable_expenses += tx.amount * Decimal('0.5')
+        # Gas with personal vehicle is not deductible
+        elif tx.category.category.lower() == "gas" and tx.transport_type == "personal_vehicle":
+            continue
+        else:
+            taxable_expenses += tx.amount
+
+    # Mileage calculation
+    rate = MileageRate.objects.first().rate if MileageRate.objects.exists() else Decimal("0.70")
     mileage_entries = Miles.objects.filter(
         invoice=invoice.invoice_numb,
-        user=request.user,
+        user=user,
         tax__iexact="Yes",
         mileage_type="Taxable"
     )
-
-    # Determine mileage rate
-    try:
-        rate = MileageRate.objects.first().rate if MileageRate.objects.exists() else Decimal('0.70')
-    except Exception:
-        rate = Decimal('0.70')
-
     total_mileage_miles = mileage_entries.aggregate(Sum('total'))['total__sum'] or 0
-    mileage_dollars = round(total_mileage_miles * rate, 2)
+    mileage_dollars = round(Decimal(total_mileage_miles) * rate, 2)
 
-    # Initialize totals
-    total_income = Decimal('0.00')
-    total_expenses_actual = Decimal('0.00')
-    total_expenses_deductible = Decimal('0.00')
+    # Total income
+    total_income = transactions.filter(trans_type__trans_type='Income').aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
 
-    # Evaluate each transaction
-    for tx in transactions:
-        if tx.trans_type.trans_type == 'Income':
-            total_income += tx.amount
-
-        elif tx.trans_type.trans_type == 'Expense':
-            # Add to actual expenses
-            total_expenses_actual += tx.amount
-
-            # Deductible logic
-            if tx.sub_cat_id == 26:
-                total_expenses_deductible += round(tx.amount * Decimal('0.50'), 2)
-            elif tx.category.category.lower() == 'gas':
-                if tx.transport_type == 'rental_car':
-                    total_expenses_deductible += tx.amount
-                # Gas for personal vehicles is not deductible
-            else:
-                total_expenses_deductible += tx.amount
-
-    # Net and taxable income
-    net_income = total_income - total_expenses_actual
-    taxable_income = total_income - total_expenses_deductible - mileage_dollars
+    # Final calculations
+    net_income = total_income - total_expenses
+    taxable_income = total_income - (taxable_expenses + mileage_dollars)
 
     context = {
         'invoice': invoice,
@@ -467,17 +457,14 @@ def invoice_review(request, pk):
         'mileage_entries': mileage_entries,
         'mileage_dollars': mileage_dollars,
         'mileage_rate': rate,
-        'total_expenses': total_expenses_actual,
+        'total_expenses': total_expenses,
         'total_income': total_income,
         'net_income': net_income,
         'taxable_income': taxable_income,
         'invoice_amount': invoice.amount,
         'current_page': 'invoices'
     }
-
     return render(request, 'finance/invoice_review.html', context)
-
-
 
 
 
