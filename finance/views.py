@@ -100,6 +100,7 @@ class Transactions(LoginRequiredMixin, ListView):
         context['current_page'] = 'transactions'
         return context
 
+
 class DownloadTransactionsCSV(LoginRequiredMixin, View):
     def get(self, request):
         if request.GET.get('all') == 'true':
@@ -400,12 +401,6 @@ class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
         context['current_page'] = 'invoices'
         return context
 
-
-from django.db.models import Sum, Q, F, ExpressionWrapper, DecimalField
-from decimal import Decimal
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from finance.models import Invoice, Transaction, Miles, MileageRate
 
 @login_required
 def invoice_review(request, pk):

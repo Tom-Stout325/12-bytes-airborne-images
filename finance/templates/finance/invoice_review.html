@@ -60,62 +60,61 @@
     <div class="card-body p-0">
       <div class="table-responsive">
         <table class="table table-striped table-sm mb-0">
-<thead class="table-light">
-  <tr>
-    <th>Date</th>
-    <th>Category</th>
-    <th>Sub-Category</th>
-    <th>Amount</th>
-    <th>Deductible</th>
-    <th class="text-center">Actions</th>
-  </tr>
-</thead>
-<tbody>
-  {% for transaction in transactions %}
-  <tr>
-    <td>{{ transaction.date }}</td>
-    <td>{{ transaction.category }}</td>
-    <td>{{ transaction.sub_cat }}</td>
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Sub-Category</th>
+              <th>Amount</th>
+              <th>Deductible</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for transaction in transactions %}
+            <tr>
+              <td>{{ transaction.date }}</td>
+              <td>{{ transaction.category }}</td>
+              <td>{{ transaction.sub_cat }}</td>
 
-    <!-- Amount logic -->
-    <td>
-      {% if transaction.sub_cat.id == 26 %}
-        ${{ transaction.deductible_amount|floatformat:2 }}
-        <small class="text-muted">(50% deductible)</small>
-      {% else %}
-        ${{ transaction.amount|floatformat:2 }}
-      {% endif %}
-    </td>
+              <!-- Amount logic -->
+              <td>
+                {% if transaction.sub_cat.id == 26 %}
+                  ${{ transaction.deductible_amount|floatformat:2 }}
+                  <small class="text-muted">(50% deductible)</small>
+                {% else %}
+                  ${{ transaction.amount|floatformat:2 }}
+                {% endif %}
+              </td>
 
-    <!-- Deductible Indicator -->
-    <td>
-      {% if transaction.trans_type.trans_type == 'Expense' %}
-        {% if transaction.sub_cat.id == 26 %}
-          <span class="badge bg-warning text-dark" title="50% deductible">50%</span>
-        {% elif transaction.category.category|lower == 'gas' and transaction.transport_type == 'personal_vehicle' %}
-          <span class="badge bg-danger" title="Not deductible with personal vehicle">No</span>
-        {% else %}
-          <span class="badge bg-success" title="Fully deductible">Yes</span>
-        {% endif %}
-      {% else %}
-        —
-      {% endif %}
-    </td>
+              <!-- Deductible Indicator -->
+              <td>
+                {% if transaction.trans_type.trans_type == 'Expense' %}
+                  {% if transaction.sub_cat.id == 26 %}
+                    <span class="badge bg-warning text-dark" title="50% deductible">50%</span>
+                  {% elif transaction.category.category|lower == 'gas' and transaction.transport_type == 'personal_vehicle' %}
+                    <span class="badge bg-danger" title="Not deductible with personal vehicle">No</span>
+                  {% else %}
+                    <span class="badge bg-success" title="Fully deductible">Yes</span>
+                  {% endif %}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
 
-    <!-- Actions -->
-    <td class="text-center">
-      <a href="{% url 'transaction_detail' transaction.id %}" class="text-info me-2"><i class="fa-solid fa-eye"></i></a>
-      <a href="{% url 'edit_transaction' transaction.id %}" class="text-warning me-2"><i class="fa-solid fa-pencil"></i></a>
-      <a href="{% url 'delete_transaction' transaction.id %}?next={{ request.path }}" class="text-danger"><i class="fa-solid fa-trash-can"></i></a>
-    </td>
-  </tr>
-  {% empty %}
-  <tr>
-    <td colspan="6" class="text-center text-muted">No transactions found for this invoice.</td>
-  </tr>
-  {% endfor %}
-</tbody>
-
+              <!-- Actions -->
+              <td class="text-center">
+                <a href="{% url 'transaction_detail' transaction.id %}" class="text-info me-2"><i class="fa-solid fa-eye"></i></a>
+                <a href="{% url 'edit_transaction' transaction.id %}" class="text-warning me-2"><i class="fa-solid fa-pencil"></i></a>
+                <a href="{% url 'delete_transaction' transaction.id %}?next={{ request.path }}" class="text-danger"><i class="fa-solid fa-trash-can"></i></a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center text-muted">No transactions found for this invoice.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
         </table>
         <!-- Summary Section -->
         <div class="summary d-flex justify-content-end my-2 mx-3">
