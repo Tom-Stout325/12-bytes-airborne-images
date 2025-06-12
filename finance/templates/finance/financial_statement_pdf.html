@@ -81,7 +81,6 @@
   <body>
     <div class="header">
       <img src="{% static 'images/logo2.png' %}" alt="Airborne Images Logo" />
-      <h2>Airborne Images</h2>
       <h3>Income Statement – {{ selected_year }}</h3>
       <p style="margin: 4px 0; font-size: 11px">
         2241 W. 171st Street, Westfield, IN 46037
@@ -160,5 +159,7 @@
       &copy; {{ selected_year }} Airborne Images &nbsp;•&nbsp; {{ now|date:"F j,
       Y" }}
     </div>
+    <p>Debug: Total Income = {{ income_category_total }}</p>
+
   </body>
 </html>

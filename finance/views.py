@@ -865,25 +865,31 @@ def financial_statement(request):
 
 
 @login_required
-def financial_statement_pdf(request, year):
-    context = get_summary_data(request, str(year))
-    context['selected_year'] = year
-    context = {
-            'now': now(),
-    }
-    template = get_template('finance/financial_statement_pdf.html')
-    html_string = template.render(context)
-    html_string = "<style>@page { size: A4; margin: 1in; }</style>" + html_string
+def financial_statement_pdf(request):
+    year = request.GET.get('year')
+    context = get_summary_data(request, year)
+    context['now'] = timezone.now()
+    context['selected_year'] = year or timezone.now().year
 
-    if request.GET.get("preview") == "1":
-        return HttpResponse(html_string)
+    try:
+        template = get_template('finance/financial_statement_pdf.html')
+        html_string = template.render(context)
+        html_string = "<style>@page { size: 8.5in 11in; margin: 1in; }</style>" + html_string
 
-    with tempfile.NamedTemporaryFile(delete=True) as tmp:
-        HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(tmp.name)
-        tmp.seek(0)
-        response = HttpResponse(tmp.read(), content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="financial_statement_{year}.pdf"'
-        return response
+        if request.GET.get("preview") == "1":
+            return HttpResponse(html_string)
+
+        with tempfile.NamedTemporaryFile(delete=True) as tmp:
+            HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(tmp.name)
+            tmp.seek(0)
+            response = HttpResponse(tmp.read(), content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="financial_statement.pdf"'
+            return response
+    except Exception as e:
+        logger.error(f"Error generating financial statement PDF: {e}")
+        messages.error(request, "Error generating PDF.")
+        return redirect('financial_statement')
+
 
 
 @login_required
