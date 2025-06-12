@@ -814,14 +814,10 @@ def get_summary_data(request, year):
     current_year = timezone.now().year
     try:
         if isinstance(year, int):
-            pass 
+            pass
         elif isinstance(year, str) and year.isdigit():
             year = int(year)
         else:
-            year = current_year
-            messages.error(request, "Invalid year selected.")
-
-        if year < 1900 or year > 9999:
             year = current_year
             messages.error(request, "Invalid year selected.")
     except ValueError:
@@ -842,7 +838,6 @@ def get_summary_data(request, year):
 
     income_category_total = income_qs.aggregate(total=Sum('amount'))['total'] or 0
     expense_category_total = expense_qs.aggregate(total=Sum('amount'))['total'] or 0
-
     net_profit = income_category_total - expense_category_total
 
     available_years = Transaction.objects.filter(user=request.user).dates('date', 'year')
@@ -858,6 +853,7 @@ def get_summary_data(request, year):
         'net_profit': net_profit,
         'available_years': available_years,
     }
+
 
 
 @login_required
