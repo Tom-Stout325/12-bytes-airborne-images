@@ -865,11 +865,10 @@ def financial_statement(request):
 
 
 @login_required
-def financial_statement_pdf(request):
-    year = request.GET.get('year')
+def financial_statement_pdf(request, year):
     context = get_summary_data(request, year)
     context['now'] = timezone.now()
-    context['selected_year'] = year or timezone.now().year
+    context['selected_year'] = year
 
     try:
         template = get_template('finance/financial_statement_pdf.html')
@@ -883,10 +882,10 @@ def financial_statement_pdf(request):
             HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(tmp.name)
             tmp.seek(0)
             response = HttpResponse(tmp.read(), content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="financial_statement.pdf"'
+            response['Content-Disposition'] = f'attachment; filename="financial_statement_{year}.pdf"'
             return response
     except Exception as e:
-        logger.error(f"Error generating financial statement PDF: {e}")
+        logger.error(f"Error generating financial statement PDF for {year}: {e}")
         messages.error(request, "Error generating PDF.")
         return redirect('financial_statement')
 
