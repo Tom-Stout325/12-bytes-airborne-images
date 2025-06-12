@@ -868,7 +868,9 @@ def financial_statement(request):
 def financial_statement_pdf(request, year):
     context = get_summary_data(request, str(year))
     context['selected_year'] = year
-
+    context = {
+            'now': now(),
+    }
     template = get_template('finance/financial_statement_pdf.html')
     html_string = template.render(context)
     html_string = "<style>@page { size: A4; margin: 1in; }</style>" + html_string
