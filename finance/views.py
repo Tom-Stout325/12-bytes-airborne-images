@@ -405,46 +405,48 @@ class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def invoice_review(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
-    user = request.user
-    transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb).select_related(
-        'trans_type', 'sub_cat', 'category'
-    )
-
-    # Filter expenses only
-    expense_transactions = transactions.filter(trans_type__trans_type='Expense')
-
-    # Total full-cost expenses
-    total_expenses = expense_transactions.aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
-
-    # Deductible expenses calculation
-    taxable_expenses = Decimal('0.00')
-    for tx in expense_transactions:
-        # Meal sub-category (50% deductible)
-        if tx.sub_cat_id == 26:
-            taxable_expenses += tx.amount * Decimal('0.5')
-        # Gas with personal vehicle is not deductible
-        elif tx.category.category.lower() == "gas" and tx.transport_type == "personal_vehicle":
-            continue
-        else:
-            taxable_expenses += tx.amount
-
-    # Mileage calculation
-    rate = MileageRate.objects.first().rate if MileageRate.objects.exists() else Decimal("0.70")
+    transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb).select_related('trans_type', 'sub_cat', 'category')
     mileage_entries = Miles.objects.filter(
         invoice=invoice.invoice_numb,
-        user=user,
+        user=request.user,
         tax__iexact="Yes",
         mileage_type="Taxable"
     )
+
+    # Mileage rate
+    try:
+        rate = MileageRate.objects.first().rate if MileageRate.objects.exists() else 0.70
+    except Exception as e:
+        logger.error(f"Error fetching mileage rate: {e}")
+        rate = 0.70
+
     total_mileage_miles = mileage_entries.aggregate(Sum('total'))['total__sum'] or 0
-    mileage_dollars = round(Decimal(total_mileage_miles) * rate, 2)
+    mileage_dollars = round(total_mileage_miles * rate, 2)
 
-    # Total income
-    total_income = transactions.filter(trans_type__trans_type='Income').aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+    total_expenses = 0
+    deductible_expenses = 0
+    total_income = 0
 
-    # Final calculations
+    for t in transactions:
+        if t.trans_type.trans_type == 'Income':
+            total_income += t.amount
+        elif t.trans_type.trans_type == 'Expense':
+            total_expenses += t.amount
+
+            is_meal = t.sub_cat and t.sub_cat.id == 26
+            is_gas = t.category.category.lower() == 'gas'
+            is_personal_vehicle = t.transport_type == 'personal_vehicle'
+
+            # Deductibility logic
+            if is_meal:
+                deductible_expenses += t.deductible_amount  # 50% of amount
+            elif is_gas and is_personal_vehicle:
+                continue  # not deductible
+            else:
+                deductible_expenses += t.amount
+
     net_income = total_income - total_expenses
-    taxable_income = total_income - (taxable_expenses + mileage_dollars)
+    taxable_income = total_income - deductible_expenses - mileage_dollars
 
     context = {
         'invoice': invoice,
@@ -460,7 +462,6 @@ def invoice_review(request, pk):
         'current_page': 'invoices'
     }
     return render(request, 'finance/invoice_review.html', context)
-
 
 
 @login_required
