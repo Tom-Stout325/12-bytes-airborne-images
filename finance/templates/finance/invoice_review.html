@@ -11,14 +11,17 @@
       border-top: 2px solid #ccc;
       padding-top: 10px;
     }
-    
     .summary p {
       font-weight: bold;
       font-size: 13px;
       margin-bottom: 6px;
     }
+    .legend {
+      font-size: 0.85rem;
+    }
   </style>
 </head>
+
 {% block content %}
 
 <div class="text-end mt-4">
@@ -29,12 +32,12 @@
   <a href="{% url 'invoice_review_pdf' invoice.pk %}" class="btn btn-outline-danger">
     <i class="fa-solid fa-file-pdf"></i> Download PDF
   </a>
-  
 </div>
+
 <div class="container mt-5">
   <div class="card shadow-sm">
     <div class="card-header bg-primary text-white">
-      <h4 class="mb-0 text-center">Invoice Details:&nbsp;&nbsp; {{ invoice.keyword}}</h4>
+      <h4 class="mb-0 text-center">Invoice Details:&nbsp;&nbsp; {{ invoice.keyword }}</h4>
     </div>
     <div class="card-body">
       <div class="row mb-3">
@@ -42,10 +45,9 @@
           <p><strong>Invoice #:</strong> &nbsp;&nbsp;{{ invoice.invoice_numb }}</p>
           <p><strong>Client:</strong> &nbsp;&nbsp;{{ invoice.client }}</p>
           <p><strong>Event:</strong> &nbsp;&nbsp;{{ invoice.event }}</p>
-          
         </div>
         <div class="col-md-6">
-          <p><strong>Service:</strong>&nbsp;&nbsp; {{ invoice.service }}</p>
+          <p><strong>Service:</strong> &nbsp;&nbsp;{{ invoice.service }}</p>
           <p><strong>Invoice Amount:</strong> &nbsp;&nbsp;${{ invoice.amount|floatformat:2|intcomma }}</p>
         </div>
       </div>
@@ -76,18 +78,12 @@
               <td>{{ transaction.date }}</td>
               <td>{{ transaction.category }}</td>
               <td>{{ transaction.sub_cat }}</td>
-
-              <!-- Amount logic -->
               <td>
+                ${{ transaction.amount|floatformat:2 }}
                 {% if transaction.sub_cat.id == 26 %}
-                  ${{ transaction.deductible_amount|floatformat:2 }}
-                  <small class="text-muted">(50% deductible)</small>
-                {% else %}
-                  ${{ transaction.amount|floatformat:2 }}
+                  <br><small class="text-muted">(50% deductible: ${{ transaction.deductible_amount|floatformat:2 }})</small>
                 {% endif %}
               </td>
-
-              <!-- Deductible Indicator -->
               <td>
                 {% if transaction.trans_type.trans_type == 'Expense' %}
                   {% if transaction.sub_cat.id == 26 %}
@@ -101,8 +97,6 @@
                   —
                 {% endif %}
               </td>
-
-              <!-- Actions -->
               <td class="text-center">
                 <a href="{% url 'transaction_detail' transaction.id %}" class="text-info me-2"><i class="fa-solid fa-eye"></i></a>
                 <a href="{% url 'edit_transaction' transaction.id %}" class="text-warning me-2"><i class="fa-solid fa-pencil"></i></a>
@@ -116,14 +110,25 @@
             {% endfor %}
           </tbody>
         </table>
+
+        <!-- Legend -->
+        <div class="legend mt-2 mx-3">
+          <strong>Legend:</strong>
+          <span class="badge bg-success">Yes</span> Fully deductible &nbsp;
+          <span class="badge bg-warning text-dark">50%</span> Meals (50% deductible) &nbsp;
+          <span class="badge bg-danger">No</span> Personal vehicle gas (not deductible)
+        </div>
+
         <!-- Summary Section -->
         <div class="summary d-flex justify-content-end my-2 mx-3">
           <div class="text-end" style="min-width: 300px;">
             <p><strong>Invoice Amount:</strong> &nbsp;&nbsp;${{ invoice_amount|floatformat:2|intcomma }}</p>
-            <p><strong>Expenses:</strong> &nbsp;&nbsp;-{{ total_expenses|floatformat:2|intcomma }}</p>
-            <p><strong>Net Income:(Income - Expenses):</strong> &nbsp;&nbsp;${{ net_income|floatformat:2|intcomma }}</p>
-            <p><strong>Mileage:</strong> &nbsp;&nbsp;-{{ mileage_dollars|floatformat:2|intcomma }}</p>
-            <p class="net-amount text-success"><strong>Taxable Income:</strong> &nbsp;&nbsp;${{ taxable_income|floatformat:2|intcomma }}</p>
+            <p><strong>Expenses (actual):</strong> &nbsp;&nbsp;-{{ total_expenses|floatformat:2|intcomma }}</p>
+            <p><strong>Net Income (Income - Expenses):</strong> &nbsp;&nbsp;${{ net_income|floatformat:2|intcomma }}</p>
+            <p><strong>Mileage Deduction:</strong> &nbsp;&nbsp;-{{ mileage_dollars|floatformat:2|intcomma }}</p>
+            <p class="net-amount text-success">
+              <strong>Taxable Income:</strong> &nbsp;&nbsp;${{ taxable_income|floatformat:2|intcomma }}
+            </p>
           </div>
         </div>
       </div>
