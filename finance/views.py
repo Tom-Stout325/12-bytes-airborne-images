@@ -434,7 +434,7 @@ def invoice_review(request, pk):
             total_expenses += t.amount
 
             is_meal = t.sub_cat and t.sub_cat.id == 26
-            is_gas = t.category.category.lower() == 'gas'
+            is_gas = t.sub_cat and t.sub_cat.id == 27
             is_personal_vehicle = t.transport_type == 'personal_vehicle'
 
             # Deductibility logic

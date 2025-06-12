@@ -46,6 +46,8 @@ class RecurringTransactionAdmin(admin.ModelAdmin):
 
 class KeywordAdmin(admin.ModelAdmin):
     list_display = ['name', 'id']
+    
+
 
 admin.site.register(InvoiceItem)
 admin.site.register(MileageRate)
