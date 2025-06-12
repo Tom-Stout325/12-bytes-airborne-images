@@ -27,14 +27,14 @@
             </div>
         </div>
     </form>
-
-    <!-- Print Button -->
-    <div class="text-center mb-4">
-        <a href="{% url 'print_category_summary' %}?year={{ selected_year }}" target="_blank" class="btn btn-primary">
-            <i class="fa-solid fa-print"></i> Print Summary
+    <div class="text-center mb-3">
+        <a href="{% url 'category_summary_pdf' %}?year={{ selected_year }}&preview=1" target="_blank" class="btn btn-outline-secondary me-2">
+            <i class="fa-solid fa-eye"></i> Preview PDF
+        </a>
+        <a href="{% url 'category_summary_pdf' %}?year={{ selected_year }}" class="btn btn-outline-danger">
+            <i class="fa-solid fa-file-pdf"></i> Download PDF
         </a>
     </div>
-
     <!-- Shared Category Block -->
     {% include "components/category_block.html" with title="Income Categories" data=income_category_totals total=income_category_total color="success" %}
     {% include "components/category_block.html" with title="Income Sub-Categories" data=income_subcategory_totals total=income_subcategory_total color="success" %}
