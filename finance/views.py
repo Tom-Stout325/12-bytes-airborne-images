@@ -526,25 +526,62 @@ def export_invoices_pdf(request):
         logger.error(f"Error generating PDF for user {request.user.id}: {e}")
         messages.error(request, "Error generating PDF.")
         return redirect('invoice_list')
-
-
 @login_required
 def invoice_review_pdf(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
-    transactions = Transaction.objects.filter(
-        invoice_numb=invoice.invoice_numb, trans_type__trans_type__iexact="Expense"
-    ).select_related('trans_type')
-    total_expenses = transactions.aggregate(total=Sum('amount'))['total'] or 0
-    net_amount = invoice.amount - total_expenses
+    transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb).select_related('trans_type', 'sub_cat', 'category')
+    mileage_entries = Miles.objects.filter(
+        invoice=invoice.invoice_numb,
+        user=request.user,
+        tax__iexact="Yes",
+        mileage_type="Taxable"
+    )
+
+    try:
+        rate = MileageRate.objects.first().rate if MileageRate.objects.exists() else 0.70
+    except Exception as e:
+        logger.error(f"Error fetching mileage rate: {e}")
+        rate = 0.70
+
+    total_mileage_miles = mileage_entries.aggregate(Sum('total'))['total__sum'] or 0
+    mileage_dollars = round(total_mileage_miles * rate, 2)
+
+    total_expenses = 0
+    deductible_expenses = 0
+    total_income = 0
+
+    for t in transactions:
+        if t.trans_type.trans_type == 'Income':
+            total_income += t.amount
+        elif t.trans_type.trans_type == 'Expense':
+            total_expenses += t.amount
+            is_meal = t.sub_cat and t.sub_cat.id == 26
+            is_gas = t.sub_cat and t.sub_cat.id == 27
+            is_personal_vehicle = t.transport_type == 'personal_vehicle'
+
+            if is_meal:
+                deductible_expenses += t.deductible_amount
+            elif is_gas and is_personal_vehicle:
+                continue
+            else:
+                deductible_expenses += t.amount
+
+    net_income = total_income - total_expenses
+    taxable_income = total_income - deductible_expenses - mileage_dollars
 
     context = {
         'invoice': invoice,
         'transactions': transactions,
+        'mileage_entries': mileage_entries,
+        'mileage_rate': rate,
+        'mileage_dollars': mileage_dollars,
         'invoice_amount': invoice.amount,
         'total_expenses': total_expenses,
-        'net_amount': net_amount,
+        'total_income': total_income,
+        'net_income': net_income,
+        'taxable_income': taxable_income,
         'now': now(),
-        'current_page': 'invoices'
+        'current_page': 'invoices',
     }
 
     try:
@@ -565,6 +602,7 @@ def invoice_review_pdf(request, pk):
         logger.error(f"Error generating PDF for invoice {pk} by user {request.user.id}: {e}")
         messages.error(request, "Error generating PDF.")
         return redirect('invoice_detail', pk=pk)
+
 
 
 # ---------------------------------------------------------------------------------------------------------------  Categories

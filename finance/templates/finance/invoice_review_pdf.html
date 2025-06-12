@@ -6,10 +6,7 @@
 <head>
   <meta charset="utf-8">
   <style>
-    @page {
-      size: 8.5in 11in;
-      margin: 1in;
-    }
+    @page { size: 8.5in 11in; margin: 1in; }
 
     body {
       font-family: "Segoe UI", sans-serif;
@@ -25,20 +22,10 @@
       margin-bottom: 20px;
     }
 
-    .header img {
-      width: 140px;
-    }
+    .header img { width: 140px; }
 
-    .header h2 {
-      color: #4682B4;
-      margin-top: 10px;
-      font-size: 20px;
-    }
-
-    .header h3 {
-      font-size: 16px;
-      margin: 5px 0;
-    }
+    .header h2 { color: #4682B4; margin-top: 10px; font-size: 20px; }
+    .header h3 { font-size: 16px; margin: 5px 0; }
 
     .section-title {
       background-color: #4682B4;
@@ -48,13 +35,8 @@
       font-size: 14px;
     }
 
-    .details, .summary {
-      margin-top: 10px;
-    }
-
-    .details p, .summary p {
-      margin: 2px 0;
-    }
+    .details, .summary { margin-top: 10px; }
+    .details p, .summary p { margin: 2px 0; }
 
     table {
       width: 100%;
@@ -69,9 +51,7 @@
       text-align: left;
     }
 
-    th {
-      background-color: #f4f4f4;
-    }
+    th { background-color: #f4f4f4; }
 
     .summary {
       margin-top: 20px;
@@ -85,7 +65,8 @@
     }
 
     .net-amount {
-      color: #B2022F;
+      font-size: 13.5px;
+      color: #2E8B57;
     }
 
     .footer {
@@ -94,24 +75,17 @@
       margin-top: 40px;
       color: #777;
     }
-    .net-amount {
-      font-size: 13.5px;
-      color: #2E8B57;
-}
-
   </style>
 </head>
 
 <body>
 
-  <!-- Header with Logo -->
   <div class="header">
     <img src="{% static 'images/logo2.png' %}" alt="Airborne Images Logo">
     <h2>Invoice Summary</h2>
     <h3>Invoice #: {{ invoice.invoice_numb }}</h3>
   </div>
 
-  <!-- Invoice Info -->
   <div class="section-title">Invoice Information</div>
   <div class="details">
     <p><strong>Date:</strong> {{ invoice.date }}</p>
@@ -121,8 +95,7 @@
     <p><strong>Invoice Amount:</strong> ${{ invoice.amount|floatformat:2|intcomma }}</p>
   </div>
 
-  <!-- Transactions -->
-  <div class="section-title">Associated Expenses</div>
+  <div class="section-title">Associated Transactions</div>
   <table>
     <thead>
       <tr>
@@ -130,6 +103,7 @@
         <th>Category</th>
         <th>Sub-Category</th>
         <th>Amount</th>
+        <th>Deductible</th>
       </tr>
     </thead>
     <tbody>
@@ -139,46 +113,66 @@
         <td>{{ transaction.category }}</td>
         <td>{{ transaction.sub_cat }}</td>
         <td>
+          ${{ transaction.amount|floatformat:2 }}
           {% if transaction.sub_cat.id == 26 %}
-            ${{ transaction.deductible_amount|floatformat:2 }}
-            <small class="text-muted">(50% deductible)</small>
-          {% else %}
-            ${{ transaction.amount|floatformat:2 }}
+            <br><small>(50% deductible: ${{ transaction.deductible_amount|floatformat:2 }})</small>
           {% endif %}
         </td>
-
-        {% for mileage in mileage_entries %}
-          <tr>
-            <td>{{ mileage.date }}</td>
-            <td>Mileage</td>
-            <td>{{ mileage.job }}</td>
-            <td>${{ mileage.total|floatformat:1 }} mi × {{ mileage_rate|floatformat:2 }} = ${{ mileage.total|floatformat:1|floatformat:2|add:"0"|floatformat:2|floatformat:""|add:"0"|floatformat:2|intcomma }}</td>
-          </tr>
-        {% endfor %}
-
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="4" class="text-muted">No expense transactions recorded.</td>
+        <td>
+          {% if transaction.sub_cat.id == 26 %}
+            50%
+          {% elif transaction.sub_cat.id == 27 and transaction.transport_type == 'personal_vehicle' %}
+            No
+          {% else %}
+            Yes
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 
-  <!-- Summary Section -->
-<div class="summary">
-  <p><strong>Invoice Amount:</strong> ${{ invoice_amount|floatformat:2|intcomma }}</p>
-  <p><strong>Total Income:</strong> ${{ total_income|floatformat:2|intcomma }}</p>
-  <p><strong>Total Expenses:</strong> -${{ total_expenses|floatformat:2|intcomma }}</p>
-  <p><strong>Total Mileage Deduction:</strong> -${{ mileage_dollars|floatformat:2|intcomma }}</p>
-  <p><strong>Net Income (Income - Expenses):</strong> ${{ net_income|floatformat:2|intcomma }}</p>
-  <p class="net-amount text-success"><strong>Taxable Income (Net - Mileage):</strong> ${{ taxable_income|floatformat:2|intcomma }}</p>
-</div>
+  {% if mileage_entries %}
+  <div class="section-title">Mileage Entries</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Total Miles</th>
+        <th>Rate</th>
+        <th>Mileage Value</th>
+        <th>Client</th>
+        <th>Invoice</th>
+        <th>Job</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for mileage in mileage_entries %}
+      <tr>
+        <td>{{ mileage.date }}</td>
+        <td>{{ mileage.total }}</td>
+        <td>${{ mileage_rate|floatformat:2 }}</td>
+        <td>${{ mileage.total|floatformat:1|floatformat:2|add:"0"|floatformat:2|intcomma }}</td>
+        <td>{{ mileage.client }}</td>
+        <td>{{ mileage.invoice }}</td>
+        <td>{{ mileage.job }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
 
+  <div class="summary">
+    <p><strong>Invoice Amount:</strong> ${{ invoice_amount|floatformat:2|intcomma }}</p>
+    <p><strong>Total Income:</strong> ${{ total_income|floatformat:2|intcomma }}</p>
+    <p><strong>Total Expenses (actual):</strong> -${{ total_expenses|floatformat:2|intcomma }}</p>
+    <p><strong>Total Mileage Deduction:</strong> -${{ mileage_dollars|floatformat:2|intcomma }}</p>
+    <p><strong>Net Income (Income - Expenses):</strong> ${{ net_income|floatformat:2|intcomma }}</p>
+    <p class="net-amount"><strong>Taxable Income (less mileage and deductible rules):</strong> ${{ taxable_income|floatformat:2|intcomma }}</p>
+  </div>
 
-  <!-- Footer -->
   <div class="footer">
-    Generated by Airborne Images &nbsp;•&nbsp; {{ now|date:"F j, Y" }}
+    Generated by Airborne Images • {{ now|date:"F j, Y" }}
   </div>
 
 </body>
