@@ -809,41 +809,59 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
 
 # --------------------------------------------------------------------------------------------------------------- Financial Reports
 
-
 def get_summary_data(request, year):
     current_year = timezone.now().year
+
+    # Validate and parse year
     try:
         if isinstance(year, int):
-            pass
-        elif isinstance(year, str) and year.isdigit():
-            year = int(year)
+            selected_year = year
+        elif isinstance(year, str) and year.strip().isdigit():
+            selected_year = int(year)
+        elif year in (None, '', 'All'):
+            selected_year = current_year
         else:
-            year = current_year
-            messages.error(request, "Invalid year selected.")
+            raise ValueError
     except ValueError:
-        year = current_year
         messages.error(request, "Invalid year selected.")
+        selected_year = current_year
 
+    # Filter transactions for selected year
     transactions = Transaction.objects.filter(
-        user=request.user, date__year=year, trans_type__isnull=False
+        user=request.user,
+        date__year=selected_year,
+        trans_type__isnull=False
     ).select_related('trans_type', 'category', 'sub_cat')
 
+    # Split income vs expense
     income_qs = transactions.filter(trans_type__trans_type='Income')
     expense_qs = transactions.filter(trans_type__trans_type='Expense')
 
-    income_category_totals = income_qs.values('category__category').annotate(total=Sum('amount')).order_by('category__category')
-    expense_category_totals = expense_qs.values('category__category').annotate(total=Sum('amount')).order_by('category__category')
-    income_subcategory_totals = income_qs.values('sub_cat__sub_cat').annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
-    expense_subcategory_totals = expense_qs.values('sub_cat__sub_cat').annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
+    # Aggregates
+    income_category_totals = income_qs.values('category__category') \
+        .annotate(total=Sum('amount')).order_by('category__category')
 
+    expense_category_totals = expense_qs.values('category__category') \
+        .annotate(total=Sum('amount')).order_by('category__category')
+
+    income_subcategory_totals = income_qs.values('sub_cat__sub_cat') \
+        .annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
+
+    expense_subcategory_totals = expense_qs.values('sub_cat__sub_cat') \
+        .annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
+
+    # Totals
     income_category_total = income_qs.aggregate(total=Sum('amount'))['total'] or 0
     expense_category_total = expense_qs.aggregate(total=Sum('amount'))['total'] or 0
     net_profit = income_category_total - expense_category_total
 
-    available_years = Transaction.objects.filter(user=request.user).dates('date', 'year')
+    # Years for dropdown
+    available_years = Transaction.objects.filter(user=request.user) \
+        .dates('date', 'year', order='DESC')
+    available_years = [d.year for d in available_years]
 
     return {
-        'selected_year': year,
+        'selected_year': selected_year,
         'income_category_totals': income_category_totals,
         'expense_category_totals': expense_category_totals,
         'income_subcategory_totals': income_subcategory_totals,
@@ -853,6 +871,7 @@ def get_summary_data(request, year):
         'net_profit': net_profit,
         'available_years': available_years,
     }
+
 
 
 
@@ -903,6 +922,7 @@ def category_summary(request):
         user=request.user).dates('date', 'year', order='DESC').distinct()]
     context['current_page'] = 'reports'
     return render(request, 'finance/category_summary.html', context)
+
 
 @login_required
 def category_summary_pdf(request):
