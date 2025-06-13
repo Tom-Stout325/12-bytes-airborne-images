@@ -2,7 +2,7 @@ from django.urls import reverse_lazy
 
 def navigation(request):
     return {
-        'finance_navigation': {  # Changed from 'navigation'
+        'finance_navigation': { 
             'dashboard': reverse_lazy('dashboard'),
             'transactions': reverse_lazy('transactions'),
             'invoices': reverse_lazy('invoice_list'),
