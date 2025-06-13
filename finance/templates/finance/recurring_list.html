@@ -1,13 +1,15 @@
 {% extends 'index.html' %} 
 
 {% block content %}
-<div class="container mt-4">
-  <h2 class="text-center text-success mb-5">Recurring Transactions</h2>
+
+
   <div class="d-flex justify-content-start gap-2 mb-4">
     <a href="{% url 'recurring_add' %}" class="btn btn-success">Add New</a>
     <a href="{% url 'recurring_report' %}" class="btn btn-outline-primary">Run Report</a>
+    <a href="{% url 'run_monthly_recurring' %}" class="btn btn-outline-warning">
+      <i class="fa-solid fa-bolt"></i> Run Monthly Recurring
+    </a>
   </div>
-
 
   <table class="table table-sm table-striped">
     <thead>

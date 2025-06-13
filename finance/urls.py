@@ -75,6 +75,8 @@ urlpatterns = [
     path('run-recurring-now/', run_recurring_now_view, name='run_recurring_now'),
     path('recurring/report/', recurring_report_view, name='recurring_report'),
     
+    path('run-monthly-recurring/', run_monthly_recurring_view, name='run_monthly_recurring'),
+
     path('real-estate/', real_estate_view, name='real_estate'),
         
         

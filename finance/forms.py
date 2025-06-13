@@ -125,7 +125,7 @@ class RecurringTransactionForm(forms.ModelForm):
         model = RecurringTransaction
         fields = [
             'user', 'trans_type', 'category', 'sub_cat', 'amount', 'transaction', 'day',
-            'team', 'keyword', 'tax', 'receipt', 'account', 'active'
+            'team', 'keyword', 'tax', 'receipt', 'active'
         ]
         widgets = {
             'day': forms.NumberInput(attrs={'min': 1, 'max': 28}),

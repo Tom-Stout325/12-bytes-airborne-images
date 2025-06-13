@@ -1537,6 +1537,53 @@ def run_monthly_batch_view(request):
 
 
 
+@staff_member_required
+def run_monthly_recurring_view(request):
+    today = now().date()
+    created = 0
+    skipped = 0
+
+    try:
+        with transaction.atomic():
+            recurrences = RecurringTransaction.objects.filter(active=True, user=request.user)
+            for r in recurrences:
+                exists = Transaction.objects.filter(
+                    user=r.user,
+                    transaction=r.transaction,
+                    date__year=today.year,
+                    date__month=today.month
+                ).exists()
+                if exists:
+                    skipped += 1
+                    continue
+
+                Transaction.objects.create(
+                    date=today,
+                    trans_type=r.trans_type,
+                    category=r.category,
+                    sub_cat=r.sub_cat,
+                    amount=r.amount,
+                    transaction=r.transaction,
+                    team=r.team,
+                    keyword=r.keyword,
+                    tax=r.tax,
+                    user=r.user,
+       
+                )
+                created += 1
+
+        messages.success(request, f"{created} recurring transactions created, {skipped} skipped.")
+        return redirect('recurring_list')
+
+    except Exception as e:
+        logger.error(f"Error running monthly recurring for user {request.user.id}: {e}")
+        messages.error(request, "Error running monthly recurring.")
+        return redirect('recurring_list')
+
+
+
+
+
 
 
 def real_estate_view(request):
