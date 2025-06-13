@@ -1349,7 +1349,7 @@ class RecurringTransactionListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['current_page'] = 'recurring_transactions'
+        context['current_page'] = 'recurring_transaction_list'
         return context
 
 
