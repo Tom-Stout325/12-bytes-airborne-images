@@ -14,6 +14,7 @@
   <table class="table table-sm table-striped">
     <thead>
       <tr>
+        <th>ID</th>
         <th>Transaction</th>
         <th>Amount</th>
         <th>Day</th>
@@ -25,6 +26,7 @@
     <tbody>
       {% for r in recurring_transactions %}
       <tr>
+        <td>{{ r.id }}</td>
         <td>{{ r.transaction }}</td>
         <td>${{ r.amount }}</td>
         <td>{{ r.day }}</td>
@@ -34,8 +36,7 @@
           <a
             href="{% url 'recurring_edit' r.pk %}"
             class="btn btn-sm btn-warning"
-            >Edit</a
-          >
+            >Edit</a>
           <a
             href="{% url 'recurring_delete' r.pk %}"
             class="btn btn-sm btn-danger"
