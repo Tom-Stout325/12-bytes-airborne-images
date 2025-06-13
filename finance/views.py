@@ -1341,7 +1341,7 @@ class KeywordDeleteView(LoginRequiredMixin, DeleteView):
 
 class RecurringTransactionListView(LoginRequiredMixin, ListView):
     model = RecurringTransaction
-    template_name = 'finance/recurring_transaction_list.html'
+    template_name = 'finance/recurring_list.html'
     context_object_name = 'recurring_transactions'
 
     def get_queryset(self):
