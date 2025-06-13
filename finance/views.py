@@ -1343,7 +1343,6 @@ class RecurringTransactionListView(LoginRequiredMixin, ListView):
     model = RecurringTransaction
     template_name = 'finance/recurring_list.html'
     context_object_name = 'recurring_transactions'
-    context = { 'current_page': 'recurring transactions', }
 
     def get_queryset(self):
         return RecurringTransaction.objects.filter(user=self.request.user)
