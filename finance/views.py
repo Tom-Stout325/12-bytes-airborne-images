@@ -1353,6 +1353,7 @@ class RecurringTransactionListView(LoginRequiredMixin, ListView):
         return context
 
 
+
 class RecurringTransactionCreateView(LoginRequiredMixin, CreateView):
     model = RecurringTransaction
     form_class = RecurringTransactionForm
