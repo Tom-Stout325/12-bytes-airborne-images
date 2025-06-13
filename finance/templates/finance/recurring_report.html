@@ -30,8 +30,14 @@
         {% for row in data %}
           <tr>
             <td class="text-start">{{ row.template.transaction }}</td>
-            {% for exists in row.monthly_checks %}
-              <td>{% if exists %}✅{% else %}&mdash;{% endif %}</td>
+            {% for amt in row.monthly_amounts %}
+              <td>
+                {% if amt %}
+                  ${{ amt|floatformat:2 }}
+                {% else %}
+                  &mdash;
+                {% endif %}
+              </td>
             {% endfor %}
           </tr>
         {% endfor %}

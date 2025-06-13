@@ -14,7 +14,6 @@ urlpatterns = [
     path('transaction/<int:pk>/', TransactionDetailView.as_view(), name='transaction_detail'),
     path('transaction/edit/<int:pk>/', TransactionUpdateView.as_view(), name='edit_transaction'),
     path('transaction/delete/<int:pk>/', TransactionDeleteView.as_view(), name='delete_transaction'),
-    path('transactions/run-monthly-batch/', run_monthly_batch_view, name='run_monthly_batch'),
 
     # Invoices
     path('invoices/', InvoiceListView.as_view(), name='invoice_list'),
@@ -72,9 +71,7 @@ urlpatterns = [
     path('recurring/add/', RecurringTransactionCreateView.as_view(), name='recurring_add'),
     path('recurring/<int:pk>/edit/', RecurringTransactionUpdateView.as_view(), name='recurring_edit'),
     path('recurring/<int:pk>/delete/', RecurringTransactionDeleteView.as_view(), name='recurring_delete'),
-    path('run-recurring-now/', run_recurring_now_view, name='run_recurring_now'),
     path('recurring/report/', recurring_report_view, name='recurring_report'),
-    
     path('run-monthly-recurring/', run_monthly_recurring_view, name='run_monthly_recurring'),
 
     path('real-estate/', real_estate_view, name='real_estate'),

@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView, ListView, DetailView, UpdateView, DeleteView, CreateView
 from django.http import JsonResponse, HttpResponse, StreamingHttpResponse
+from django.db.models import Sum, Q, F, ExpressionWrapper, DecimalField
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -14,14 +15,12 @@ from django.core.paginator import Paginator
 from django.core.mail import EmailMessage
 from django.utils.timezone import now
 from django.contrib import messages
-from django.db.models import Sum, Q, F, ExpressionWrapper, DecimalField
 from collections import defaultdict
 from datetime import datetime, date
 from django.db import transaction
 from django.utils import timezone
 from django.conf import settings
-from calendar import monthrange
-from calendar import month_name
+from calendar import monthrange, month_name
 from django.views import View
 from weasyprint import HTML
 from pathlib import Path
@@ -1412,17 +1411,26 @@ class RecurringTransactionDeleteView(LoginRequiredMixin, DeleteView):
 def recurring_report_view(request):
     year = int(request.GET.get('year', now().year))
     months = range(1, 13)
-    templates = RecurringTransaction.objects.filter(user=request.user).order_by('transaction')
-    transactions = Transaction.objects.filter(
-        recurring_template__in=templates, date__year=year
-    ).values('recurring_template_id', 'date__month').distinct()
-    existence_map = {(t['recurring_template_id'], t['date__month']): True for t in transactions}
 
+    templates = RecurringTransaction.objects.filter(user=request.user).order_by('transaction')
+
+    # Get all relevant transactions
+    transactions = Transaction.objects.filter(
+        recurring_template__in=templates,
+        date__year=year
+    ).values('recurring_template_id', 'date__month').annotate(total_amount=Sum('amount'))
+
+    # Create a lookup dictionary: {(template_id, month): total_amount}
+    amount_map = {(t['recurring_template_id'], t['date__month']): t['total_amount'] for t in transactions}
+
+    # Build the data list with amount per month
     data = []
     for template in templates:
         row = {
             'template': template,
-            'monthly_checks': [existence_map.get((template.id, month), False) for month in months]
+            'monthly_amounts': [
+                amount_map.get((template.id, month), None) for month in months
+            ]
         }
         data.append(row)
 
@@ -1433,107 +1441,6 @@ def recurring_report_view(request):
         'current_page': 'recurring_transactions'
     }
     return render(request, 'finance/recurring_report.html', context)
-
-
-@staff_member_required
-def run_recurring_now_view(request):
-    today = now().date()
-    created = 0
-    skipped = 0
-
-    try:
-        with transaction.atomic():
-            recurrences = RecurringTransaction.objects.filter(day=today.day, active=True, user=request.user)
-            for r in recurrences:
-                exists = Transaction.objects.filter(
-                    user=r.user,
-                    transaction=r.transaction,
-                    date__year=today.year,
-                    date__month=today.month
-                ).exists()
-                if exists:
-                    skipped += 1
-                    continue
-                Transaction.objects.create(
-                    date=today,
-                    trans_type=r.trans_type,
-                    category=r.category,
-                    sub_cat=r.sub_cat,
-                    amount=r.amount,
-                    transaction=r.transaction,
-                    team=r.team,
-                    keyword=r.keyword,
-                    tax=r.tax,
-                    user=r.user,
-                    paid="Yes"
-                )
-                created += 1
-            messages.success(request, f"{created} transactions created, {skipped} skipped.")
-            return redirect('transactions')
-    except Exception as e:
-        logger.error(f"Error running recurring transactions for user {request.user.id}: {e}")
-        messages.error(request, "Error running recurring transactions.")
-        return redirect('transactions')
-
-
-@staff_member_required
-def run_monthly_batch_view(request):
-    today = now().date()
-    year = int(request.GET.get('year', today.year))
-    month = int(request.GET.get('month', today.month))
-    last_day = monthrange(year, month)[1]
-    created_transactions = []
-    skipped = 0
-
-    try:
-        with transaction.atomic():
-            recurrences = RecurringTransaction.objects.filter(active=True, user=request.user)
-            transactions_to_create = []
-            for r in recurrences:
-                target_day = min(r.day, last_day)
-                trans_date = date(year, month, target_day)
-                exists = Transaction.objects.filter(
-                    recurring_template=r, date=trans_date
-                ).exists()
-                if exists:
-                    skipped += 1
-                    continue
-                tx = Transaction(
-                    date=trans_date,
-                    trans_type=r.trans_type,
-                    category=r.category,
-                    sub_cat=r.sub_cat,
-                    amount=r.amount,
-                    transaction=r.transaction,
-                    team=r.team,
-                    keyword=r.keyword,
-                    tax=r.tax,
-                    user=r.user,
-                    paid="Yes",
-                    recurring_template=r
-                )
-                transactions_to_create.append(tx)
-                r.last_created = trans_date
-            Transaction.objects.bulk_create(transactions_to_create)
-            RecurringTransaction.objects.filter(
-                id__in=[r.id for r in recurrences if r.last_created == trans_date]
-            ).update(last_created=trans_date)
-            created_transactions = transactions_to_create
-    except Exception as e:
-        logger.error(f"Error running batch for user {request.user.id}: {e}")
-        messages.error(request, "Error running batch.")
-        return redirect('recurring_report')
-
-    context = {
-        'created': created_transactions,
-        'skipped': skipped,
-        'run_year': year,
-        'run_month': month,
-        'current_page': 'recurring_transactions'
-    }
-    return render(request, 'finance/recurring_batch_success.html', context)
-
-
 
 
 
