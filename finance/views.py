@@ -1341,7 +1341,7 @@ class KeywordDeleteView(LoginRequiredMixin, DeleteView):
 
 class RecurringTransactionListView(LoginRequiredMixin, ListView):
     model = RecurringTransaction
-    template_name = 'finance/recurring_list.html'
+    template_name = 'finance/recurring_transaction_list.html'
     context_object_name = 'recurring_transactions'
 
     def get_queryset(self):
@@ -1358,7 +1358,7 @@ class RecurringTransactionCreateView(LoginRequiredMixin, CreateView):
     model = RecurringTransaction
     form_class = RecurringTransactionForm
     template_name = 'finance/recurring_form.html'
-    success_url = reverse_lazy('recurring_list')
+    success_url = reverse_lazy('recurring_transaction_list')
     context = { 'current_page': 'recurring transactions', }
 
     def form_valid(self, form):
@@ -1376,7 +1376,7 @@ class RecurringTransactionUpdateView(LoginRequiredMixin, UpdateView):
     model = RecurringTransaction
     form_class = RecurringTransactionForm
     template_name = 'finance/recurring_form.html'
-    success_url = reverse_lazy('recurring_list')
+    success_url = reverse_lazy('recurring_transaction_list')
     context = { 'current_page': 'recurring transactions', }
 
     def get_queryset(self):
@@ -1395,7 +1395,7 @@ class RecurringTransactionUpdateView(LoginRequiredMixin, UpdateView):
 class RecurringTransactionDeleteView(LoginRequiredMixin, DeleteView):
     model = RecurringTransaction
     template_name = 'finance/recurring_confirm_delete.html'
-    success_url = reverse_lazy('recurring_list')
+    success_url = reverse_lazy('recurring_transaction_list')
     context = { 'current_page': 'recurring transactions', }
 
     def get_queryset(self):
@@ -1484,12 +1484,12 @@ def run_monthly_recurring_view(request):
                 created += 1
 
         messages.success(request, f"{created} recurring transactions created, {skipped} skipped.")
-        return redirect('recurring_list')
+        return redirect('recurring_transaction_list')
 
     except Exception as e:
         logger.error(f"Error running monthly recurring for user {request.user.id}: {e}")
         messages.error(request, "Error running monthly recurring.")
-        return redirect('recurring_list')
+        return redirect('recurring_transaction_list')
 
 
 
