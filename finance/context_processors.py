@@ -10,5 +10,7 @@ def navigation(request):
             'categories': reverse_lazy('category_page'),
             'reports': reverse_lazy('reports'),
             'keywords': reverse_lazy('keyword_list'),
+            'recurring transactions': reverse_lazy('recurring_transaction_list'),
+            'recurring report': reverse_lazy('recurring_report'),
         }
     }

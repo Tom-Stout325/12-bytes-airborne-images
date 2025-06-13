@@ -17,6 +17,7 @@ def inline_logo():
     except FileNotFoundError:
         return ""  # Return an empty string if the image is not found
 
+
 @register.filter
 def get_by_id(queryset, value):
     try:
@@ -24,21 +25,26 @@ def get_by_id(queryset, value):
     except:
         return ""
 
+
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
+
 
 @register.filter
 def until(value, max_value):
     return range(value, max_value)
 
+
 @register.filter
 def to_int(value):
     return int(value)
 
+
 @register.simple_tag
 def month_choices():
     return [(i, date(2000, i, 1).strftime('%B')) for i in range(1, 13)]
+
 
 @register.filter
 def get_range(start_year, offset):
@@ -47,6 +53,7 @@ def get_range(start_year, offset):
     Generates: [2022, 2023, 2024, 2025]
     """
     return [start_year + i for i in range(int(offset) + 1)]
+
 
 @register.simple_tag
 def query_transform(query, **kwargs):

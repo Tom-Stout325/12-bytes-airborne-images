@@ -1,7 +1,7 @@
 {% extends 'index.html' %} 
 
-{% block content %}
 
+{% block content %}
 
   <div class="d-flex justify-content-start gap-2 mb-4">
     <a href="{% url 'recurring_add' %}" class="btn btn-success">Add New</a>
@@ -40,8 +40,7 @@
           <a
             href="{% url 'recurring_delete' r.pk %}"
             class="btn btn-sm btn-danger"
-            >Delete</a
-          >
+            >Delete</a>
         </td>
       </tr>
       {% endfor %}

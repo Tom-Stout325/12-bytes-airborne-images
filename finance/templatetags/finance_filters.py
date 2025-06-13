@@ -6,8 +6,6 @@ register = template.Library()
 def lookup(dictionary, key):
     return dictionary.get(key, 0) 
 
-
-
 @register.filter
 def mul(value, arg):
     """Multiply the value by the arg."""

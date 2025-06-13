@@ -43,29 +43,29 @@
 <body>
   {% include 'navbar.html' %}
 
-<div class="breadcrumb-container">
-        <nav aria-label="breadcrumb" class="container mt-3">
-            <ol class="breadcrumb">
-                {% if current_page in finance_navigation %}
-                    {% for name, url in finance_navigation.items %}
-                        <li class="breadcrumb-item {% if current_page == name %}active{% endif %}">
-                            <a href="{{ url }}" {% if current_page == name %}aria-current="page"{% endif %}>
-                                {{ name|title }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                {% elif current_page in drone_navigation %}
-                    {% for name, url in drone_navigation.items %}
-                        <li class="breadcrumb-item {% if current_page == name %}active{% endif %}">
-                            <a href="{{ url }}" {% if current_page == name %}aria-current="page"{% endif %}>
-                                {{ name|title }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                {% endif %}
-            </ol>
-        </nav>
-    </div>
+  <div class="breadcrumb-container">
+    <nav aria-label="breadcrumb" class="container mt-3">
+      <ol class="breadcrumb">
+        {% if current_page in finance_navigation %}
+            {% for name, url in finance_navigation.items %}
+                <li class="breadcrumb-item {% if current_page == name %}active{% endif %}">
+                    <a href="{{ url }}" {% if current_page == name %}aria-current="page"{% endif %}>
+                        {{ name|title }}
+                    </a>
+                </li>
+            {% endfor %}
+        {% elif current_page in drone_navigation %}
+        {% for name, url in drone_navigation.items %}
+            <li class="breadcrumb-item {% if current_page == name %}active{% endif %}">
+                <a href="{{ url }}" {% if current_page == name %}aria-current="page"{% endif %}>
+                    {{ name|title }}
+                </a>
+            </li>
+        {% endfor %}
+        {% endif %}
+      </ol>
+    </nav>
+  </div>
 
   <div class="container mt-4">
     {% if messages %}

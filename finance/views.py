@@ -1343,6 +1343,7 @@ class RecurringTransactionListView(LoginRequiredMixin, ListView):
     model = RecurringTransaction
     template_name = 'finance/recurring_list.html'
     context_object_name = 'recurring_transactions'
+    context = { 'current_page': 'recurring transactions', }
 
     def get_queryset(self):
         return RecurringTransaction.objects.filter(user=self.request.user)
@@ -1358,6 +1359,7 @@ class RecurringTransactionCreateView(LoginRequiredMixin, CreateView):
     form_class = RecurringTransactionForm
     template_name = 'finance/recurring_form.html'
     success_url = reverse_lazy('recurring_list')
+    context = { 'current_page': 'recurring transactions', }
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -1375,6 +1377,7 @@ class RecurringTransactionUpdateView(LoginRequiredMixin, UpdateView):
     form_class = RecurringTransactionForm
     template_name = 'finance/recurring_form.html'
     success_url = reverse_lazy('recurring_list')
+    context = { 'current_page': 'recurring transactions', }
 
     def get_queryset(self):
         return RecurringTransaction.objects.filter(user=self.request.user)
@@ -1393,6 +1396,7 @@ class RecurringTransactionDeleteView(LoginRequiredMixin, DeleteView):
     model = RecurringTransaction
     template_name = 'finance/recurring_confirm_delete.html'
     success_url = reverse_lazy('recurring_list')
+    context = { 'current_page': 'recurring transactions', }
 
     def get_queryset(self):
         return RecurringTransaction.objects.filter(user=self.request.user)
