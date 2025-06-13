@@ -67,7 +67,7 @@ urlpatterns = [
     path('keywords/<int:pk>/delete/', KeywordDeleteView.as_view(), name='keyword_delete'),
 
     # Recurring
-    path('recurring/', RecurringTransactionListView.as_view(), name='recurring_list'),
+    path('recurring/', RecurringTransactionListView.as_view(), name='recurring_transaction_list'),
     path('recurring/add/', RecurringTransactionCreateView.as_view(), name='recurring_add'),
     path('recurring/<int:pk>/edit/', RecurringTransactionUpdateView.as_view(), name='recurring_edit'),
     path('recurring/<int:pk>/delete/', RecurringTransactionDeleteView.as_view(), name='recurring_delete'),
