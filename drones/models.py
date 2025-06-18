@@ -5,11 +5,12 @@ from django.core.validators import FileExtensionValidator
 
 
 DRONE_MODEL_CHOICES = [
-    ('Mavic 3 Classic', 'Mavic 3 Classic'),
+    ('Air 3S', 'Air 3s'),
+    ('Avata 2', 'Avata 2'),
     ('Mavic 3 Pro', 'Mavic 3 Pro'),
+    ('Mavic 3 Classic', 'Mavic 3 Classic'),
     ('Air 2S', 'Air 2S'),
     ('Mini 3 Pro', 'Mini 3 Pro'),
-    ('Avata 2', 'Avata 2'),
     ('Inspire 2', 'Inspire 2'),
     ('Other', 'Other'),
 ]
