@@ -9,32 +9,37 @@
         Year: {{ selected_year|default:"All Years" }}
     </h4>
 
-    <!-- Year Selection Dropdown -->
-    <form method="get" class="mb-4">
-        <div class="row g-2 align-items-center justify-content-center">
-            <div class="col-auto">
-                <label for="year" class="form-label fw-bold mb-0">Select Year:</label>
-            </div>
-            <div class="col-auto">
-                <select name="year" id="year" class="form-select" onchange="this.form.submit()">
-                    <option value="">All Years</option>
-                    {% for year in available_years %}
-                        <option value="{{ year.year }}" {% if selected_year|slugify == year.year|slugify %}selected{% endif %}>
-                            {{ year.year }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
+    <!-- Year Selection Form -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Year Filter</h5>
         </div>
-    </form>
-
-    <!-- Print Button -->
-    <div class="text-center mb-4">
-        <a href="{% url 'print_category_summary' %}?year={{ selected_year }}" target="_blank" class="btn btn-primary">
-            <i class="fa-solid fa-print"></i> Print Summary
+        <div class="card-body bg-light">
+            <form method="get" class="row g-3 align-items-center justify-content-center">
+                <div class="col-auto">
+                    <label for="year" class="form-label fw-bold">Select Year:</label>
+                </div>
+                <div class="col-auto">
+                    <select name="year" id="year" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Years</option>
+                        {% for year in available_years %}
+                        <option value="{{ year }}" {% if selected_year|slugify == year|slugify %}selected{% endif %}>
+                            {{ year }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="text-center mb-3">
+        <a href="{% url 'category_summary_pdf' %}?year={{ selected_year }}&preview=1" target="_blank" class="btn btn-outline-secondary me-2">
+            <i class="fa-solid fa-eye"></i> Preview PDF
+        </a>
+        <a href="{% url 'category_summary_pdf' %}?year={{ selected_year }}" class="btn btn-outline-danger">
+            <i class="fa-solid fa-file-pdf"></i> Download PDF
         </a>
     </div>
-
     <!-- Shared Category Block -->
     {% include "components/category_block.html" with title="Income Categories" data=income_category_totals total=income_category_total color="success" %}
     {% include "components/category_block.html" with title="Income Sub-Categories" data=income_subcategory_totals total=income_subcategory_total color="success" %}

@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView, ListView, DetailView, UpdateView, DeleteView, CreateView
 from django.http import JsonResponse, HttpResponse, StreamingHttpResponse
+from django.db.models import Sum, Q, F, ExpressionWrapper, DecimalField
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -14,14 +15,12 @@ from django.core.paginator import Paginator
 from django.core.mail import EmailMessage
 from django.utils.timezone import now
 from django.contrib import messages
-from django.db.models import Sum, Q
 from collections import defaultdict
 from datetime import datetime, date
 from django.db import transaction
 from django.utils import timezone
 from django.conf import settings
-from calendar import monthrange
-from calendar import month_name
+from calendar import monthrange, month_name
 from django.views import View
 from weasyprint import HTML
 from pathlib import Path
@@ -99,6 +98,7 @@ class Transactions(LoginRequiredMixin, ListView):
         context['selected_year'] = self.request.GET.get('year', '')
         context['current_page'] = 'transactions'
         return context
+
 
 class DownloadTransactionsCSV(LoginRequiredMixin, View):
     def get(self, request):
@@ -399,14 +399,10 @@ class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
         context = super().get_context_data(**kwargs)
         context['current_page'] = 'invoices'
         return context
-
-
 @login_required
 def invoice_review(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
-
-    transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb).select_related('trans_type')
-
+    transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb).select_related('trans_type', 'sub_cat', 'category')
     mileage_entries = Miles.objects.filter(
         invoice=invoice.invoice_numb,
         user=request.user,
@@ -423,15 +419,29 @@ def invoice_review(request, pk):
     total_mileage_miles = mileage_entries.aggregate(Sum('total'))['total__sum'] or 0
     mileage_dollars = round(total_mileage_miles * rate, 2)
 
-    totals = transactions.aggregate(
-        total_expenses=Sum('amount', filter=Q(trans_type__trans_type='Expense')),
-        total_income=Sum('amount', filter=Q(trans_type__trans_type='Income'))
-    )
-    total_expenses = totals['total_expenses'] or 0
-    total_income = totals['total_income'] or 0
+    total_expenses = 0
+    deductible_expenses = 0
+    total_income = 0
+
+    for t in transactions:
+        if t.trans_type.trans_type == 'Income':
+            total_income += t.amount
+        elif t.trans_type.trans_type == 'Expense':
+            total_expenses += t.amount
+
+            is_meal = t.sub_cat and t.sub_cat.id == 26
+            is_gas = t.sub_cat and t.sub_cat.id == 27
+            is_personal_vehicle = t.transport_type == 'personal_vehicle'
+
+            if is_meal:
+                deductible_expenses += t.deductible_amount
+            elif is_gas and is_personal_vehicle:
+                continue
+            else:
+                deductible_expenses += t.amount
 
     net_income = total_income - total_expenses
-    taxable_income = net_income - mileage_dollars
+    taxable_income = total_income - deductible_expenses - mileage_dollars
 
     context = {
         'invoice': invoice,
@@ -447,8 +457,6 @@ def invoice_review(request, pk):
         'current_page': 'invoices'
     }
     return render(request, 'finance/invoice_review.html', context)
-
-
 
 
 @login_required
@@ -517,25 +525,62 @@ def export_invoices_pdf(request):
         logger.error(f"Error generating PDF for user {request.user.id}: {e}")
         messages.error(request, "Error generating PDF.")
         return redirect('invoice_list')
-
-
 @login_required
 def invoice_review_pdf(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
-    transactions = Transaction.objects.filter(
-        invoice_numb=invoice.invoice_numb, trans_type__trans_type__iexact="Expense"
-    ).select_related('trans_type')
-    total_expenses = transactions.aggregate(total=Sum('amount'))['total'] or 0
-    net_amount = invoice.amount - total_expenses
+    transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb).select_related('trans_type', 'sub_cat', 'category')
+    mileage_entries = Miles.objects.filter(
+        invoice=invoice.invoice_numb,
+        user=request.user,
+        tax__iexact="Yes",
+        mileage_type="Taxable"
+    )
+
+    try:
+        rate = MileageRate.objects.first().rate if MileageRate.objects.exists() else 0.70
+    except Exception as e:
+        logger.error(f"Error fetching mileage rate: {e}")
+        rate = 0.70
+
+    total_mileage_miles = mileage_entries.aggregate(Sum('total'))['total__sum'] or 0
+    mileage_dollars = round(total_mileage_miles * rate, 2)
+
+    total_expenses = 0
+    deductible_expenses = 0
+    total_income = 0
+
+    for t in transactions:
+        if t.trans_type.trans_type == 'Income':
+            total_income += t.amount
+        elif t.trans_type.trans_type == 'Expense':
+            total_expenses += t.amount
+            is_meal = t.sub_cat and t.sub_cat.id == 26
+            is_gas = t.sub_cat and t.sub_cat.id == 27
+            is_personal_vehicle = t.transport_type == 'personal_vehicle'
+
+            if is_meal:
+                deductible_expenses += t.deductible_amount
+            elif is_gas and is_personal_vehicle:
+                continue
+            else:
+                deductible_expenses += t.amount
+
+    net_income = total_income - total_expenses
+    taxable_income = total_income - deductible_expenses - mileage_dollars
 
     context = {
         'invoice': invoice,
         'transactions': transactions,
+        'mileage_entries': mileage_entries,
+        'mileage_rate': rate,
+        'mileage_dollars': mileage_dollars,
         'invoice_amount': invoice.amount,
         'total_expenses': total_expenses,
-        'net_amount': net_amount,
+        'total_income': total_income,
+        'net_income': net_income,
+        'taxable_income': taxable_income,
         'now': now(),
-        'current_page': 'invoices'
+        'current_page': 'invoices',
     }
 
     try:
@@ -556,6 +601,7 @@ def invoice_review_pdf(request, pk):
         logger.error(f"Error generating PDF for invoice {pk} by user {request.user.id}: {e}")
         messages.error(request, "Error generating PDF.")
         return redirect('invoice_detail', pk=pk)
+
 
 
 # ---------------------------------------------------------------------------------------------------------------  Categories
@@ -762,39 +808,59 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
 
 # --------------------------------------------------------------------------------------------------------------- Financial Reports
 
-
 def get_summary_data(request, year):
     current_year = timezone.now().year
-    try:
-        year = int(year) if year and year.isdigit() else current_year
-        if year < 1900 or year > 9999:
-            year = current_year
-            messages.error(request, "Invalid year selected.")
-    except ValueError:
-        year = current_year
-        messages.error(request, "Invalid year selected.")
 
+    # Validate and parse year
+    try:
+        if isinstance(year, int):
+            selected_year = year
+        elif isinstance(year, str) and year.strip().isdigit():
+            selected_year = int(year)
+        elif year in (None, '', 'All'):
+            selected_year = current_year
+        else:
+            raise ValueError
+    except ValueError:
+        messages.error(request, "Invalid year selected.")
+        selected_year = current_year
+
+    # Filter transactions for selected year
     transactions = Transaction.objects.filter(
-        user=request.user, date__year=year, trans_type__isnull=False
+        user=request.user,
+        date__year=selected_year,
+        trans_type__isnull=False
     ).select_related('trans_type', 'category', 'sub_cat')
 
+    # Split income vs expense
     income_qs = transactions.filter(trans_type__trans_type='Income')
     expense_qs = transactions.filter(trans_type__trans_type='Expense')
 
-    income_category_totals = income_qs.values('category__category').annotate(total=Sum('amount')).order_by('category__category')
-    expense_category_totals = expense_qs.values('category__category').annotate(total=Sum('amount')).order_by('category__category')
-    income_subcategory_totals = income_qs.values('sub_cat__sub_cat').annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
-    expense_subcategory_totals = expense_qs.values('sub_cat__sub_cat').annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
+    # Aggregates
+    income_category_totals = income_qs.values('category__category') \
+        .annotate(total=Sum('amount')).order_by('category__category')
 
+    expense_category_totals = expense_qs.values('category__category') \
+        .annotate(total=Sum('amount')).order_by('category__category')
+
+    income_subcategory_totals = income_qs.values('sub_cat__sub_cat') \
+        .annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
+
+    expense_subcategory_totals = expense_qs.values('sub_cat__sub_cat') \
+        .annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
+
+    # Totals
     income_category_total = income_qs.aggregate(total=Sum('amount'))['total'] or 0
     expense_category_total = expense_qs.aggregate(total=Sum('amount'))['total'] or 0
-
     net_profit = income_category_total - expense_category_total
 
-    available_years = Transaction.objects.filter(user=request.user).dates('date', 'year')
+    # Years for dropdown
+    available_years = Transaction.objects.filter(user=request.user) \
+        .dates('date', 'year', order='DESC')
+    available_years = [d.year for d in available_years]
 
     return {
-        'selected_year': year,
+        'selected_year': selected_year,
         'income_category_totals': income_category_totals,
         'expense_category_totals': expense_category_totals,
         'income_subcategory_totals': income_subcategory_totals,
@@ -804,6 +870,8 @@ def get_summary_data(request, year):
         'net_profit': net_profit,
         'available_years': available_years,
     }
+
+
 
 
 @login_required
@@ -817,10 +885,37 @@ def financial_statement(request):
     return render(request, 'finance/financial_statement.html', context)
 
 
+
+@login_required
+def financial_statement_pdf(request, year):
+    context = get_summary_data(request, year)
+    context['now'] = timezone.now()
+    context['selected_year'] = year
+
+    try:
+        template = get_template('finance/financial_statement_pdf.html')
+        html_string = template.render(context)
+        html_string = "<style>@page { size: 8.5in 11in; margin: 1in; }</style>" + html_string
+
+        if request.GET.get("preview") == "1":
+            return HttpResponse(html_string)
+
+        with tempfile.NamedTemporaryFile(delete=True) as tmp:
+            HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(tmp.name)
+            tmp.seek(0)
+            response = HttpResponse(tmp.read(), content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="financial_statement_{year}.pdf"'
+            return response
+    except Exception as e:
+        logger.error(f"Error generating financial statement PDF for {year}: {e}")
+        messages.error(request, "Error generating PDF.")
+        return redirect('financial_statement')
+    
+    
+    
 @login_required
 def category_summary(request):
-    current_year = timezone.now().year
-    year = request.GET.get('year', str(current_year))
+    year = request.GET.get('year')
     context = get_summary_data(request, year)
     context['available_years'] = [d.year for d in Transaction.objects.filter(
         user=request.user).dates('date', 'year', order='DESC').distinct()]
@@ -829,11 +924,31 @@ def category_summary(request):
 
 
 @login_required
-def print_category_summary(request):
-    year = request.GET.get('year', str(timezone.now().year))
+def category_summary_pdf(request):
+    year = request.GET.get('year')
     context = get_summary_data(request, year)
-    context['current_page'] = 'reports'
-    return render(request, 'finance/category_summary_print.html', context)
+    context['now'] = timezone.now()
+    context['selected_year'] = year or timezone.now().year
+
+    try:
+        template = get_template('finance/category_summary_pdf.html')
+        html_string = template.render(context)
+        html_string = "<style>@page { size: 8.5in 11in; margin: 1in; }</style>" + html_string
+
+        if request.GET.get("preview") == "1":
+            return HttpResponse(html_string)
+
+        with tempfile.NamedTemporaryFile(delete=True) as tmp:
+            HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(tmp.name)
+            tmp.seek(0)
+            response = HttpResponse(tmp.read(), content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="category_summary.pdf"'
+            return response
+    except Exception as e:
+        logger.error(f"Error generating category summary PDF: {e}")
+        messages.error(request, "Error generating PDF.")
+        return redirect('category_summary')
+
 
 
 @login_required
@@ -1234,15 +1349,17 @@ class RecurringTransactionListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['current_page'] = 'recurring_transactions'
+        context['current_page'] = 'recurring transactions'
         return context
+
 
 
 class RecurringTransactionCreateView(LoginRequiredMixin, CreateView):
     model = RecurringTransaction
     form_class = RecurringTransactionForm
     template_name = 'finance/recurring_form.html'
-    success_url = reverse_lazy('recurring_list')
+    success_url = reverse_lazy('recurring_transaction_list')
+    context = { 'current_page': 'recurring transactions', }
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -1259,7 +1376,8 @@ class RecurringTransactionUpdateView(LoginRequiredMixin, UpdateView):
     model = RecurringTransaction
     form_class = RecurringTransactionForm
     template_name = 'finance/recurring_form.html'
-    success_url = reverse_lazy('recurring_list')
+    success_url = reverse_lazy('recurring_transaction_list')
+    context = { 'current_page': 'recurring transactions', }
 
     def get_queryset(self):
         return RecurringTransaction.objects.filter(user=self.request.user)
@@ -1277,7 +1395,8 @@ class RecurringTransactionUpdateView(LoginRequiredMixin, UpdateView):
 class RecurringTransactionDeleteView(LoginRequiredMixin, DeleteView):
     model = RecurringTransaction
     template_name = 'finance/recurring_confirm_delete.html'
-    success_url = reverse_lazy('recurring_list')
+    success_url = reverse_lazy('recurring_transaction_list')
+    context = { 'current_page': 'recurring transactions', }
 
     def get_queryset(self):
         return RecurringTransaction.objects.filter(user=self.request.user)
@@ -1296,17 +1415,26 @@ class RecurringTransactionDeleteView(LoginRequiredMixin, DeleteView):
 def recurring_report_view(request):
     year = int(request.GET.get('year', now().year))
     months = range(1, 13)
-    templates = RecurringTransaction.objects.filter(user=request.user).order_by('transaction')
-    transactions = Transaction.objects.filter(
-        recurring_template__in=templates, date__year=year
-    ).values('recurring_template_id', 'date__month').distinct()
-    existence_map = {(t['recurring_template_id'], t['date__month']): True for t in transactions}
 
+    templates = RecurringTransaction.objects.filter(user=request.user).order_by('transaction')
+
+    # Get all relevant transactions
+    transactions = Transaction.objects.filter(
+        recurring_template__in=templates,
+        date__year=year
+    ).values('recurring_template_id', 'date__month').annotate(total_amount=Sum('amount'))
+
+    # Create a lookup dictionary: {(template_id, month): total_amount}
+    amount_map = {(t['recurring_template_id'], t['date__month']): t['total_amount'] for t in transactions}
+
+    # Build the data list with amount per month
     data = []
     for template in templates:
         row = {
             'template': template,
-            'monthly_checks': [existence_map.get((template.id, month), False) for month in months]
+            'monthly_amounts': [
+                amount_map.get((template.id, month), None) for month in months
+            ]
         }
         data.append(row)
 
@@ -1319,15 +1447,16 @@ def recurring_report_view(request):
     return render(request, 'finance/recurring_report.html', context)
 
 
+
 @staff_member_required
-def run_recurring_now_view(request):
+def run_monthly_recurring_view(request):
     today = now().date()
     created = 0
     skipped = 0
 
     try:
         with transaction.atomic():
-            recurrences = RecurringTransaction.objects.filter(day=today.day, active=True, user=request.user)
+            recurrences = RecurringTransaction.objects.filter(active=True, user=request.user)
             for r in recurrences:
                 exists = Transaction.objects.filter(
                     user=r.user,
@@ -1338,6 +1467,7 @@ def run_recurring_now_view(request):
                 if exists:
                     skipped += 1
                     continue
+
                 Transaction.objects.create(
                     date=today,
                     trans_type=r.trans_type,
@@ -1349,73 +1479,17 @@ def run_recurring_now_view(request):
                     keyword=r.keyword,
                     tax=r.tax,
                     user=r.user,
-                    paid="Yes"
+       
                 )
                 created += 1
-            messages.success(request, f"{created} transactions created, {skipped} skipped.")
-            return redirect('transactions')
+
+        messages.success(request, f"{created} recurring transactions created, {skipped} skipped.")
+        return redirect('recurring_transaction_list')
+
     except Exception as e:
-        logger.error(f"Error running recurring transactions for user {request.user.id}: {e}")
-        messages.error(request, "Error running recurring transactions.")
-        return redirect('transactions')
-
-
-@staff_member_required
-def run_monthly_batch_view(request):
-    today = now().date()
-    year = int(request.GET.get('year', today.year))
-    month = int(request.GET.get('month', today.month))
-    last_day = monthrange(year, month)[1]
-    created_transactions = []
-    skipped = 0
-
-    try:
-        with transaction.atomic():
-            recurrences = RecurringTransaction.objects.filter(active=True, user=request.user)
-            transactions_to_create = []
-            for r in recurrences:
-                target_day = min(r.day, last_day)
-                trans_date = date(year, month, target_day)
-                exists = Transaction.objects.filter(
-                    recurring_template=r, date=trans_date
-                ).exists()
-                if exists:
-                    skipped += 1
-                    continue
-                tx = Transaction(
-                    date=trans_date,
-                    trans_type=r.trans_type,
-                    category=r.category,
-                    sub_cat=r.sub_cat,
-                    amount=r.amount,
-                    transaction=r.transaction,
-                    team=r.team,
-                    keyword=r.keyword,
-                    tax=r.tax,
-                    user=r.user,
-                    paid="Yes",
-                    recurring_template=r
-                )
-                transactions_to_create.append(tx)
-                r.last_created = trans_date
-            Transaction.objects.bulk_create(transactions_to_create)
-            RecurringTransaction.objects.filter(
-                id__in=[r.id for r in recurrences if r.last_created == trans_date]
-            ).update(last_created=trans_date)
-            created_transactions = transactions_to_create
-    except Exception as e:
-        logger.error(f"Error running batch for user {request.user.id}: {e}")
-        messages.error(request, "Error running batch.")
-        return redirect('recurring_report')
-
-    context = {
-        'created': created_transactions,
-        'skipped': skipped,
-        'run_year': year,
-        'run_month': month,
-        'current_page': 'recurring_transactions'
-    }
-    return render(request, 'finance/recurring_batch_success.html', context)
+        logger.error(f"Error running monthly recurring for user {request.user.id}: {e}")
+        messages.error(request, "Error running monthly recurring.")
+        return redirect('recurring_transaction_list')
 
 
 

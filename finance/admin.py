@@ -40,12 +40,14 @@ class SubCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(RecurringTransaction)
 class RecurringTransactionAdmin(admin.ModelAdmin):
-    list_display = ('transaction', 'amount', 'day', 'category', 'sub_cat', 'user', 'active', 'last_created')
+    list_display = ('transaction', 'id', 'amount', 'day', 'category', 'sub_cat', 'user', 'active', 'last_created')
     list_filter = ('active', 'day', 'category', 'sub_cat')
     search_fields = ('transaction', 'user__username')
 
 class KeywordAdmin(admin.ModelAdmin):
     list_display = ['name', 'id']
+    
+
 
 admin.site.register(InvoiceItem)
 admin.site.register(MileageRate)

@@ -70,6 +70,9 @@
       <div>
         <a href="{% url 'add_transaction' %}" class="btn btn-outline-primary w-100 mx-auto">Enter a Transaction</a>
       </div>
+      <div>
+        <a href="{% url 'recurring_transaction_list' %}" class="btn btn-outline-success w-100 mx-auto">Recurring Transactions</a>
+      </div>
     </div>
     <!-- Transactions Table -->
     <div class="table-responsive">
@@ -110,7 +113,7 @@
               <td>{{ transaction.trans_type.trans_type }}</td>
               <td>{{ transaction.transaction }}</td>
               <td>{{ transaction.keyword.name|default:"" }}</td>
-              <td>${{ transaction.amount }}</td>
+              <td>$ {{ transaction.amount }}</td>
               <td>{{ transaction.invoice_numb|default:"" }}</td>
               <td>
                 <a href="{% url 'transaction_detail' transaction.pk %}" class="btn btn-sm btn-info">View</a>

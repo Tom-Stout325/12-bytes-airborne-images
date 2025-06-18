@@ -8,6 +8,7 @@ register = template.Library()
 def until(value, max_value):
     return range(value, max_value)
 
+
 @register.filter
 def to_int(value):
     return int(value)

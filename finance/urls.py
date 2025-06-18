@@ -1,23 +1,6 @@
 from django.urls import path
 from .views import *
-# from .views import (
-#     Dashboard, Transactions, DownloadTransactionsCSV, TransactionCreateView,
-#     add_transaction_success, TransactionDetailView, TransactionUpdateView,
-#     TransactionDeleteView, run_monthly_batch_view, InvoiceListView,
-#     InvoiceDeleteView, InvoiceDetailView, invoice_review, invoice_review_pdf,
-#     InvoiceCreateView, invoice_update, send_invoice_email, unpaid_invoices,
-#     export_invoices_csv, export_invoices_pdf, CategoryListView, CategoryCreateView,
-#     CategoryUpdateView, CategoryDeleteView, SubCategoryCreateView,
-#     SubCategoryUpdateView, SubCategoryDeleteView, ClientListView,
-#     ClientCreateView, ClientUpdateView, ClientDeleteView, reports_page,
-#     financial_statement, category_summary, print_category_summary, nhra_summary,
-#     travel_expense_report, travel_expense_report_pdf, mileage_log,
-#     MileageCreateView, MileageUpdateView, MileageDeleteView, update_mileage_rate,
-#     KeywordListView, KeywordCreateView, KeywordUpdateView, KeywordDeleteView,
-#     RecurringTransactionListView, RecurringTransactionCreateView,
-#     RecurringTransactionUpdateView, RecurringTransactionDeleteView,
-#     run_recurring_now_view, recurring_report_view
-# )
+
 
 urlpatterns = [
     # Dashboard
@@ -31,7 +14,6 @@ urlpatterns = [
     path('transaction/<int:pk>/', TransactionDetailView.as_view(), name='transaction_detail'),
     path('transaction/edit/<int:pk>/', TransactionUpdateView.as_view(), name='edit_transaction'),
     path('transaction/delete/<int:pk>/', TransactionDeleteView.as_view(), name='delete_transaction'),
-    path('transactions/run-monthly-batch/', run_monthly_batch_view, name='run_monthly_batch'),
 
     # Invoices
     path('invoices/', InvoiceListView.as_view(), name='invoice_list'),
@@ -64,8 +46,9 @@ urlpatterns = [
     # Reports
     path('reports/', reports_page, name='reports'),
     path('financial-statement/', financial_statement, name='financial_statement'),
+    path('finance/financial-statement/pdf/<int:year>/', financial_statement_pdf, name='financial_statement_pdf'),
     path('category-summary/', category_summary, name='category_summary'),
-    path('print-category-summary/', print_category_summary, name='print_category_summary'),
+    path('finance/category-summary/pdf/', category_summary_pdf, name='category_summary_pdf'),
     path('nhra-summary/', nhra_summary, name='nhra_summary'),
     path('travel-expense-report/', travel_expense_report, name='travel_expense_report'),
     path('travel-expense-report/pdf/', travel_expense_report_pdf, name='travel_expense_report_pdf'),
@@ -74,7 +57,7 @@ urlpatterns = [
     path('mileage-log/', mileage_log, name='mileage_log'),
     path('mileage/add/', MileageCreateView.as_view(), name='mileage_create'),
     path('mileage/<int:pk>/edit/', MileageUpdateView.as_view(), name='mileage_update'),
-    path('mileage/<int:pk>/delete/', MileageDeleteView.as_view(), name='mileage_update'),
+    path('mileage/<int:pk>/delete/', MileageDeleteView.as_view(), name='mileage_delete'),
     path('mileage/update-rate/', update_mileage_rate, name='update_mileage_rate'),
 
     # Keywords
@@ -84,13 +67,13 @@ urlpatterns = [
     path('keywords/<int:pk>/delete/', KeywordDeleteView.as_view(), name='keyword_delete'),
 
     # Recurring
-    path('recurring/', RecurringTransactionListView.as_view(), name='recurring_list'),
+    path('recurring/', RecurringTransactionListView.as_view(), name='recurring_transaction_list'),
     path('recurring/add/', RecurringTransactionCreateView.as_view(), name='recurring_add'),
     path('recurring/<int:pk>/edit/', RecurringTransactionUpdateView.as_view(), name='recurring_edit'),
     path('recurring/<int:pk>/delete/', RecurringTransactionDeleteView.as_view(), name='recurring_delete'),
-    path('run-recurring-now/', run_recurring_now_view, name='run_recurring_now'),
     path('recurring/report/', recurring_report_view, name='recurring_report'),
-    
+    path('run-monthly-recurring/', run_monthly_recurring_view, name='run_monthly_recurring'),
+
     path('real-estate/', real_estate_view, name='real_estate'),
         
         

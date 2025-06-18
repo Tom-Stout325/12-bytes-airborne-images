@@ -31,6 +31,17 @@
         </div>
     </div>
 
+     <div class="text-end mt-3 me-3">
+        {% if selected_year %}
+            <a href="{% url 'financial_statement_pdf' selected_year %}?preview=1" target="_blank" class="btn btn-outline-secondary me-2">
+            <i class="fa-solid fa-eye"></i> Preview PDF
+            </a>
+            <a href="{% url 'financial_statement_pdf' selected_year %}" class="btn btn-outline-danger">
+            <i class="fa-solid fa-file-pdf"></i> Download PDF
+            </a>
+        {% endif %}
+    </div>
+
     <!-- Financial Statement -->
     <div class="card shadow-lg border-0">
         <div class="card-header bg-primary text-white text-center py-3">
