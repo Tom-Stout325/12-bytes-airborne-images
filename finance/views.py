@@ -461,6 +461,85 @@ def invoice_review(request, pk):
 
 
 @login_required
+def invoice_review_pdf(request, pk):
+    invoice = get_object_or_404(Invoice, pk=pk)
+    transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb).select_related('trans_type', 'sub_cat', 'category')
+    mileage_entries = Miles.objects.filter(
+        invoice=invoice.invoice_numb,
+        user=request.user,
+        tax__iexact="Yes",
+        mileage_type="Taxable"
+    )
+
+    try:
+        rate = MileageRate.objects.first().rate if MileageRate.objects.exists() else 0.70
+    except Exception as e:
+        logger.error(f"Error fetching mileage rate: {e}")
+        rate = 0.70
+
+    total_mileage_miles = mileage_entries.aggregate(Sum('total'))['total__sum'] or 0
+    mileage_dollars = round(total_mileage_miles * rate, 2)
+
+    total_expenses = 0
+    deductible_expenses = 0
+    total_income = 0
+
+    for t in transactions:
+        if t.trans_type.trans_type == 'Income':
+            total_income += t.amount
+        elif t.trans_type.trans_type == 'Expense':
+            total_expenses += t.amount
+            is_meal = t.sub_cat and t.sub_cat.id == 26
+            is_gas = t.sub_cat and t.sub_cat.id == 27
+            is_personal_vehicle = t.transport_type == 'personal_vehicle'
+
+            if is_meal:
+                deductible_expenses += t.deductible_amount
+            elif is_gas and is_personal_vehicle:
+                continue
+            else:
+                deductible_expenses += t.amount
+
+    net_income = total_income - total_expenses
+    taxable_income = total_income - deductible_expenses - mileage_dollars
+
+    context = {
+        'invoice': invoice,
+        'transactions': transactions,
+        'mileage_entries': mileage_entries,
+        'mileage_rate': rate,
+        'mileage_dollars': mileage_dollars,
+        'invoice_amount': invoice.amount,
+        'total_expenses': total_expenses,
+        'deductible_expenses': deductible_expenses,
+        'total_income': total_income,
+        'net_income': net_income,
+        'taxable_income': taxable_income,
+        'now': now(),
+        'current_page': 'invoices',
+    }
+
+    try:
+        template = get_template('finance/invoice_review_pdf.html')
+        html_string = template.render(context)
+        html_string = "<style>@page { size: 8.5in 11in; margin: 1in; }</style>" + html_string
+
+        if request.GET.get("preview") == "1":
+            return HttpResponse(html_string)
+
+        with tempfile.NamedTemporaryFile(delete=True) as tmp:
+            HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(tmp.name)
+            tmp.seek(0)
+            response = HttpResponse(tmp.read(), content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="invoice_{invoice.invoice_numb}.pdf"'
+            return response
+    except Exception as e:
+        logger.error(f"Error generating PDF for invoice {pk} by user {request.user.id}: {e}")
+        messages.error(request, "Error generating PDF.")
+        return redirect('invoice_detail', pk=pk)
+    
+    
+@login_required
 def unpaid_invoices(request):
     invoices = Invoice.objects.filter(paid__iexact="No").select_related('client').order_by('due_date')
     context = {'invoices': invoices, 'current_page': 'invoices'}
@@ -526,82 +605,9 @@ def export_invoices_pdf(request):
         logger.error(f"Error generating PDF for user {request.user.id}: {e}")
         messages.error(request, "Error generating PDF.")
         return redirect('invoice_list')
-@login_required
-def invoice_review_pdf(request, pk):
-    invoice = get_object_or_404(Invoice, pk=pk)
-    transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb).select_related('trans_type', 'sub_cat', 'category')
-    mileage_entries = Miles.objects.filter(
-        invoice=invoice.invoice_numb,
-        user=request.user,
-        tax__iexact="Yes",
-        mileage_type="Taxable"
-    )
+    
+    
 
-    try:
-        rate = MileageRate.objects.first().rate if MileageRate.objects.exists() else 0.70
-    except Exception as e:
-        logger.error(f"Error fetching mileage rate: {e}")
-        rate = 0.70
-
-    total_mileage_miles = mileage_entries.aggregate(Sum('total'))['total__sum'] or 0
-    mileage_dollars = round(total_mileage_miles * rate, 2)
-
-    total_expenses = 0
-    deductible_expenses = 0
-    total_income = 0
-
-    for t in transactions:
-        if t.trans_type.trans_type == 'Income':
-            total_income += t.amount
-        elif t.trans_type.trans_type == 'Expense':
-            total_expenses += t.amount
-            is_meal = t.sub_cat and t.sub_cat.id == 26
-            is_gas = t.sub_cat and t.sub_cat.id == 27
-            is_personal_vehicle = t.transport_type == 'personal_vehicle'
-
-            if is_meal:
-                deductible_expenses += t.deductible_amount
-            elif is_gas and is_personal_vehicle:
-                continue
-            else:
-                deductible_expenses += t.amount
-
-    net_income = total_income - total_expenses
-    taxable_income = total_income - deductible_expenses - mileage_dollars
-
-    context = {
-        'invoice': invoice,
-        'transactions': transactions,
-        'mileage_entries': mileage_entries,
-        'mileage_rate': rate,
-        'mileage_dollars': mileage_dollars,
-        'invoice_amount': invoice.amount,
-        'total_expenses': total_expenses,
-        'total_income': total_income,
-        'net_income': net_income,
-        'taxable_income': taxable_income,
-        'now': now(),
-        'current_page': 'invoices',
-    }
-
-    try:
-        template = get_template('finance/invoice_review_pdf.html')
-        html_string = template.render(context)
-        html_string = "<style>@page { size: 8.5in 11in; margin: 1in; }</style>" + html_string
-
-        if request.GET.get("preview") == "1":
-            return HttpResponse(html_string)
-
-        with tempfile.NamedTemporaryFile(delete=True) as tmp:
-            HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(tmp.name)
-            tmp.seek(0)
-            response = HttpResponse(tmp.read(), content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="invoice_{invoice.invoice_numb}.pdf"'
-            return response
-    except Exception as e:
-        logger.error(f"Error generating PDF for invoice {pk} by user {request.user.id}: {e}")
-        messages.error(request, "Error generating PDF.")
-        return redirect('invoice_detail', pk=pk)
 
 
 

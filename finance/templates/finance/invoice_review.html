@@ -173,7 +173,18 @@
             <div class="col-md-6 text-center">
               <h6 class="text-decoration-underline">Taxable Income</h6>
               <p><strong>Invoice Amount:</strong> &nbsp;&nbsp;${{ invoice_amount|floatformat:2|intcomma }}</p>
-              <p><strong>Taxable Expenses:</strong> &nbsp;&nbsp;-${{ deductible_expenses|default:"0.00"|floatformat:2|intcomma }}</p>
+              <p>
+                <strong>
+                  Taxable Expenses:
+                  <i class="fa-solid fa-circle-question text-muted" 
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="right" 
+                    title="Includes deductible business expenses like meals (50%) and supplies. Excludes personal vehicle gas.">
+                  </i>
+                </strong>
+                &nbsp;&nbsp;-$ {{ deductible_expenses|floatformat:2|intcomma }}
+              </p>
+
               <p><strong>Mileage Deduction:</strong> &nbsp;&nbsp;-${{ mileage_dollars|floatformat:2|intcomma }}</p>
               <p class="text-success"><strong>Taxable Income:</strong> &nbsp;&nbsp;${{ taxable_income|floatformat:2|intcomma }}</p>
             </div>
