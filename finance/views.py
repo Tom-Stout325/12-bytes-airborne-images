@@ -399,6 +399,9 @@ class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
         context = super().get_context_data(**kwargs)
         context['current_page'] = 'invoices'
         return context
+    
+    
+    
 @login_required
 def invoice_review(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)

@@ -21,6 +21,14 @@
     .legend {
       font-size: 0.85rem;
     }
+    .summary p {
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .summary h6 {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 {% block content %}
@@ -159,17 +167,25 @@
           </div>
         </div>
 <hr>
-          <!-- Summary Section -->
-          <div class="summary d-flex justify-content-end my-2 mx-3">
-            <div class="text-end" style="min-width: 300px;">
+         <!-- Summary Section -->
+          <div class="summary row mt-4 px-3">
+            <!-- Left Column -->
+            <div class="col-md-6">
+              <h6 class="text-decoration-underline">Taxable Calculation</h6>
+              <p><strong>Invoice Amount:</strong> &nbsp;&nbsp;${{ invoice_amount|floatformat:2|intcomma }}</p>
+              <p><strong>Taxable Expenses:</strong> &nbsp;&nbsp;-{{ deductible_expenses|floatformat:2|intcomma }}</p>
+              <p><strong>Mileage Deduction:</strong> &nbsp;&nbsp;-{{ mileage_dollars|floatformat:2|intcomma }}</p>
+              <p class="text-success"><strong>Taxable Income:</strong> &nbsp;&nbsp;${{ taxable_income|floatformat:2|intcomma }}</p>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-6">
+              <h6 class="text-decoration-underline">Actual Calculation</h6>
               <p><strong>Invoice Amount:</strong> &nbsp;&nbsp;${{ invoice_amount|floatformat:2|intcomma }}</p>
               <p><strong>Expenses (actual):</strong> &nbsp;&nbsp;-{{ total_expenses|floatformat:2|intcomma }}</p>
-              <p><strong>Net Income (Income - Expenses):</strong> &nbsp;&nbsp;${{ net_income|floatformat:2|intcomma }}</p>
-              <p><strong>Mileage Deduction:</strong> &nbsp;&nbsp;-{{ mileage_dollars|floatformat:2|intcomma }}</p>
-              <p class="net-amount text-success">
-                <strong>Taxable Income:</strong> &nbsp;&nbsp;${{ taxable_income|floatformat:2|intcomma }}
-              </p>
+              <p class="text-primary"><strong>Net Income:</strong> &nbsp;&nbsp;${{ net_income|floatformat:2|intcomma }}</p>
             </div>
+          </div>
           </div>
         </div>
       </div>
