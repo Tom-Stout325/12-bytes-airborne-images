@@ -168,21 +168,21 @@
         </div>
 <hr>
          <!-- Summary Section -->
-          <div class="summary row mt-4 px-3 mx-auto">
+          <div class="summary row mt-4 px-3">
             <!-- Left Column -->
-            <div class="col-md-6">
+            <div class="col-md-6 text-center">
               <h6 class="text-decoration-underline">Taxable Income</h6>
               <p><strong>Invoice Amount:</strong> &nbsp;&nbsp;${{ invoice_amount|floatformat:2|intcomma }}</p>
-              <p><strong>Taxable Expenses:</strong> &nbsp;&nbsp;-{{ deductible_expenses|default:"0.00"|floatformat:2|intcomma }}</p>
-              <p><strong>Mileage Deduction:</strong> &nbsp;&nbsp;-{{ mileage_dollars|floatformat:2|intcomma }}</p>
+              <p><strong>Taxable Expenses:</strong> &nbsp;&nbsp;-${{ deductible_expenses|default:"0.00"|floatformat:2|intcomma }}</p>
+              <p><strong>Mileage Deduction:</strong> &nbsp;&nbsp;-${{ mileage_dollars|floatformat:2|intcomma }}</p>
               <p class="text-success"><strong>Taxable Income:</strong> &nbsp;&nbsp;${{ taxable_income|floatformat:2|intcomma }}</p>
             </div>
 
             <!-- Right Column -->
-            <div class="col-md-6">
+            <div class="col-md-6 text-center">
               <h6 class="text-decoration-underline">Net Income</h6>
               <p><strong>Invoice Amount:</strong> &nbsp;&nbsp;${{ invoice_amount|floatformat:2|intcomma }}</p>
-              <p><strong>Expenses (actual):</strong> &nbsp;&nbsp;-{{ total_expenses|floatformat:2|intcomma }}</p>
+              <p><strong>Expenses (actual):</strong> &nbsp;&nbsp;-${{ total_expenses|floatformat:2|intcomma }}</p>
               <p class="text-primary"><strong>Net Income:</strong> &nbsp;&nbsp;${{ net_income|floatformat:2|intcomma }}</p>
             </div>
           </div>
