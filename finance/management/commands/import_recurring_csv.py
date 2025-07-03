@@ -23,7 +23,6 @@ class Command(BaseCommand):
                 try:
                     # Convert all foreign key IDs to integers
                     user = User.objects.get(id=int(row['user'].strip()))
-                    trans_type = Type.objects.get(id=int(row['trans_type'].strip()))
                     category = Category.objects.get(id=int(row['category'].strip()))
                     sub_cat = SubCategory.objects.get(id=int(row['sub_cat'].strip()))
 

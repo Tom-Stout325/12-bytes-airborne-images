@@ -52,7 +52,7 @@ class Transactions(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = Transaction.objects.select_related(
-            'trans_type', 'category', 'sub_cat', 'team', 'keyword'
+            'category', 'sub_cat', 'team', 'keyword'
         ).filter(user=self.request.user)
 
         keyword_id = self.request.GET.get('keyword')
@@ -73,7 +73,7 @@ class Transactions(LoginRequiredMixin, ListView):
 
         sort = self.request.GET.get('sort', '-date')
         valid_sort_fields = [
-            'date', '-date', 'trans_type__trans_type', '-trans_type__trans_type',
+            'date', '-date', 'trans_type', '-trans_type',
             'transaction', '-transaction', 'keyword__name', '-keyword__name',
             'amount', '-amount', 'invoice_numb', '-invoice_numb'
         ]

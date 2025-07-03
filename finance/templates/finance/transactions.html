@@ -110,7 +110,7 @@
           {% for transaction in transactions %}
             <tr>
               <td>{{ transaction.date }}</td>
-              <td>{{ transaction.trans_type.trans_type }}</td>
+              <td>{{ transaction.trans_type }}</td>
               <td>{{ transaction.transaction }}</td>
               <td>{{ transaction.keyword.name|default:"" }}</td>
               <td>$ {{ transaction.amount }}</td>

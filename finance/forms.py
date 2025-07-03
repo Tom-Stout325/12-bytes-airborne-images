@@ -11,12 +11,6 @@ class TransForm(forms.ModelForm):
         required=False
     )
 
-    trans_type = forms.ModelChoiceField(
-        queryset=Type.objects.filter(id__in=[1, 2]),  # 🔒 Only allow IDs 1 and 2
-        label='Transaction Type',
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
-
     class Meta:
         model = Transaction
         fields = (

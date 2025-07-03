@@ -17,10 +17,6 @@ class TeamAdmin(admin.ModelAdmin):
     list_display    = ['name', 'id']
     
     
-class TypeAdmin(admin.ModelAdmin):
-    list_display    = ['trans_type', 'id']
-    
-    
 @admin.register(Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
     list_display = ('invoice_numb', 'client', 'amount', 'status', 'paid_date', 'days_to_pay')
@@ -53,7 +49,6 @@ admin.site.register(InvoiceItem)
 admin.site.register(MileageRate)
 admin.site.register(Client)
 admin.site.register(Keyword, KeywordAdmin)
-admin.site.register(Type, TypeAdmin)
 admin.site.register(Service)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(Category,)

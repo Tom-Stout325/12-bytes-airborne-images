@@ -23,7 +23,6 @@ class Command(BaseCommand):
             for row in reader:
                 try:
                     # Lookup or create related fields using correct model fields
-                    trans_type, _ = Type.objects.get_or_create(trans_type=row['trans_type'])
                     category, _ = Category.objects.get_or_create(category=row['category'])
                     sub_cat, _ = SubCategory.objects.get_or_create(sub_cat=row['sub_cat'])
 

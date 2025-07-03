@@ -13,16 +13,6 @@ except ImportError:
     SearchVectorField = None
 
 
-class Type(models.Model):
-    trans_type = models.CharField(max_length=50, blank=True, null=True)
-
-    class Meta:
-        verbose_name_plural = "Types"
-
-    def __str__(self):
-        return self.trans_type
-
-
 class Category(models.Model):
     category = models.CharField(max_length=500, blank=True, null=True)
     
@@ -88,8 +78,15 @@ class Transaction(models.Model):
         ('flight', 'Flight'),
         ('public_transport', 'Public Transport'),
     ]
+    INCOME = 'Income'
+    EXPENSE = 'Expense'
+
+    TRANS_TYPE_CHOICES = [
+        (INCOME, 'Income'),
+        (EXPENSE, 'Expense'),
+    ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    trans_type = models.ForeignKey('Type', on_delete=models.PROTECT)
+    trans_type = models.CharField(max_length=10, choices=TRANS_TYPE_CHOICES, default=EXPENSE)
     category = models.ForeignKey('Category', on_delete=models.PROTECT)
     sub_cat = models.ForeignKey('SubCategory', on_delete=models.PROTECT, null=True, blank=True)
     amount = models.DecimalField(max_digits=20, decimal_places=2)
@@ -244,8 +241,15 @@ class Miles(models.Model):
 
 
 class RecurringTransaction(models.Model):
+    INCOME = 'Income'
+    EXPENSE = 'Expense'
+
+    TRANS_TYPE_CHOICES = [
+        (INCOME, 'Income'),
+        (EXPENSE, 'Expense'),
+    ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    trans_type = models.ForeignKey('Type', on_delete=models.PROTECT)
+    trans_type = models.CharField(max_length=10, choices=TRANS_TYPE_CHOICES, default=EXPENSE)
     category = models.ForeignKey('Category', on_delete=models.PROTECT)
     sub_cat = models.ForeignKey('SubCategory', on_delete=models.PROTECT, null=True, blank=True)
     amount = models.DecimalField(max_digits=20, decimal_places=2)
