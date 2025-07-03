@@ -1004,7 +1004,7 @@ def nhra_summary(request):
 
 
 @login_required
-def travel_expense_report(request):
+def race_expense_report(request):
     current_year = now().year
     years = [current_year, current_year - 1, current_year - 2]
 
@@ -1060,11 +1060,11 @@ def travel_expense_report(request):
         'current_page': 'reports',
     }
 
-    return render(request, 'finance/travel_expense_report.html', context)
+    return render(request, 'finance/race_expense_report.html', context)
 
 
 # @login_required
-# def travel_expense_report(request):
+# def race_expense_report(request):
 #     current_year = now().year
 #     years = [current_year, current_year - 1, current_year - 2] 
 
@@ -1114,11 +1114,11 @@ def travel_expense_report(request):
 #         'current_page': 'reports'
 #     }
 
-#     return render(request, 'finance/travel_expense_report.html', context)
+#     return render(request, 'finance/race_expense_report.html', context)
 
 
 @login_required
-def travel_expense_report_pdf(request):
+def race_expense_report_pdf(request):
     current_year = now().year
     years = [current_year, current_year - 1, current_year - 2]
     travel_subcategories = [
@@ -1156,20 +1156,20 @@ def travel_expense_report_pdf(request):
         'current_page': 'reports'
     }
     try:
-        template = get_template('finance/travel_expense_report.html')
+        template = get_template('finance/race_expense_report.html')
         html_string = template.render(context)
         html_string = "<style>@page { size: 8.5in 11in; margin: 1in; }</style>" + html_string
         with tempfile.NamedTemporaryFile(delete=True) as output:
             HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(output.name)
             output.seek(0)
             response = HttpResponse(content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="travel_expense_report.pdf"'
+            response['Content-Disposition'] = 'attachment; filename="race_expense_report.pdf"'
             response.write(output.read())
         return response
     except Exception as e:
         logger.error(f"Error generating PDF for user {request.user.id}: {e}")
         messages.error(request, "Error generating PDF.")
-        return redirect('travel_expense_report')
+        return redirect('race_expense_report')
 
 
 
