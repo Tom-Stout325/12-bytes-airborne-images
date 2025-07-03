@@ -84,8 +84,13 @@
               {% if current_sort == 'date' %}↓{% elif current_sort == '-date' %}↑{% endif %}
             </th>
             <th>
-              <a href="?{% query_transform request.GET sort='trans_type__trans_type' direction='asc' %}" class="{% if current_sort == 'trans_type__trans_type' %}text-dark{% endif %}">Type</a>
-              {% if current_sort == 'trans_type__trans_type' %}↑{% elif current_sort == '-trans_type__trans_type' %}↓{% endif %}
+              {% if current_sort == 'trans_type' %}
+                <a href="?{% query_transform request.GET sort='-trans_type' %}">Type ▲</a>
+              {% elif current_sort == '-trans_type' %}
+                <a href="?{% query_transform request.GET sort='trans_type' %}">Type ▼</a>
+              {% else %}
+                <a href="?{% query_transform request.GET sort='trans_type' %}">Type</a>
+              {% endif %}
             </th>
             <th>
               <a href="?{% query_transform request.GET sort='transaction' direction='asc' %}" class="{% if current_sort == 'transaction' %}text-dark{% endif %}">Description</a>
@@ -110,7 +115,14 @@
           {% for transaction in transactions %}
             <tr>
               <td>{{ transaction.date }}</td>
-              <td>{{ transaction.trans_type }}</td>
+              <td>
+                {% if transaction.trans_type == "Income" %}
+                  <span class="fw-bold text-success">{{ transaction.trans_type }}</span>
+                {% else %}
+                  {{ transaction.trans_type }}
+                {% endif %}
+              </td>
+
               <td>{{ transaction.transaction }}</td>
               <td>{{ transaction.keyword.name|default:"" }}</td>
               <td>$ {{ transaction.amount }}</td>
