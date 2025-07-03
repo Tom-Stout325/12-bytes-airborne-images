@@ -973,7 +973,7 @@ def nhra_summary(request):
         user=request.user
     ).exclude(keyword__id__in=excluded_ids).filter(
         date__year__in=years, trans_type__isnull=False
-    ).values('keyword__name', 'date__year', 'trans_type__trans_type').annotate(
+    ).values('keyword__name', 'date__year', 'trans_type').annotate(
         total=Sum('amount')
     ).order_by('keyword__name', 'date__year')
 
@@ -982,7 +982,7 @@ def nhra_summary(request):
     for item in summary_data:
         keyword = item['keyword__name']
         year = item['date__year']
-        trans_type = item['trans_type__trans_type'].lower()
+        trans_type = item['trans_type'].lower()
         if keyword:
             result[keyword][year][trans_type] = item['total']
             result[keyword][year]['net'] = result[keyword][year]['income'] - result[keyword][year]['expense']
