@@ -882,9 +882,6 @@ def get_summary_data(request, year):
     }
 
 
-
-
-
 @login_required
 def financial_statement(request):
     current_year = timezone.now().year
@@ -896,32 +893,58 @@ def financial_statement(request):
     return render(request, 'finance/financial_statement.html', context)
 
 
-
 @login_required
 def financial_statement_pdf(request, year):
-    context = get_summary_data(request, year)
-    context['now'] = timezone.now()
-    context['selected_year'] = year
+    user = request.user
+    selected_year = int(year)
 
-    try:
-        template = get_template('finance/financial_statement_pdf.html')
-        html_string = template.render(context)
-        html_string = "<style>@page { size: 8.5in 11in; margin: 1in; }</style>" + html_string
+    transactions = Transaction.objects.filter(
+        user=user,
+        date__year=selected_year,
+        trans_type='Expense'
+    ).select_related('sub_cat')
 
-        if request.GET.get("preview") == "1":
-            return HttpResponse(html_string)
+    expense_totals = {}
+    for t in transactions:
+        name = t.sub_cat.sub_cat if t.sub_cat else "Uncategorized"
+        if t.sub_cat_id == 27 and t.transport_type == "personal_vehicle":
+            continue
+        amount = t.amount
+        if t.sub_cat_id == 26:
+            amount = round(t.amount * Decimal('0.5'), 2)
+        expense_totals[name] = expense_totals.get(name, Decimal('0.00')) + amount
 
-        with tempfile.NamedTemporaryFile(delete=True) as tmp:
-            HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(tmp.name)
-            tmp.seek(0)
-            response = HttpResponse(tmp.read(), content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="financial_statement_{year}.pdf"'
-            return response
-    except Exception as e:
-        logger.error(f"Error generating financial statement PDF for {year}: {e}")
-        messages.error(request, "Error generating PDF.")
-        return redirect('financial_statement')
-    
+    expense_subcategory_totals = [
+        {'sub_cat__sub_cat': name, 'total': total}
+        for name, total in sorted(expense_totals.items())
+    ]
+    expense_category_total = sum(t['total'] for t in expense_subcategory_totals)
+
+    income_qs = Transaction.objects.filter(
+        user=user,
+        date__year=selected_year,
+        trans_type='Income'
+    ).select_related('sub_cat')
+
+    income_subcategory_totals = income_qs.values('sub_cat__sub_cat') \
+        .annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
+    income_category_total = income_qs.aggregate(total=Sum('amount'))['total'] or 0
+
+    net_profit = income_category_total - expense_category_total
+
+    html_string = render_to_string('finance/financial_statement_pdf.html', {
+        'selected_year': selected_year,
+        'income_subcategory_totals': income_subcategory_totals,
+        'expense_subcategory_totals': expense_subcategory_totals,
+        'income_category_total': income_category_total,
+        'expense_category_total': expense_category_total,
+        'net_profit': net_profit,
+        'now': timezone.now(),
+    })
+    pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'filename="Financial_Statement_{selected_year}.pdf"'
+    return response
     
     
 @login_required

@@ -1,4 +1,4 @@
-{% load static %} 
+{% load static %}
 {% load humanize %}
 <!DOCTYPE html>
 <html>
@@ -70,6 +70,7 @@
         font-size: 13.5px;
         color: #2e8b57;
       }
+
       .footer {
         font-size: 10px;
         text-align: center;
@@ -121,12 +122,12 @@
     </div>
 
     <div class="section">
-      <h4>Expenses</h4>
+      <h4>Expenses <span style="font-weight: normal; font-size: 10px;">(meals are 50% deductible; personal fuel excluded)</span></h4>
       <table>
         <thead>
           <tr>
             <th>Subcategory</th>
-            <th>Total Amount</th>
+            <th>Total Deductible</th>
           </tr>
         </thead>
         <tbody>
@@ -137,7 +138,7 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="2">No expense data</td>
+            <td colspan="2">No deductible expense data</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -149,13 +150,13 @@
         </tfoot>
       </table>
     </div>
+
     <div class="summary">
-      <p>Net Profit/Loss: ${{ net_profit|floatformat:2|intcomma }}</p>
+      <p>Net Profit/Loss: <strong>${{ net_profit|floatformat:2|intcomma }}</strong></p>
     </div>
-    <!-- Footer -->
+
     <div class="footer">
-      &copy; {{ selected_year }} Airborne Images &nbsp;•&nbsp; {{ now|date:"F j,
-      Y" }}
+      &copy; {{ selected_year }} Airborne Images &nbsp;•&nbsp; {{ now|date:"F j, Y" }}
     </div>
   </body>
 </html>
