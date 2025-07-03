@@ -50,9 +50,11 @@ urlpatterns = [
     path('category-summary/', category_summary, name='category_summary'),
     path('finance/category-summary/pdf/', category_summary_pdf, name='category_summary_pdf'),
     path('nhra-summary/', nhra_summary, name='nhra_summary'),
-    path('travel-expense-report/', race_expense_report, name='race_expense_report'),
-    path('travel-expense-report/pdf/', race_expense_report_pdf, name='race_expense_report_pdf'),
-    
+    path('race-expense-report/', race_expense_report, name='race_expense_report'),
+    path('race-expense-report/pdf/', race_expense_report_pdf, name='race_expense_report_pdf'),
+    path('reports/travel-analysis/', travel_expense_analysis, name='travel_expense_analysis'),
+    path('reports/travel-analysis/pdf/', travel_expense_analysis_pdf, name='travel_expense_analysis_pdf'),
+
     # Mileage
     path('mileage-log/', mileage_log, name='mileage_log'),
     path('mileage/add/', MileageCreateView.as_view(), name='mileage_create'),

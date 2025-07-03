@@ -1118,6 +1118,56 @@ def travel_expense_analysis(request):
 
 
 @login_required
+def travel_expense_analysis_pdf(request):
+    selected_year = int(request.GET.get('year', now().year))
+
+    income_subcat_id = 19
+    expense_subcat_ids = [100, 23, 24, 27, 25, 26, 28]
+
+    income_total = Transaction.objects.filter(
+        user=request.user,
+        date__year=selected_year,
+        trans_type='Income',
+        sub_cat_id=income_subcat_id
+    ).aggregate(total=Sum('amount'))['total'] or 0
+
+    expenses_qs = Transaction.objects.filter(
+        user=request.user,
+        date__year=selected_year,
+        trans_type='Expense',
+        sub_cat_id__in=expense_subcat_ids
+    ).values('sub_cat__sub_cat', 'sub_cat_id') \
+     .annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
+
+    expense_data = []
+    total_expense = sum(row['total'] for row in expenses_qs)
+
+    for row in expenses_qs:
+        amount = row['total']
+        percentage = (amount / total_expense) * 100 if total_expense else 0
+        expense_data.append({
+            'name': row['sub_cat__sub_cat'],
+            'amount': amount,
+            'percentage': round(percentage, 2)
+        })
+
+    html_string = render_to_string('finance/travel_expense_analysis_pdf.html', {
+        'selected_year': selected_year,
+        'income_total': income_total,
+        'expense_data': expense_data,
+        'total_expense': total_expense,
+    })
+
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+    pdf_file = html.write_pdf()
+
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'filename="Travel_Expense_Report_{selected_year}.pdf"'
+    return response
+
+
+
+@login_required
 def race_expense_report_pdf(request):
     current_year = now().year
     years = [current_year, current_year - 1, current_year - 2]

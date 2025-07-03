@@ -25,6 +25,12 @@
         </div>
       </form>
 
+        <div class="text-center mb-4">
+            <a href="{% url 'travel_expense_analysis_pdf' %}?year={{ selected_year }}" class="btn btn-outline-danger w-100">
+                <i class="fa-solid fa-file-pdf"></i> Download PDF Report
+            </a>
+        </div>
+
       <!-- Summary -->
       <div class="row text-center text-md-end mb-4">
         <div class="col-12 col-md-6">
