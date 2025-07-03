@@ -1063,58 +1063,58 @@ def race_expense_report(request):
     return render(request, 'finance/race_expense_report.html', context)
 
 
-# @login_required
-# def race_expense_report(request):
-#     current_year = now().year
-#     years = [current_year, current_year - 1, current_year - 2] 
+@login_required
+def travel_expense_analysis(request):
+    current_year = now().year
+    available_years = list(range(2023, current_year + 1))
 
-#     travel_subcategories = [
-#         'Travel: Car Rental',
-#         'Travel: Flights',
-#         'Travel: Fuel',
-#         'Travel: Hotel',
-#         'Travel: Meals',
-#         'Travel: Miscellaneous'
-#     ]
+    selected_year = int(request.GET.get('year', current_year))
 
-#     transactions = Transaction.objects.filter(
-#         user=request.user,
-#         trans_type='Expense',
-#         sub_cat__sub_cat__in=travel_subcategories,
-#         date__year__in=years
-#     ).select_related('keyword', 'sub_cat')
+    # Sub-category IDs
+    income_subcat_id = 19  # Services: Drone
+    expense_subcat_ids = [100, 23, 24, 27, 25, 26, 28]
 
-#     logger.debug(f"Transaction count for user {request.user.id}: {transactions.count()}")
+    # Income: Services: Drone
+    income_total = Transaction.objects.filter(
+        user=request.user,
+        date__year=selected_year,
+        trans_type='Income',
+        sub_cat_id=income_subcat_id
+    ).aggregate(total=Sum('amount'))['total'] or 0
 
-#     summary_data = transactions.values(
-#         'keyword__name', 'sub_cat__sub_cat', 'date__year'
-#     ).annotate(total=Sum('amount')).order_by('keyword__name', 'sub_cat__sub_cat', 'date__year')
+    # Travel Expenses by subcategory
+    expenses_qs = Transaction.objects.filter(
+        user=request.user,
+        date__year=selected_year,
+        trans_type='Expense',
+        sub_cat_id__in=expense_subcat_ids
+    ).values('sub_cat__sub_cat', 'sub_cat_id') \
+     .annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
 
-#     result = defaultdict(lambda: defaultdict(lambda: {y: 0 for y in years}))
-#     for item in summary_data:
-#         keyword = item['keyword__name'] or 'Unspecified'
-#         subcategory = item['sub_cat__sub_cat']
-#         year = item['date__year']
-#         result[keyword][subcategory][year] = item['total']
+    # Prepare totals
+    expense_data = []
+    total_expense = sum(row['total'] for row in expenses_qs)
 
-#     keyword_totals = defaultdict(lambda: {y: 0 for y in years})
-#     yearly_totals = {y: 0 for y in years}
-#     for keyword, subcats in result.items():
-#         for subcat, year_data in subcats.items():
-#             for year, amount in year_data.items():
-#                 keyword_totals[keyword][year] += amount
-#                 yearly_totals[year] += amount
+    for row in expenses_qs:
+        amount = row['total']
+        percentage = (amount / total_expense) * 100 if total_expense else 0
+        expense_data.append({
+            'name': row['sub_cat__sub_cat'],
+            'amount': amount,
+            'percentage': round(percentage, 2)
+        })
 
-#     context = {
-#         'years': years,
-#         'summary_data': dict(result),
-#         'keyword_totals': dict(keyword_totals),
-#         'yearly_totals': yearly_totals,
-#         'travel_subcategories': travel_subcategories,
-#         'current_page': 'reports'
-#     }
+    context = {
+        'selected_year': selected_year,
+        'available_years': available_years,
+        'income_total': income_total,
+        'expense_data': expense_data,
+        'total_expense': total_expense,
+        'current_page': 'reports',
+    }
 
-#     return render(request, 'finance/race_expense_report.html', context)
+    return render(request, 'finance/travel_expense_analysis.html', context)
+
 
 
 @login_required
