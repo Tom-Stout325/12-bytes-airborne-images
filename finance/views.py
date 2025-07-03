@@ -840,8 +840,8 @@ def get_summary_data(request, year):
     ).select_related('trans_type', 'category', 'sub_cat')
 
     # Split income vs expense
-    income_qs = transactions.filter(trans_type__trans_type='Income')
-    expense_qs = transactions.filter(trans_type__trans_type='Expense')
+    income_qs = transactions.filter(trans_type='Income')
+    expense_qs = transactions.filter(trans_type='Expense')
 
     # Aggregates
     income_category_totals = income_qs.values('category__category') \
@@ -1013,7 +1013,7 @@ def travel_expense_report(request):
 
     transactions = Transaction.objects.filter(
         user=request.user,
-        trans_type__trans_type='Expense',
+        trans_type='Expense',
         sub_cat__sub_cat__in=travel_subcategories,
         date__year__in=years
     ).select_related('keyword', 'sub_cat')
@@ -1061,7 +1061,7 @@ def travel_expense_report_pdf(request):
     ]
     transactions = Transaction.objects.filter(
         user=request.user,
-        trans_type__trans_type='Expense',
+        trans_type='Expense',
         sub_cat__sub_cat__in=travel_subcategories,
         date__year__in=years
     ).select_related('keyword', 'sub_cat')
