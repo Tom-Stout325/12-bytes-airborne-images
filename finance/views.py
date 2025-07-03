@@ -1002,10 +1002,11 @@ def nhra_summary(request):
     return render(request, "finance/nhra_summary.html", context)
 
 
+
 @login_required
 def travel_expense_report(request):
     current_year = now().year
-    years = [current_year, current_year - 1, current_year - 2] 
+    years = [current_year, current_year - 1, current_year - 2]
 
     travel_subcategories = [
         'Travel: Car Rental',
@@ -1016,44 +1017,104 @@ def travel_expense_report(request):
         'Travel: Miscellaneous'
     ]
 
-    transactions = Transaction.objects.filter(
+    selected_keyword = request.GET.get('keyword', '')
+
+    base_qs = Transaction.objects.filter(
         user=request.user,
         trans_type='Expense',
         sub_cat__sub_cat__in=travel_subcategories,
         date__year__in=years
     ).select_related('keyword', 'sub_cat')
 
-    logger.debug(f"Transaction count for user {request.user.id}: {transactions.count()}")
+    # Get list of all keywords used in filtered transactions
+    all_keywords = base_qs.values_list('keyword__name', flat=True).distinct().order_by('keyword__name')
 
-    summary_data = transactions.values(
+    if selected_keyword:
+        base_qs = base_qs.filter(keyword__name=selected_keyword)
+
+    summary_data = base_qs.values(
         'keyword__name', 'sub_cat__sub_cat', 'date__year'
-    ).annotate(total=Sum('amount')).order_by('keyword__name', 'sub_cat__sub_cat', 'date__year')
+    ).annotate(total=Sum('amount')).order_by('sub_cat__sub_cat', 'date__year')
 
     result = defaultdict(lambda: defaultdict(lambda: {y: 0 for y in years}))
+    keyword_totals = defaultdict(lambda: {y: 0 for y in years})
+    yearly_totals = {y: 0 for y in years}
+
     for item in summary_data:
         keyword = item['keyword__name'] or 'Unspecified'
         subcategory = item['sub_cat__sub_cat']
         year = item['date__year']
-        result[keyword][subcategory][year] = item['total']
-
-    keyword_totals = defaultdict(lambda: {y: 0 for y in years})
-    yearly_totals = {y: 0 for y in years}
-    for keyword, subcats in result.items():
-        for subcat, year_data in subcats.items():
-            for year, amount in year_data.items():
-                keyword_totals[keyword][year] += amount
-                yearly_totals[year] += amount
+        amount = item['total']
+        result[keyword][subcategory][year] = amount
+        keyword_totals[keyword][year] += amount
+        yearly_totals[year] += amount
 
     context = {
         'years': years,
+        'keywords': all_keywords,
+        'selected_keyword': selected_keyword,
         'summary_data': dict(result),
         'keyword_totals': dict(keyword_totals),
         'yearly_totals': yearly_totals,
         'travel_subcategories': travel_subcategories,
-        'current_page': 'reports'
+        'current_page': 'reports',
     }
 
     return render(request, 'finance/travel_expense_report.html', context)
+
+
+# @login_required
+# def travel_expense_report(request):
+#     current_year = now().year
+#     years = [current_year, current_year - 1, current_year - 2] 
+
+#     travel_subcategories = [
+#         'Travel: Car Rental',
+#         'Travel: Flights',
+#         'Travel: Fuel',
+#         'Travel: Hotel',
+#         'Travel: Meals',
+#         'Travel: Miscellaneous'
+#     ]
+
+#     transactions = Transaction.objects.filter(
+#         user=request.user,
+#         trans_type='Expense',
+#         sub_cat__sub_cat__in=travel_subcategories,
+#         date__year__in=years
+#     ).select_related('keyword', 'sub_cat')
+
+#     logger.debug(f"Transaction count for user {request.user.id}: {transactions.count()}")
+
+#     summary_data = transactions.values(
+#         'keyword__name', 'sub_cat__sub_cat', 'date__year'
+#     ).annotate(total=Sum('amount')).order_by('keyword__name', 'sub_cat__sub_cat', 'date__year')
+
+#     result = defaultdict(lambda: defaultdict(lambda: {y: 0 for y in years}))
+#     for item in summary_data:
+#         keyword = item['keyword__name'] or 'Unspecified'
+#         subcategory = item['sub_cat__sub_cat']
+#         year = item['date__year']
+#         result[keyword][subcategory][year] = item['total']
+
+#     keyword_totals = defaultdict(lambda: {y: 0 for y in years})
+#     yearly_totals = {y: 0 for y in years}
+#     for keyword, subcats in result.items():
+#         for subcat, year_data in subcats.items():
+#             for year, amount in year_data.items():
+#                 keyword_totals[keyword][year] += amount
+#                 yearly_totals[year] += amount
+
+#     context = {
+#         'years': years,
+#         'summary_data': dict(result),
+#         'keyword_totals': dict(keyword_totals),
+#         'yearly_totals': yearly_totals,
+#         'travel_subcategories': travel_subcategories,
+#         'current_page': 'reports'
+#     }
+
+#     return render(request, 'finance/travel_expense_report.html', context)
 
 
 @login_required
