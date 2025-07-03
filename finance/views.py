@@ -1070,11 +1070,9 @@ def travel_expense_analysis(request):
 
     selected_year = int(request.GET.get('year', current_year))
 
-    # Sub-category IDs
     income_subcat_id = 19  # Services: Drone
     expense_subcat_ids = [100, 23, 24, 27, 25, 26, 28]
 
-    # Income: Services: Drone
     income_total = Transaction.objects.filter(
         user=request.user,
         date__year=selected_year,
@@ -1082,7 +1080,6 @@ def travel_expense_analysis(request):
         sub_cat_id=income_subcat_id
     ).aggregate(total=Sum('amount'))['total'] or 0
 
-    # Travel Expenses by subcategory
     expenses_qs = Transaction.objects.filter(
         user=request.user,
         date__year=selected_year,
@@ -1091,7 +1088,6 @@ def travel_expense_analysis(request):
     ).values('sub_cat__sub_cat', 'sub_cat_id') \
      .annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
 
-    # Prepare totals
     expense_data = []
     total_expense = sum(row['total'] for row in expenses_qs)
 
