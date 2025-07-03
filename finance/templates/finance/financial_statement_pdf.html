@@ -149,17 +149,13 @@
         </tfoot>
       </table>
     </div>
-
     <div class="summary">
       <p>Net Profit/Loss: ${{ net_profit|floatformat:2|intcomma }}</p>
     </div>
-
     <!-- Footer -->
     <div class="footer">
       &copy; {{ selected_year }} Airborne Images &nbsp;•&nbsp; {{ now|date:"F j,
       Y" }}
     </div>
-    <p>Debug: Total Income = {{ income_category_total }}</p>
-
   </body>
 </html>
