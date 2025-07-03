@@ -427,19 +427,22 @@ def invoice_review(request, pk):
     total_income = 0
 
     for t in transactions:
-        if t.trans_type.trans_type == 'Income':
+        if t.trans_type == 'Income':
             total_income += t.amount
-        elif t.trans_type.trans_type == 'Expense':
+        elif t.trans_type == 'Expense':
             total_expenses += t.amount
             is_meal = t.sub_cat and t.sub_cat.id == 26
             is_gas = t.sub_cat and t.sub_cat.id == 27
             is_personal_vehicle = t.transport_type == 'personal_vehicle'
+
             if is_meal:
                 deductible_expenses += t.deductible_amount
             elif is_gas and is_personal_vehicle:
                 continue
             else:
                 deductible_expenses += t.amount
+        else:
+            deductible_expenses += t.amount
     net_income = total_income - total_expenses
     taxable_income = total_income - deductible_expenses - mileage_dollars
 
