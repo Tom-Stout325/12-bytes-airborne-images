@@ -405,7 +405,7 @@ class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def invoice_review(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
-    transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb).select_related('trans_type', 'sub_cat', 'category')
+    transactions = Transaction.objects.filter(invoice_numb=invoice.invoice_numb).select_related('sub_cat', 'category')
     mileage_entries = Miles.objects.filter(
         invoice=invoice.invoice_numb,
         user=request.user,

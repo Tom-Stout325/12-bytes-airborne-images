@@ -94,7 +94,7 @@
                   {% endif %}
                 </td>
                 <td>
-                  {% if transaction.trans_type.trans_type == 'Expense' %}
+                  {% if transaction.trans_type == 'Expense' %}
                     {% if transaction.sub_cat.id == 26 %}
                       <span class="badge bg-warning text-dark" title="50% deductible">50%</span>
                     {% elif transaction.sub_cat.id == 27 and transaction.transport_type == 'personal_vehicle' %}
