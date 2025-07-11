@@ -61,7 +61,23 @@ class InvoiceForm(forms.ModelForm):
 class InvoiceItemForm(forms.ModelForm):
     class Meta:
         model = InvoiceItem
-        fields = ['item', 'qty', 'price']
+        fields = ['description', 'qty', 'price']
+
+    description = forms.CharField(
+        label="Description",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Service or product description'})
+    )
+
+    qty = forms.IntegerField(
+        label="Qty",
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 1})
+    )
+
+    price = forms.DecimalField(
+        label="Price",
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'})
+    )
+
 
 
 InvoiceItemFormSet = inlineformset_factory(
@@ -78,15 +94,18 @@ class CategoryForm(forms.ModelForm):
         model = Category
         fields = ['category']
 
+
 class SubCategoryForm(forms.ModelForm):
     class Meta:
         model = SubCategory
         fields = ['sub_cat']
 
+
 class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
         fields = ['business', 'first', 'last', 'street', 'address2', 'email', 'phone']
+
 
 class MileageForm(forms.ModelForm):
     class Meta:

@@ -100,50 +100,50 @@ class Transactions(LoginRequiredMixin, ListView):
         return context
 
 
-class DownloadTransactionsCSV(LoginRequiredMixin, View):
-    def get(self, request):
-        if request.GET.get('all') == 'true':
-            queryset = Transaction.objects.filter(user=request.user).select_related('trans_type', 'keyword')
-        else:
-            transactions_view = Transactions()
-            transactions_view.request = request
-            queryset = transactions_view.get_queryset()
+# class DownloadTransactionsCSV(LoginRequiredMixin, View):
+#     def get(self, request):
+#         if request.GET.get('all') == 'true':
+#             queryset = Transaction.objects.filter(user=request.user).select_related('trans_type', 'keyword')
+#         else:
+#             transactions_view = Transactions()
+#             transactions_view.request = request
+#             queryset = transactions_view.get_queryset()
 
-        year = request.GET.get('year')
-        if year and year.isdigit():
-            queryset = queryset.filter(date__year=int(year))
+#         year = request.GET.get('year')
+#         if year and year.isdigit():
+#             queryset = queryset.filter(date__year=int(year))
 
-        class Echo:
-            def write(self, value):
-                return value
+#         class Echo:
+#             def write(self, value):
+#                 return value
 
-        def stream_csv(queryset):
-            writer = csv.writer(Echo())
-            yield writer.writerow(['Date', 'Type', 'Transaction', 'Location', 'Amount', 'Invoice #'])
-            for tx in queryset.iterator():
-                yield writer.writerow([
-                    tx.date,
-                    tx.trans_type.trans_type if tx.trans_type else '',
-                    tx.transaction,
-                    tx.keyword.name if tx.keyword else '',
-                    tx.amount,
-                    tx.invoice_numb if tx.invoice_numb else ''
-                ])
+#         def stream_csv(queryset):
+#             writer = csv.writer(Echo())
+#             yield writer.writerow(['Date', 'Type', 'Transaction', 'Location', 'Amount', 'Invoice #'])
+#             for tx in queryset.iterator():
+#                 yield writer.writerow([
+#                     tx.date,
+#                     tx.trans_type.trans_type if tx.trans_type else '',
+#                     tx.transaction,
+#                     tx.keyword.name if tx.keyword else '',
+#                     tx.amount,
+#                     tx.invoice_numb if tx.invoice_numb else ''
+#                 ])
 
-        try:
-            if request.GET.get('all') == 'true':
-                filename = "all_transactions.csv"
-            elif year and year.isdigit():
-                filename = f"transactions_{year}.csv"
-            else:
-                filename = "transactions.csv"
+#         try:
+#             if request.GET.get('all') == 'true':
+#                 filename = "all_transactions.csv"
+#             elif year and year.isdigit():
+#                 filename = f"transactions_{year}.csv"
+#             else:
+#                 filename = "transactions.csv"
                 
-            response = StreamingHttpResponse(stream_csv(queryset), content_type='text/csv')
-            response['Content-Disposition'] = f'attachment; filename="{filename}"'
-            return response
-        except Exception as e:
-            logger.error(f"Error generating CSV for user {request.user.id}: {e}")
-            return HttpResponse("Error generating CSV", status=500)
+#             response = StreamingHttpResponse(stream_csv(queryset), content_type='text/csv')
+#             response['Content-Disposition'] = f'attachment; filename="{filename}"'
+#             return response
+#         except Exception as e:
+#             logger.error(f"Error generating CSV for user {request.user.id}: {e}")
+#             return HttpResponse("Error generating CSV", status=500)
 
 
 class TransactionCreateView(LoginRequiredMixin, CreateView):
@@ -547,6 +547,81 @@ def unpaid_invoices(request):
     invoices = Invoice.objects.filter(paid__iexact="No").select_related('client').order_by('due_date')
     context = {'invoices': invoices, 'current_page': 'invoices'}
     return render(request, 'components/unpaid_invoices.html', context)
+
+
+
+class Echo:
+    def write(self, value):
+        return value
+
+class DownloadTransactionsCSV(LoginRequiredMixin, View):
+    def get(self, request):
+        try:
+            # Get base queryset
+            if request.GET.get('all') == 'true':
+                queryset = Transaction.objects.filter(user=request.user)
+            else:
+                transactions_view = Transactions()
+                transactions_view.request = request
+                queryset = transactions_view.get_queryset()
+
+            # Filter by year
+            year = request.GET.get('year')
+            if year and year.isdigit():
+                queryset = queryset.filter(date__year=int(year))
+
+            # Debug check
+            if not queryset.exists():
+                logger.warning(f"No transactions found for user {request.user} in export.")
+                return HttpResponse("No transactions to export.", status=204)
+
+            print("Transaction count:", queryset.count())
+            logger.info(f"Transaction count for {request.user}: {queryset.count()}")
+
+            # CSV generator
+            def stream_csv(queryset):
+                pseudo_buffer = Echo()
+                writer = csv.writer(pseudo_buffer)
+                yield writer.writerow(['Date', 'Type', 'Transaction', 'Location', 'Amount', 'Invoice #'])
+                for tx in queryset.iterator():
+                    yield writer.writerow([
+                        tx.date,
+                        tx.trans_type or '',
+                        tx.transaction,
+                        tx.amount,
+                        tx.invoice_numb or ''
+                    ])
+
+            # Determine filename
+            if request.GET.get('all') == 'true':
+                filename = "all_transactions.csv"
+            elif year and year.isdigit():
+                filename = f"transactions_{year}.csv"
+            else:
+                filename = "transactions.csv"
+
+            # Return streaming response
+            response = StreamingHttpResponse(stream_csv(queryset), content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+
+        except Exception as e:
+            logger.error(f"Error generating CSV for user {request.user.id}: {e}")
+            return HttpResponse("Error generating CSV", status=500)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @login_required
@@ -1302,6 +1377,47 @@ def send_invoice_email(request, invoice_id):
         return JsonResponse({'status': 'error', 'message': 'Failed to send email'}, status=500)
 
 
+@login_required
+def service_list(request):
+    services = Service.objects.all()
+    return render(request, 'finance/service_list.html', {'services': services})
+
+
+@login_required
+def service_create(request):
+    if request.method == 'POST':
+        form = ServiceForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Service added successfully.")
+            return redirect('service_list')
+    else:
+        form = ServiceForm()
+    return render(request, 'finance/service_form.html', {'form': form, 'title': 'Add Service'})
+
+
+@login_required
+def service_update(request, pk):
+    service = get_object_or_404(Service, pk=pk)
+    if request.method == 'POST':
+        form = ServiceForm(request.POST, instance=service)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Service updated successfully.")
+            return redirect('service_list')
+    else:
+        form = ServiceForm(instance=service)
+    return render(request, 'finance/service_form.html', {'form': form, 'title': 'Edit Service'})
+
+
+@login_required
+def service_delete(request, pk):
+    service = get_object_or_404(Service, pk=pk)
+    if request.method == 'POST':
+        service.delete()
+        messages.success(request, "Service deleted.")
+        return redirect('service_list')
+    return render(request, 'finance/service_confirm_delete.html', {'service': service})
 
 # ---------------------------------------------------------------------------------------------------------------  Mileage
 
