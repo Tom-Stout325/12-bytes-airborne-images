@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ item.name }} - Equipment Details</title>
+    <style>
+        body {
+            font-family: "Helvetica", sans-serif;
+            font-size: 12px;
+            padding: 2em;
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #004080;
+            padding-bottom: 1em;
+            margin-bottom: 2em;
+        }
+
+        .header img {
+            max-height: 60px;
+            margin-bottom: 0.5em;
+        }
+
+        .header h2 {
+            color: #004080;
+            margin: 0;
+        }
+
+        .section-title {
+            background-color: #f0f4f8;
+            padding: 0.4em;
+            font-weight: bold;
+            border-left: 4px solid #004080;
+            margin-top: 2em;
+            margin-bottom: 0.5em;
+        }
+
+        .field-pair {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.2em 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .field-label {
+            font-weight: bold;
+            width: 35%;
+        }
+
+        .field-value {
+            width: 60%;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+  <div class="header">
+    <img src="{{ logo_url }}" alt="Airborne Images Logo">
+
+    <h2>Equipment Detail Report</h2>
+  </div>
+
+  <div class="section-title">General Information</div>
+  <div class="field-pair"><div class="field-label">Name</div><div class="field-value">{{ item.name }}</div></div>
+  <div class="field-pair"><div class="field-label">Type</div><div class="field-value">{{ item.equipment_type }}</div></div>
+  <div class="field-pair"><div class="field-label">Brand</div><div class="field-value">{{ item.brand }}</div></div>
+  <div class="field-pair"><div class="field-label">Model</div><div class="field-value">{{ item.model }}</div></div>
+
+  <div class="section-title">Technical Details</div>
+  <div class="field-pair"><div class="field-label">Serial Number</div><div class="field-value">{{ item.serial_number }}</div></div>
+  <div class="field-pair"><div class="field-label">Firmware Version</div><div class="field-value">{{ item.firmware_version }}</div></div>
+  <div class="field-pair"><div class="field-label">FAA Registration</div><div class="field-value">{{ item.faa_registration }}</div></div>
+
+  <div class="section-title">Lifecycle</div>
+  <div class="field-pair"><div class="field-label">Purchase Date</div><div class="field-value">{{ item.purchase_date|default:"—" }}</div></div>
+  <div class="field-pair"><div class="field-label">Date Disposed</div><div class="field-value">{{ item.date_disposed|default:"—" }}</div></div>
+
+  <div class="section-title">Notes</div>
+  <div style="margin-top: 0.5em; border: 1px solid #ccc; padding: 0.7em; background-color: #fafafa;">
+    {{ item.notes|linebreaksbr|default:"No additional notes." }}
+  </div>
+
+</body>
+</html>

@@ -23,6 +23,8 @@ from .views import (
     equipment_create,
     equipment_edit,
     equipment_delete,
+    equipment_pdf,
+    equipment_pdf_single,
 
     # Drones
     drone_portal,
@@ -40,6 +42,7 @@ from .views import (
     flightlog_edit,
     flightlog_delete,
     flightlog_pdf,
+    export_flightlogs_csv,
 )
 
 from .forms import (
@@ -86,6 +89,9 @@ urlpatterns = [
     path('equipment/create/', equipment_create, name='equipment_create'),
     path('equipment/<int:pk>/edit/', equipment_edit, name='equipment_edit'),
     path('equipment/<int:pk>/delete/', equipment_delete, name='equipment_delete'),
+    path('equipment/pdf/', equipment_pdf, name='equipment_pdf'),
+    path('equipment/<int:pk>/pdf/', equipment_pdf_single, name='equipment_pdf_single'),
+
 
     # Drones
     path('drones/', drone_list, name='drone_list'),
@@ -102,6 +108,7 @@ urlpatterns = [
     path('flightlogs/<int:pk>/edit/', flightlog_edit, name='flightlog_edit'),
     path('flightlogs/<int:pk>/delete/', flightlog_delete, name='flightlog_delete'),
     path('flightlogs/<int:pk>/pdf/', flightlog_pdf, name='flightlog_pdf'),
+    path('flightlogs/export/csv/', export_flightlogs_csv, name='export_flightlogs_csv'),
 ]
 
 

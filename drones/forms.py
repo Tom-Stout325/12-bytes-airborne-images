@@ -79,17 +79,15 @@ class FlightLogCSVUploadForm(forms.Form):
 
 #<---------------------------------------- EQUIPMENT FORMS ---------------------------------------->
 
+
 class EquipmentForm(forms.ModelForm):
     class Meta:
         model = Equipment
-        fields = ['name', 'brand', 'model', 'serial_number', 'date_purchased', 'cost']
+        fields = '__all__'
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'brand': forms.TextInput(attrs={'class': 'form-control'}),
-            'model': forms.TextInput(attrs={'class': 'form-control'}),
-            'serial_number': forms.TextInput(attrs={'class': 'form-control'}),
-            'date_purchased': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'cost': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
+            'purchase_date': forms.DateInput(attrs={'type': 'date'}),
+            'date_disposed': forms.DateInput(attrs={'type': 'date'}),
+            'notes': forms.Textarea(attrs={'rows': 3}),
         }
 
 

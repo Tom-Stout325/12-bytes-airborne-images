@@ -1,54 +1,151 @@
 {% extends 'index.html' %}
-{% load duration_filters %}
-{% load drone_filters %}
+{% load static %}
 
-{% block title %}Equipment Inventory{% endblock %}
 
-{% block breadcrumbs %}
-  <nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'drone_portal' %}">Home</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Equipment</li>
-    </ol>
-  </nav>
-{% endblock %}
+<head>
+  <style>
+    form.small input,
+    form.small select,
+    form.small textarea {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.5rem;
+}
+
+  </style>
+</head>
 
 {% block content %}
-<div class="container mt-5">
-  <h2 class="text-primary mb-4">Equipment Inventory</h2>
-  <a href="{% url 'equipment_create' %}" class="btn btn-success mb-3">➕ Add Equipment</a>
+<div class="container mt-4">
+  <h2 class="text-primary mb-3 text-center">Equipment Inventory</h2>
+
+<div class="mb-4">
+  <button class="btn btn-outline-primary mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#addEquipmentForm" aria-expanded="false" aria-controls="addEquipmentForm">
+    <i class="fas fa-plus-circle"></i> Add New Equipment
+  </button>
+
+  <div class="collapse" id="addEquipmentForm">
+    <div class="card card-body border-primary shadow-sm">
+      <form method="post" class="small">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-md-4 mb-2">
+            {{ form.name.label_tag }} {{ form.name }}
+          </div>
+          <div class="col-md-4 mb-2">
+            {{ form.equipment_type.label_tag }} {{ form.equipment_type }}
+          </div>
+          <div class="col-md-4 mb-2">
+            {{ form.brand.label_tag }} {{ form.brand }}
+          </div>
+          <div class="col-md-4 mb-2">
+            {{ form.model.label_tag }} {{ form.model }}
+          </div>
+          <div class="col-md-4 mb-2">
+            {{ form.serial_number.label_tag }} {{ form.serial_number }}
+          </div>
+          <div class="col-md-4 mb-2">
+            {{ form.faa_registration.label_tag }} {{ form.faa_registration }}
+          </div>
+          <div class="col-md-4 mb-2">
+            {{ form.firmware_version.label_tag }} {{ form.firmware_version }}
+          </div>
+          <div class="col-md-4 mb-2">
+            {{ form.purchase_date.label_tag }} {{ form.purchase_date }}
+          </div>
+          <div class="col-md-4 mb-2">
+            {{ form.date_disposed.label_tag }} {{ form.date_disposed }}
+          </div>
+          <div class="col-12 mb-2">
+            {{ form.notes.label_tag }} {{ form.notes }}
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-save"></i> Save Equipment</button>
+      </form>
+    </div>
+  </div>
+  <a href="{% url 'equipment_pdf' %}" class="btn btn-outline-secondary mb-3 float-end">
+    <i class="fas fa-file-pdf"></i> Equipment List PDF
+  </a>
+</div>
+
+
   <table class="table table-bordered table-hover">
-    <thead class="table-light">
-      <tr>
+<thead class="table-light">
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Model</th>
+    <th class="d-none d-md-table-cell">Brand</th>
+    <th class="d-none d-md-table-cell">Serial</th>
+    <th class="d-none d-md-table-cell">Firmware</th>
+    <th class="d-none d-md-table-cell">Purchased</th>
+    <th class="d-none d-md-table-cell">Disposed</th>
+    <th class="d-none d-md-table-cell">Notes</th>
+    <th>Actions</th>
+  </tr>
+</thead>
 
-        <th>Brand</th>
-        <th>Model</th>
-        <th>Serial</th>
+<tbody>
+  {% for item in equipment %}
+  <tr>
+    <td>{{ item.name }}</td>
+    <td>{{ item.equipment_type }}</td>
+    <td>{{ item.model }}</td>
+    <td class="d-none d-md-table-cell">{{ item.brand }}</td>
+    <td class="d-none d-md-table-cell">{{ item.serial_number }}</td>
+    <td class="d-none d-md-table-cell">{{ item.firmware_version }}</td>
+    <td class="d-none d-md-table-cell">{{ item.purchase_date|default:"—" }}</td>
+    <td class="d-none d-md-table-cell">{{ item.date_disposed|default:"—" }}</td>
+    <td class="d-none d-md-table-cell">{{ item.notes|linebreaksbr }}</td>
+    <td>
+      <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#equipmentModal{{ item.pk }}">
+        <i class="fas fa-eye"></i>
+      </button>
+      <a href="{% url 'equipment_edit' item.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
+        <i class="fas fa-edit"></i>
+      </a>
+      <a href="{% url 'equipment_delete' item.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+        <i class="fas fa-trash-alt"></i>
+      </a>
+    </td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="10" class="text-center">No equipment found.</td></tr>
+  {% endfor %}
+</tbody>
 
-        <th>Purchased</th>
-
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in equipment %}
-      <tr>
-
-        <td>{{ item.brand }}</td>
-        <td>{{ item.model }}</td>
-        <td>{{ item.serial_number }}</td>
-
-        <td>{{ item.date_purchased }}</td>
-    
-        <td>
-          <a href="{% url 'equipment_edit' item.pk %}" class="btn btn-sm btn-outline-primary text-decoration-none">✏️</a>
-          <a href="{% url 'equipment_delete' item.pk %}" class="btn btn-sm btn-outline-danger text-decoration-none">🗑️</a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="8" class="text-muted">No equipment added yet.</td></tr>
-      {% endfor %}
-    </tbody>
   </table>
+  {% for item in equipment %}
+<div class="modal fade" id="equipmentModal{{ item.pk }}" tabindex="-1" aria-labelledby="equipmentModalLabel{{ item.pk }}" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="equipmentModalLabel{{ item.pk }}">{{ item.name }} Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <dl class="row small">
+          <dt class="col-sm-4">Type</dt><dd class="col-sm-8">{{ item.equipment_type }}</dd>
+          <dt class="col-sm-4">Brand</dt><dd class="col-sm-8">{{ item.brand }}</dd>
+          <dt class="col-sm-4">Model</dt><dd class="col-sm-8">{{ item.model }}</dd>
+          <dt class="col-sm-4">Serial Number</dt><dd class="col-sm-8">{{ item.serial_number }}</dd>
+          <dt class="col-sm-4">FAA Registration</dt><dd class="col-sm-8">{{ item.faa_registration }}</dd>
+          <dt class="col-sm-4">Firmware Version</dt><dd class="col-sm-8">{{ item.firmware_version }}</dd>
+          <dt class="col-sm-4">Purchase Date</dt><dd class="col-sm-8">{{ item.purchase_date|default:"—" }}</dd>
+          <dt class="col-sm-4">Date Disposed</dt><dd class="col-sm-8">{{ item.date_disposed|default:"—" }}</dd>
+          <dt class="col-sm-4">Notes</dt><dd class="col-sm-8">{{ item.notes|linebreaksbr|default:"—" }}</dd>
+        </dl>
+      </div>
+      <div class="modal-footer">
+        <a href="{% url 'equipment_pdf_single' item.pk %}" target="_blank" class="btn btn-outline-secondary">
+          <i class="fas fa-file-pdf"></i> PDF
+        </a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
 </div>
 {% endblock %}

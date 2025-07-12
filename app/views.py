@@ -25,6 +25,7 @@ def register(request):
     context = {'form': form, 'current_page': 'register'}  # Breadcrumb for register
     return render(request, 'registration/register.html', context)
 
+
 @login_required
 def profile(request):
     profile = get_object_or_404(PilotProfile, user=request.user)
@@ -40,7 +41,7 @@ def profile(request):
         'profile': profile,
         'trainings': trainings,
         'years': [y.year for y in training_years],
-        'current_page': 'profile'  # Breadcrumb for profile
+        'current_page': 'profile'
     }
     return render(request, 'app/profile.html', context)
 

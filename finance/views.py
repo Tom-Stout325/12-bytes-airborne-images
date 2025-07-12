@@ -623,20 +623,6 @@ class DownloadTransactionsCSV(LoginRequiredMixin, View):
             return HttpResponse("Error generating CSV", status=500)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @login_required
 def export_invoices_csv(request):
     invoice_view = InvoiceListView()
@@ -697,9 +683,6 @@ def export_invoices_pdf(request):
         messages.error(request, "Error generating PDF.")
         return redirect('invoice_list')
     
-    
-
-
 
 
 # ---------------------------------------------------------------------------------------------------------------  Categories

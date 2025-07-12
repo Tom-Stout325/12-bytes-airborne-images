@@ -34,17 +34,30 @@ class Drone(models.Model):
         return self.model or f"{self.model} ({self.nickname}) ({self.faa_experiation})"
 
 
-
 class Equipment(models.Model):
-    name             = models.CharField(max_length=100)
-    brand            = models.CharField(max_length=100)
-    model            = models.CharField(max_length=100)
-    serial_number    = models.CharField(max_length=100)
-    date_purchased   = models.DateField()
-    cost             = models.DecimalField(max_digits=10, decimal_places=2)
+    EQUIPMENT_TYPES = [
+        ('Drone', 'Drone'),
+        ('Battery', 'Battery'),
+        ('Controller', 'Controller'),
+        ('Charger', 'Charger'),
+        ('Accessory', 'Accessory'),
+        ('Other', 'Other'),
+    ]
+
+    name = models.CharField(max_length=100)
+    equipment_type = models.CharField(max_length=50, choices=EQUIPMENT_TYPES)
+    brand = models.CharField(max_length=100, blank=True)
+    model = models.CharField(max_length=100, blank=True)
+    serial_number = models.CharField(max_length=100, blank=True)
+    faa_registration = models.CharField(max_length=100, blank=True)
+    firmware_version = models.CharField(max_length=100, blank=True)
+    purchase_date = models.DateField(null=True, blank=True)
+    date_disposed = models.DateField(null=True, blank=True)
+    notes = models.TextField(blank=True)
 
     def __str__(self):
-        return f"{self.name} - {self.brand} {self.model}"
+        return f"{self.name} ({self.equipment_type})"
+
 
     
 
@@ -129,24 +142,32 @@ class GeneralDocument(models.Model):
 
 
 
+from django.db import models
 
 class FlightLog(models.Model):
+    # Core Flight Info
     flight_date = models.DateField()
     flight_title = models.CharField(max_length=200, blank=True)
     flight_description = models.TextField(blank=True)
     pilot_in_command = models.CharField(max_length=100, blank=True)
     license_number = models.CharField(max_length=100, blank=True)
+    flight_application = models.CharField(max_length=100, blank=True)
+    remote_id = models.CharField(max_length=100, blank=True)
+
+    # Takeoff & Landing
     takeoff_latlong = models.CharField(max_length=100, blank=True)
     takeoff_address = models.CharField(max_length=255, blank=True)
     landing_time = models.TimeField(null=True, blank=True)
     air_time = models.DurationField(null=True, blank=True)
     above_sea_level_ft = models.FloatField(null=True, blank=True)
+
+    # Drone Info
     drone_name = models.CharField(max_length=100, blank=True)
     drone_type = models.CharField(max_length=100, blank=True)
     drone_serial = models.CharField(max_length=100, blank=True)
     drone_reg_number = models.CharField(max_length=100, blank=True)
-    flight_app = models.CharField(max_length=100, blank=True)
-    remote_id = models.CharField(max_length=100, blank=True)
+
+    # Battery Info (Takeoff & Landing)
     battery_name = models.CharField(max_length=100, blank=True)
     battery_serial_printed = models.CharField(max_length=100, blank=True)
     battery_serial_internal = models.CharField(max_length=100, blank=True)
@@ -156,6 +177,8 @@ class FlightLog(models.Model):
     landing_battery_pct = models.IntegerField(null=True, blank=True)
     landing_mah = models.IntegerField(null=True, blank=True)
     landing_volts = models.FloatField(null=True, blank=True)
+
+    # Flight Performance Metrics
     max_altitude_ft = models.FloatField(null=True, blank=True)
     max_distance_ft = models.FloatField(null=True, blank=True)
     max_battery_temp_f = models.FloatField(null=True, blank=True)
@@ -166,6 +189,8 @@ class FlightLog(models.Model):
     avg_wind = models.FloatField(null=True, blank=True)
     max_gust = models.FloatField(null=True, blank=True)
     signal_losses = models.IntegerField(null=True, blank=True)
+
+    # Ground Weather Conditions
     ground_weather_summary = models.CharField(max_length=255, blank=True)
     ground_temp_f = models.FloatField(null=True, blank=True)
     visibility_miles = models.FloatField(null=True, blank=True)
@@ -177,10 +202,14 @@ class FlightLog(models.Model):
     pressure_inhg = models.FloatField(null=True, blank=True)
     rain_rate = models.CharField(max_length=50, blank=True)
     rain_chance = models.CharField(max_length=50, blank=True)
+
+    # Sun & Moon
     sunrise = models.CharField(max_length=50, blank=True)
     sunset = models.CharField(max_length=50, blank=True)
     moon_phase = models.CharField(max_length=50, blank=True)
     moon_visibility = models.CharField(max_length=50, blank=True)
+
+    # Media & Notes
     photos = models.IntegerField(null=True, blank=True)
     videos = models.IntegerField(null=True, blank=True)
     notes = models.TextField(blank=True)

@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from formtools.wizard.views import SessionWizardView
 from django.template.loader import render_to_string
+from django.template.loader import get_template
 from django.templatetags.static import static
 from django.core.paginator import Paginator
 from django.template import RequestContext
@@ -401,12 +402,21 @@ def upload_general_document(request):
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- EQUIPMENT Views
 
-
 @login_required
 def equipment_list(request):
-    equipment = Equipment.objects.all()
-    context = {'equipment': equipment, 'current_page': 'equipment'}  
-    return render(request, 'drones/equipment_list.html', context)
+    equipment = Equipment.objects.all().order_by('equipment_type', 'name')
+    if request.method == 'POST':
+        form = EquipmentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('equipment_list')
+    else:
+        form = EquipmentForm()
+    return render(request, 'drones/equipment_list.html', {
+        'equipment': equipment,
+        'form': form,
+        'current_page': 'equipment'
+    })
 
 
 @login_required
@@ -422,12 +432,14 @@ def equipment_create(request):
 @login_required
 def equipment_edit(request, pk):
     equipment = get_object_or_404(Equipment, pk=pk)
-    form = EquipmentForm(request.POST or None, instance=equipment)
-    if form.is_valid():
-        form.save()
-        return redirect('equipment_list')
-    context = {'form': form, 'current_page': 'equipment'}  
-    return render(request, 'drones/equipment_form.html', context)
+    if request.method == 'POST':
+        form = EquipmentForm(request.POST, instance=equipment)
+        if form.is_valid():
+            form.save()
+            return redirect('equipment_list')
+    else:
+        form = EquipmentForm(instance=equipment)
+    return render(request, 'drones/equipment_edit.html', {'form': form, 'equipment': equipment})
 
 
 @login_required
@@ -435,9 +447,49 @@ def equipment_delete(request, pk):
     equipment = get_object_or_404(Equipment, pk=pk)
     if request.method == 'POST':
         equipment.delete()
+        messages.success(request, f'Equipment "{equipment.name}" deleted.')
         return redirect('equipment_list')
-    context = {'equipment': equipment, 'current_page': 'equipment'}  
-    return render(request, 'drones/equipment_confirm_delete.html', context)
+    return render(request, 'drones/equipment_confirm_delete.html', {
+        'equipment': equipment,
+        'current_page': 'equipment'
+    })
+
+
+@login_required
+def equipment_pdf(request):
+    equipment = Equipment.objects.all().order_by('equipment_type', 'name')
+    template = get_template('drones/equipment_pdf.html')
+    html_string = template.render({'equipment': equipment})
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename=equipment_inventory.pdf'
+
+    with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
+        HTML(string=html_string).write_pdf(target=tmp_file.name)
+        tmp_file.seek(0)
+        response.write(tmp_file.read())
+
+    return response
+
+
+
+
+@login_required
+def equipment_pdf_single(request, pk):
+    equipment = get_object_or_404(Equipment, pk=pk)
+    logo_url = request.build_absolute_uri(static('images/logo2.png'))
+    
+    template = get_template('drones/equipment_pdf_single.html')
+    html_string = template.render({'item': equipment, 'logo_url': logo_url})
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename={equipment.name}_equipment.pdf'
+
+    with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
+        HTML(string=html_string).write_pdf(target=tmp_file.name)
+        tmp_file.seek(0)
+        response.write(tmp_file.read())
+
+    return response
 
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- FlightLog Views
@@ -452,6 +504,21 @@ def flightlog_list(request):
     context = {'logs': page_obj, 'current_page': 'flightlogs'}  
     return render(request, 'drones/flightlog_list.html', context)
 
+
+@login_required
+def export_flightlogs_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="flight_logs.csv"'
+
+    writer = csv.writer(response)
+    fields = [field.name for field in FlightLog._meta.fields]
+    writer.writerow(fields)
+
+    for log in FlightLog.objects.all().order_by('-flight_date'):
+        row = [getattr(log, field) for field in fields]
+        writer.writerow(row)
+
+    return response
 
 @login_required
 def flightlog_detail(request, pk):
@@ -534,20 +601,24 @@ def upload_flightlog_csv(request):
             reader.fieldnames = [field.replace('\ufeff', '').strip() for field in reader.fieldnames]
             for row in reader:
                 row = {k.strip(): (v.strip() if v else "") for k, v in row.items()}
-                if not row.get("Flight Date/Time"):
-                    print("Skipping row: missing Flight Date/Time")
+                if not row.get("Flight/Service Date"):
+                    print("Skipping row: missing Flight/Service Date")
                     continue
+
+                # Parse date/time
                 try:
-                    clean_dt = re.sub(r'(\d+)(st|nd|rd|th)', r'\1', row["Flight Date/Time"])
+                    clean_dt = re.sub(r'(\d+)(st|nd|rd|th)', r'\1', row["Flight/Service Date"])
                     dt = datetime.strptime(clean_dt, "%b %d, %Y %I:%M%p")
                     flight_date = dt.date()
                     landing_time = dt.time()
                 except Exception as e:
                     print("Skipping row: invalid date format", e)
                     continue
+
                 try:
                     air_seconds = safe_int(row.get("Air Seconds")) or 0
                     air_time = timedelta(seconds=air_seconds)
+
                     FlightLog.objects.create(
                         flight_date=flight_date,
                         flight_title=row.get("Flight Title", ""),
@@ -565,7 +636,7 @@ def upload_flightlog_csv(request):
                         battery_name=row.get("Battery Name", ""),
                         battery_serial_printed=row.get("Bat Printed Serial", ""),
                         battery_serial_internal=row.get("Bat Internal Serial", ""),
-                        landing_battery_pct=safe_int(row.get("Landing Bat %")),
+                        landing_battery_pct=safe_int(row.get("Landing Bat %").replace("%", "")),
                         landing_mah=safe_int(row.get("Landing mAh")),
                         landing_volts=safe_float(row.get("Landing Volts")),
                         max_altitude_ft=safe_float(row.get("Max Altitude (Feet)")),
@@ -579,7 +650,7 @@ def upload_flightlog_csv(request):
                         visibility_miles=safe_float(row.get("Ground Visibility (Miles)")),
                         wind_speed=safe_float(row.get("Ground Wind Speed")),
                         wind_direction=row.get("Ground Wind Direction", ""),
-                        cloud_cover=row.get("Cloud Cover", ""),
+                        cloud_cover=row.get("Cloud Cover", "").replace("%", ""),
                         signal_losses=safe_int(row.get("Signal Losses (>1 sec)")),
                         photos=safe_int(row.get("Photos")),
                         videos=safe_int(row.get("Videos")),
@@ -592,5 +663,6 @@ def upload_flightlog_csv(request):
             return redirect('flightlog_list')
     else:
         form = FlightLogCSVUploadForm()
+
     context = {'form': form, 'current_page': 'flightlogs'}  
     return render(request, 'drones/upload_log.html', context)
