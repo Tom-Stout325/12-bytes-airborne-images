@@ -11,13 +11,21 @@ class TransForm(forms.ModelForm):
         required=False
     )
 
+    sub_cat = forms.ModelChoiceField(
+        queryset=SubCategory.objects.all().order_by('category__category', 'sub_cat'),
+        label='Sub-Category',
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
     class Meta:
         model = Transaction
-        fields = (
-            'date', 'trans_type', 'category', 'sub_cat', 'amount',
-            'invoice_numb', 'keyword', 'team', 'transaction',
-            'receipt', 'transport_type'
-        )
+        exclude = ['category', 'user']
+
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
             'transport_type': forms.Select(attrs={'class': 'form-control'}),
@@ -40,7 +48,6 @@ class TransForm(forms.ModelForm):
                 "Gas expenses are not deductible when using a personal vehicle. Use mileage instead."
             )
         return cleaned_data
-
 
 
 
@@ -92,13 +99,29 @@ InvoiceItemFormSet = inlineformset_factory(
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['category']
+        fields = ['category'] 
+        widgets = {
+            'category': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter category name'
+            }),
+        }
 
 
 class SubCategoryForm(forms.ModelForm):
     class Meta:
         model = SubCategory
-        fields = ['sub_cat']
+        fields = ['sub_cat', 'category'] 
+        widgets = {
+            'sub_cat': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter sub-category name'
+            }),
+            'category': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+        }
+
 
 
 class ClientForm(forms.ModelForm):

@@ -1,0 +1,6 @@
+id,date,begin,end,total,invoice,tax,job,vehicle,mileage_type,client_id,user_id
+1,2025-04-28,104816.7,106098.1,1281.4,250105,Yes,Charlotte I,Lead Foot,Taxable,1,1
+34,2025-05-18,106568.5,107085.0,516.5,250106,Yes,Chicago I,Lead Foot,Taxable,1,1
+67,2025-06-08,107283.0,108235.6,952.6,250108,Yes,Bristol Race,Lead Foot,Taxable,1,1
+100,2025-06-23,108501.3,110043.3,1542.0,250109,Yes,Virginia NHRA Nationals,Lead Foot,Taxable,1,1
+133,2025-06-30,110142.7,111109.8,967.1,250110,Yes,Norwalk Race,Lead Foot,Taxable,1,1

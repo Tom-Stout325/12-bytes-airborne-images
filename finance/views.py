@@ -9,11 +9,13 @@ from django.views.decorators.http import require_POST
 from django.contrib.postgres.indexes import GinIndex
 from django.template.loader import render_to_string
 from django.db.models.functions import ExtractYear
+from django.views.generic.edit import UpdateView
 from django.template.loader import get_template
 from django.urls import reverse_lazy, reverse
 from django.core.paginator import Paginator
 from django.core.mail import EmailMessage
 from django.utils.timezone import now
+from django.db.models import Prefetch
 from django.contrib import messages
 from collections import defaultdict
 from datetime import datetime, date
@@ -30,6 +32,7 @@ import csv
 import os
 from .models import *
 from .forms import *
+
 
 logger = logging.getLogger(__name__)
 
@@ -154,6 +157,11 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
+
+        sub_cat = form.cleaned_data.get('sub_cat')
+        if sub_cat:
+            form.instance.category = sub_cat.category
+
         try:
             with transaction.atomic():
                 response = super().form_valid(form)
@@ -170,6 +178,9 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
+
+
+from django.http import HttpResponseBadRequest  # Optional for debugging
 class TransactionUpdateView(LoginRequiredMixin, UpdateView):
     model = Transaction
     form_class = TransForm
@@ -194,6 +205,8 @@ class TransactionUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['current_page'] = 'transactions'
         return context
+
+
 
 
 class TransactionDeleteView(LoginRequiredMixin, DeleteView):
@@ -692,14 +705,17 @@ def export_invoices_pdf(request):
 # ---------------------------------------------------------------------------------------------------------------  Categories
 
 
+
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
     template_name = 'finance/category_page.html'
     context_object_name = 'category'
 
+    def get_queryset(self):
+        return Category.objects.prefetch_related('subcategories').order_by('category')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['sub_cat'] = SubCategory.objects.order_by('sub_cat')
         context['current_page'] = 'categories'
         return context
 
@@ -893,80 +909,76 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
 
 # --------------------------------------------------------------------------------------------------------------- Financial Reports
 
+
 def get_summary_data(request, year):
     current_year = timezone.now().year
 
     try:
-        if isinstance(year, int):
-            selected_year = year
-        elif isinstance(year, str) and year.strip().isdigit():
-            selected_year = int(year)
-        elif year in (None, '', 'All'):
-            selected_year = current_year
-        else:
-            raise ValueError
+        selected_year = int(year) if year and str(year).isdigit() else current_year
     except ValueError:
         messages.error(request, "Invalid year selected.")
         selected_year = current_year
 
     transactions = Transaction.objects.filter(
         user=request.user,
-        date__year=selected_year,
-        trans_type='Expense'
-    ).select_related('sub_cat')
+        date__year=selected_year
+    ).select_related('sub_cat__category')
 
-    expense_totals = {}
+    income_data = defaultdict(lambda: {'total': Decimal('0.00'), 'subcategories': defaultdict(lambda: [Decimal('0.00'), None])})
+    expense_data = defaultdict(lambda: {'total': Decimal('0.00'), 'subcategories': defaultdict(lambda: [Decimal('0.00'), None])})
+
     for t in transactions:
-        name = t.sub_cat.sub_cat if t.sub_cat else "Uncategorized"
-
         if t.sub_cat_id == 27 and t.transport_type == "personal_vehicle":
             continue
 
-        amount = t.amount
-        if t.sub_cat_id == 26:
-            amount = round(t.amount * Decimal('0.5'), 2)
+        category = t.sub_cat.category if t.sub_cat and t.sub_cat.category else None
+        sub_cat = t.sub_cat.sub_cat if t.sub_cat else "Uncategorized"
+        cat_name = category.category if category else "Uncategorized"
+        sched_line = category.schedule_c_line if category and category.schedule_c_line else None
 
-        expense_totals[name] = expense_totals.get(name, Decimal('0.00')) + amount
+        amount = round(t.amount * Decimal('0.5'), 2) if t.sub_cat_id == 26 else t.amount
 
-    expense_subcategory_totals = [
-        {'sub_cat__sub_cat': name, 'total': total}
-        for name, total in sorted(expense_totals.items())
-    ]
+        target_data = income_data if t.trans_type == 'Income' else expense_data
+        target_data[cat_name]['total'] += amount
+        target_data[cat_name]['subcategories'][sub_cat][0] += amount
+        target_data[cat_name]['subcategories'][sub_cat][1] = sched_line
 
-    income_qs = Transaction.objects.filter(
-        user=request.user,
-        date__year=selected_year,
-        trans_type='Income'
-    ).select_related('sub_cat')
+    # Format for template
+    def format_data(data_dict):
+        return [
+            {
+                'category': cat,
+                'total': values['total'],
+                'subcategories': [(sub, amt_sched[0], amt_sched[1]) for sub, amt_sched in values['subcategories'].items()]
+            }
+            for cat, values in sorted(data_dict.items())
+        ]
 
-    income_subcategory_totals = income_qs.values('sub_cat__sub_cat') \
-        .annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
+    income_category_totals = format_data(income_data)
+    expense_category_totals = format_data(expense_data)
 
-    income_category_total = income_qs.aggregate(total=Sum('amount'))['total'] or 0
-    expense_category_total = sum(t['total'] for t in expense_subcategory_totals)
-    net_profit = income_category_total - expense_category_total
+    income_total = sum(item['total'] for item in income_category_totals)
+    expense_total = sum(item['total'] for item in expense_category_totals)
+    net_profit = income_total - expense_total
 
     available_years = Transaction.objects.filter(user=request.user).dates('date', 'year', order='DESC')
-    available_years = [d.year for d in available_years]
 
     return {
         'selected_year': selected_year,
-        'income_subcategory_totals': income_subcategory_totals,
-        'expense_subcategory_totals': expense_subcategory_totals,
-        'income_category_total': income_category_total,
-        'expense_category_total': expense_category_total,
+        'income_category_totals': income_category_totals,
+        'expense_category_totals': expense_category_totals,
+        'income_category_total': income_total,
+        'expense_category_total': expense_total,
         'net_profit': net_profit,
-        'available_years': available_years,
+        'available_years': [d.year for d in available_years],
     }
+
 
 
 @login_required
 def financial_statement(request):
-    current_year = timezone.now().year
-    year = request.GET.get('year', str(current_year))
+    year = request.GET.get('year', str(timezone.now().year))
     context = get_summary_data(request, year)
-    context['available_years'] = [d.year for d in Transaction.objects.filter(
-        user=request.user).dates('date', 'year', order='DESC').distinct()]
     context['current_page'] = 'reports'
     return render(request, 'finance/financial_statement.html', context)
 
@@ -975,54 +987,67 @@ def financial_statement(request):
 def financial_statement_pdf(request, year):
     user = request.user
     selected_year = int(year)
-
-    transactions = Transaction.objects.filter(
+    expense_qs = Transaction.objects.filter(
         user=user,
         date__year=selected_year,
         trans_type='Expense'
-    ).select_related('sub_cat')
-
-    expense_totals = {}
-    for t in transactions:
-        name = t.sub_cat.sub_cat if t.sub_cat else "Uncategorized"
+    ).select_related('sub_cat__category')
+    expense_data = defaultdict(lambda: {'total': Decimal('0.00'), 'subcategories': defaultdict(Decimal)})
+    for t in expense_qs:
         if t.sub_cat_id == 27 and t.transport_type == "personal_vehicle":
             continue
-        amount = t.amount
-        if t.sub_cat_id == 26:
-            amount = round(t.amount * Decimal('0.5'), 2)
-        expense_totals[name] = expense_totals.get(name, Decimal('0.00')) + amount
-
-    expense_subcategory_totals = [
-        {'sub_cat__sub_cat': name, 'total': total}
-        for name, total in sorted(expense_totals.items())
+        category = t.sub_cat.category.category if t.sub_cat and t.sub_cat.category else "Uncategorized"
+        subcategory = t.sub_cat.sub_cat if t.sub_cat else "Uncategorized"
+        amount = round(t.amount * Decimal('0.5'), 2) if t.sub_cat_id == 26 else t.amount
+        expense_data[category]['total'] += amount
+        expense_data[category]['subcategories'][subcategory] += amount
+    expense_category_totals = [
+        {
+            'category': cat,
+            'total': data['total'],
+            'subcategories': list(data['subcategories'].items())
+        }
+        for cat, data in sorted(expense_data.items())
     ]
-    expense_category_total = sum(t['total'] for t in expense_subcategory_totals)
-
     income_qs = Transaction.objects.filter(
         user=user,
         date__year=selected_year,
         trans_type='Income'
-    ).select_related('sub_cat')
-
-    income_subcategory_totals = income_qs.values('sub_cat__sub_cat') \
-        .annotate(total=Sum('amount')).order_by('sub_cat__sub_cat')
-    income_category_total = income_qs.aggregate(total=Sum('amount'))['total'] or 0
-
-    net_profit = income_category_total - expense_category_total
+    ).select_related('sub_cat__category')
+    income_data = defaultdict(lambda: {'total': Decimal('0.00'), 'subcategories': defaultdict(Decimal)})
+    for t in income_qs:
+        category = t.sub_cat.category.category if t.sub_cat and t.sub_cat.category else "Uncategorized"
+        subcategory = t.sub_cat.sub_cat if t.sub_cat else "Uncategorized"
+        amount = t.amount
+        income_data[category]['total'] += amount
+        income_data[category]['subcategories'][subcategory] += amount
+    income_category_totals = [
+        {
+            'category': cat,
+            'total': data['total'],
+            'subcategories': list(data['subcategories'].items())
+        }
+        for cat, data in sorted(income_data.items())
+    ]
+    income_total = sum(row['total'] for row in income_category_totals)
+    expense_total = sum(row['total'] for row in expense_category_totals)
+    net_profit = income_total - expense_total
 
     html_string = render_to_string('finance/financial_statement_pdf.html', {
         'selected_year': selected_year,
-        'income_subcategory_totals': income_subcategory_totals,
-        'expense_subcategory_totals': expense_subcategory_totals,
-        'income_category_total': income_category_total,
-        'expense_category_total': expense_category_total,
+        'income_category_totals': income_category_totals,
+        'expense_category_totals': expense_category_totals,
+        'income_category_total': income_total,
+        'expense_category_total': expense_total,
         'net_profit': net_profit,
         'now': timezone.now(),
     })
+
     pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'filename="Financial_Statement_{selected_year}.pdf"'
     return response
+
     
     
 @login_required
@@ -1035,12 +1060,16 @@ def category_summary(request):
     return render(request, 'finance/category_summary.html', context)
 
 
+
 @login_required
 def category_summary_pdf(request):
     year = request.GET.get('year')
     context = get_summary_data(request, year)
     context['now'] = timezone.now()
     context['selected_year'] = year or timezone.now().year
+
+    # ✅ Add this line to pass the full logo URL
+    context['logo_url'] = request.build_absolute_uri('/static/img/logo.png')
 
     try:
         template = get_template('finance/category_summary_pdf.html')
@@ -1054,12 +1083,13 @@ def category_summary_pdf(request):
             HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(tmp.name)
             tmp.seek(0)
             response = HttpResponse(tmp.read(), content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="category_summary.pdf"'
+            response['Content-Disposition'] = 'attachment; filename=\"category_summary.pdf\"'
             return response
     except Exception as e:
         logger.error(f"Error generating category summary PDF: {e}")
         messages.error(request, "Error generating PDF.")
         return redirect('category_summary')
+
 
 
 

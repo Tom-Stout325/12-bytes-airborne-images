@@ -3,25 +3,20 @@ import os
 import environ
 import dj_database_url
 from django.contrib.messages import constants as messages
-from django.core.exceptions import ImproperlyConfigured
+
 
 # Load environment variables
 env = environ.Env()
-environ.Env.read_env()
+environ.Env.read_env(os.path.join(Path(__file__).resolve().parent.parent, '.env'))
 
-# Validate required environment variables
-required_env_vars = ['DJANGO_SECRET_KEY', 'ALLOWED_HOSTS', 'DATABASE_URL']
-for var in required_env_vars:
-    if not env(var, default=None):
-        raise ImproperlyConfigured(f"Environment variable {var} is not set")
+# Environment type: 'development' or 'production'
+ENV = env('ENV', default='development')
+DEBUG = env.bool('DEBUG', default=True)
+SECRET_KEY = env('DJANGO_SECRET_KEY')
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Security settings
-SECRET_KEY = env("DJANGO_SECRET_KEY")
-DEBUG = env.bool("DEBUG", default=False)
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
 # Installed apps
 INSTALLED_APPS = [
@@ -80,12 +75,28 @@ TEMPLATES = [
 ]
 
 # Database
-DATABASES = {
-    'default': dj_database_url.config(
-        default=env("DATABASE_URL"),
-        conn_max_age=600
-    )
-}
+if 'DATABASE_URL' in os.environ:
+    DATABASES = {
+        'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': env('DB_NAME'),
+            'USER': env('DB_USER'),
+            'PASSWORD': env('DB_PASSWORD'),
+            'HOST': env('DB_HOST', default='localhost'),
+            'PORT': env('DB_PORT', default='5432'),
+        }
+    }
+
+
+# Localization
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
 
 # Static and media files
 STATIC_URL = '/static/'
@@ -96,8 +107,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 STATICFILES_STORAGE = (
     'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    if not DEBUG else
-    'django.contrib.staticfiles.storage.StaticFilesStorage'
+    if not DEBUG else 'django.contrib.staticfiles.storage.StaticFilesStorage'
 )
 
 # S3 configuration
@@ -118,6 +128,9 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 LOGIN_URL = '/login/'
 
+
+
+
 # Session and CSRF settings
 redis_url = env('REDISCLOUD_URL', default=env('REDIS_URL', default=None))
 if redis_url:
@@ -134,39 +147,19 @@ if redis_url:
 else:
     SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 days
-SESSION_COOKIE_SECURE = not DEBUG
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'Lax'
 
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 days
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
-CSRF_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SAMESITE = 'Lax'
-
-CSRF_TRUSTED_ORIGINS = [
-    'https://airborne-images-12bytes-5d4382c082a9.herokuapp.com',
-    'https://*.herokuapp.com',
-    'https://12bytes.airborne-images.net',
-]
-
-# Security headers
-SECURE_SSL_REDIRECT = not DEBUG
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_HSTS_SECONDS = 31536000
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = 'DENY'
 
 # Miscellaneous
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 DATE_INPUT_FORMATS = ['%d-%m-%Y']
 
-CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
-CRISPY_TEMPLATE_PACK = 'bootstrap5'
+# Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
@@ -180,3 +173,4 @@ EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default=None)
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default=None)
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
+

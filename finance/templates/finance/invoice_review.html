@@ -74,7 +74,6 @@
             <thead class="table-light">
               <tr>
                 <th>Date</th>
-                <th>Category</th>
                 <th>Sub-Category</th>
                 <th>Amount</th>
                 <th>Deductible</th>
@@ -85,7 +84,6 @@
               {% for transaction in transactions %}
               <tr>
                 <td>{{ transaction.date }}</td>
-                <td>{{ transaction.category }}</td>
                 <td>{{ transaction.sub_cat }}</td>
                 <td>
                   ${{ transaction.amount|floatformat:2 }}
