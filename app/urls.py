@@ -6,8 +6,6 @@ from .views import *
 from drones import views as drone_views
 
 urlpatterns = [
-
-
     path('', login_required(TemplateView.as_view(template_name='home.html')), name='home'),
     path('drone-portal/', drone_views.drone_portal, name='drone_portal'),
     path('profile/', profile, name='profile'),

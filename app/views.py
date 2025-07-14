@@ -28,34 +28,22 @@ def register(request):
 
 @login_required
 def profile(request):
-    profile = get_object_or_404(PilotProfile, user=request.user)
-    year_filter = request.GET.get('year')
+    profile, created = PilotProfile.objects.get_or_create(user=request.user)
 
+    year_filter = request.GET.get('year')
     trainings = profile.trainings.all()
     if year_filter:
         trainings = trainings.filter(date_completed__year=year_filter)
 
     training_years = profile.trainings.dates('date_completed', 'year', order='DESC')
 
-    if request.method == 'POST':
-        form = PilotProfileForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Profile updated successfully.")
-            return redirect('profile')
-    else:
-        form = PilotProfileForm(instance=profile)
-
     context = {
         'profile': profile,
-        'form': form,
         'trainings': trainings,
         'years': [y.year for y in training_years],
         'current_page': 'profile'
     }
     return render(request, 'app/profile.html', context)
-
-
 
 
 @login_required
