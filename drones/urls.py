@@ -81,10 +81,11 @@ urlpatterns = [
     # Equipment
     path('equipment/', equipment_list, name='equipment_list'),
     path('equipment/create/', equipment_create, name='equipment_create'),
-    path('equipment/<int:pk>/edit/', equipment_edit, name='equipment_edit'),
-    path('equipment/<int:pk>/delete/', equipment_delete, name='equipment_delete'),
     path('equipment/pdf/', equipment_pdf, name='equipment_pdf'),
-    path('equipment/<int:pk>/pdf/', equipment_pdf_single, name='equipment_pdf_single'),
+    path('equipment/<uuid:pk>/edit/', equipment_edit, name='equipment_edit'),
+    path('equipment/<uuid:pk>/delete/', equipment_delete, name='equipment_delete'),
+    path('equipment/<uuid:pk>/pdf/', equipment_pdf_single, name='equipment_pdf_single'),
+
 
     # Flight Logs
     path('flightlogs/', flightlog_list, name='flightlog_list'),

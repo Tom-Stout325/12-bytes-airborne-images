@@ -287,44 +287,54 @@ def upload_general_document(request):
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- EQUIPMENT Views
 
+
 @login_required
 def equipment_list(request):
-    equipment = Equipment.objects.all().order_by('equipment_type', 'name')
+    equipment = Equipment.objects.all().order_by('-purchase_date', 'name')
+
     if request.method == 'POST':
-        form = EquipmentForm(request.POST)
+        form = EquipmentForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect('equipment_list')
     else:
         form = EquipmentForm()
-    return render(request, 'drones/equipment_list.html', {
+
+    context = {
         'equipment': equipment,
         'form': form,
-        'current_page': 'equipment'
-    })
+        'current_page': 'equipment',
+    }
+    return render(request, 'drones/equipment_list.html', context)
 
 
-@login_required
+
 def equipment_create(request):
-    form = EquipmentForm(request.POST or None)
-    if form.is_valid():
-        form.save()
-        return redirect('equipment_list')
-    context = {'form': form, 'current_page': 'equipment'}  
-    return render(request, 'drones/equipment_form.html', context)
-
-
-@login_required
-def equipment_edit(request, pk):
-    equipment = get_object_or_404(Equipment, pk=pk)
     if request.method == 'POST':
-        form = EquipmentForm(request.POST, instance=equipment)
+        form = EquipmentForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect('equipment_list')
     else:
-        form = EquipmentForm(instance=equipment)
-    return render(request, 'drones/equipment_edit.html', {'form': form, 'equipment': equipment})
+        form = EquipmentForm()
+    return render(request, 'equipment_list.html', {'form': form})
+
+
+@login_required
+def equipment_edit(request, pk):
+    item = get_object_or_404(Equipment, pk=pk)
+    if request.method == 'POST':
+        form = EquipmentForm(request.POST, request.FILES, instance=item) 
+        if form.is_valid():
+            form.save()
+            return redirect('equipment_list')
+    else:
+        form = EquipmentForm(instance=item)
+
+    return render(request, 'drones/equipment_edit.html', {
+        'form': form,
+        'item': item
+    })
 
 
 @login_required

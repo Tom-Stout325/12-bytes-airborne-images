@@ -4,6 +4,8 @@ from django.core.validators import FileExtensionValidator
 import uuid
 from django.core.exceptions import ValidationError
 
+
+
 class Equipment(models.Model):
     EQUIPMENT_TYPE_CHOICES = [
         ('Drone', 'Drone'),
@@ -28,6 +30,7 @@ class Equipment(models.Model):
         null=True,
     )
     purchase_date = models.DateField(null=True, blank=True)
+    purchase_cost = models.DecimalField( max_digits=10, decimal_places=2, null=True, blank=True, help_text="Enter the original purchase cost of the equipment.")
     date_sold = models.DateField(null=True, blank=True)
     sale_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     deducted_full_cost = models.BooleanField(default=True)
@@ -74,7 +77,6 @@ class DroneIncidentReport(models.Model):
     controller = models.CharField(max_length=100)
     payload = models.CharField(max_length=100)
     battery = models.CharField(max_length=50)
-    firmware = models.CharField(max_length=100)
 
     weather = models.CharField(max_length=100)
     wind = models.CharField(max_length=50)
@@ -132,8 +134,6 @@ class GeneralDocument(models.Model):
         return f"{self.title} ({self.category})"
 
 
-
-from django.db import models
 
 class FlightLog(models.Model):
     # Core Flight Info

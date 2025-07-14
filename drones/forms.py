@@ -26,7 +26,7 @@ class EventDetailsForm(forms.ModelForm):
 class EquipmentDetailsForm(forms.ModelForm):
     class Meta:
         model = DroneIncidentReport
-        fields = ['drone_model', 'registration', 'controller', 'payload', 'battery', 'firmware']
+        fields = ['drone_model', 'registration', 'controller', 'payload', 'battery', ]
 
 class EnvironmentalConditionsForm(forms.ModelForm):
     class Meta:
@@ -84,11 +84,9 @@ class EquipmentForm(forms.ModelForm):
     class Meta:
         model = Equipment
         fields = '__all__'
-        widgets = {
-            'purchase_date': forms.DateInput(attrs={'type': 'date'}),
-            'date_disposed': forms.DateInput(attrs={'type': 'date'}),
-            'notes': forms.Textarea(attrs={'rows': 3}),
-        }
+
+
+      
 
 
 #<---------------------------------------- DRONE FORMS ---------------------------------------->

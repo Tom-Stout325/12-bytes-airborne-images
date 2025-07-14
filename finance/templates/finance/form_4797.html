@@ -28,7 +28,7 @@
         <td>{{ item.name }}</td>
         <td>{{ item.date_sold }}</td>
         <td>${{ item.sale_price|floatformat:2|intcomma }}</td>
-        <td>${{ item.basis|floatformat:2|intcomma }}</td>
+        <td>${{ item.purchase_cost|floatformat:2|intcomma }}</td>
         <td class="fw-bold text-end">
           ${{ item.gain|floatformat:2|intcomma }}
         </td>

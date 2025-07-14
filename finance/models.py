@@ -303,3 +303,4 @@ class RecurringTransaction(models.Model):
 
     class Meta:
         indexes = [models.Index(fields=['user', 'day', 'active'])]
+

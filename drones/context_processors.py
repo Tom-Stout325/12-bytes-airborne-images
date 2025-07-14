@@ -10,6 +10,6 @@ def navigation(request):
             'incidents': reverse_lazy('incident_reporting_system'),
             'sop': reverse_lazy('sop_list'),
             'equipment': reverse_lazy('equipment_list'),
-            'drones': reverse_lazy('drone_list'),
+
         }
     }

@@ -1008,46 +1008,54 @@ def get_summary_data(request, year):
     EXCLUDED_INCOME_CATEGORIES = ['Equipment Sale']
 
     try:
-        MEALS_SUBCAT = SubCategory.objects.get(slug='meals')
-    except SubCategory.DoesNotExist:
-        MEALS_SUBCAT = None
-
-    current_year = timezone.now().year
-    try:
+        current_year = timezone.now().year
         selected_year = int(year) if year and str(year).isdigit() else current_year
-        
     except ValueError:
         messages.error(request, "Invalid year selected.")
         selected_year = current_year
-        
+
     transactions = Transaction.objects.filter(
         user=request.user,
         date__year=selected_year
     ).select_related('sub_cat__category')
-    
-    income_data = defaultdict(lambda: {'total': Decimal('0.00'), 'subcategories': defaultdict(lambda: [Decimal('0.00'), None])})
-    expense_data = defaultdict(lambda: {'total': Decimal('0.00'), 'subcategories': defaultdict(lambda: [Decimal('0.00'), None])})
+
+    income_data = defaultdict(lambda: {
+        'total': Decimal('0.00'),
+        'subcategories': defaultdict(lambda: [Decimal('0.00'), None])
+    })
+
+    expense_data = defaultdict(lambda: {
+        'total': Decimal('0.00'),
+        'subcategories': defaultdict(lambda: [Decimal('0.00'), None])
+    })
 
     for t in transactions:
-        if t.sub_cat_id == 27 and t.transport_type == "personal_vehicle":
-            continue
-
         category = t.sub_cat.category if t.sub_cat and t.sub_cat.category else None
-        sub_cat = t.sub_cat.sub_cat if t.sub_cat else "Uncategorized"
+        sub_cat_name = t.sub_cat.sub_cat if t.sub_cat else "Uncategorized"
         cat_name = category.category if category else "Uncategorized"
         sched_line = category.schedule_c_line if category and category.schedule_c_line else None
-        amount = round(t.amount * Decimal('0.5'), 2) if t.sub_cat_id == 26 else t.amount
+
+        is_meals = t.sub_cat and t.sub_cat.slug == 'meals'
+        is_fuel = t.sub_cat and t.sub_cat.slug == 'fuel'
+        is_personal_vehicle = t.transport_type == "personal_vehicle"
+
+        if is_meals:
+            amount = round(t.amount * Decimal('0.5'), 2)
+        elif is_fuel and is_personal_vehicle:
+            amount = Decimal('0.00')
+        else:
+            amount = t.amount
 
         if t.trans_type == 'Income':
             if cat_name in EXCLUDED_INCOME_CATEGORIES:
-                continue  # Skip Equipment Sale income
+                continue
             target_data = income_data
         else:
             target_data = expense_data
 
         target_data[cat_name]['total'] += amount
-        target_data[cat_name]['subcategories'][sub_cat][0] += amount
-        target_data[cat_name]['subcategories'][sub_cat][1] = sched_line
+        target_data[cat_name]['subcategories'][sub_cat_name][0] += amount
+        target_data[cat_name]['subcategories'][sub_cat_name][1] = sched_line
 
     def format_data(data_dict):
         return [
@@ -1091,72 +1099,23 @@ def financial_statement(request):
 
 
 
-
 @login_required
 def financial_statement_pdf(request, year):
-    user = request.user
-    selected_year = int(year)
-    expense_qs = Transaction.objects.filter(
-        user=user,
-        date__year=selected_year,
-        trans_type='Expense'
-    ).select_related('sub_cat__category')
-    expense_data = defaultdict(lambda: {'total': Decimal('0.00'), 'subcategories': defaultdict(Decimal)})
-    for t in expense_qs:
-        if t.sub_cat_id == 27 and t.transport_type == "personal_vehicle":
-            continue
-        category = t.sub_cat.category.category if t.sub_cat and t.sub_cat.category else "Uncategorized"
-        subcategory = t.sub_cat.sub_cat if t.sub_cat else "Uncategorized"
-        amount = round(t.amount * Decimal('0.5'), 2) if t.sub_cat_id == 26 else t.amount
-        expense_data[category]['total'] += amount
-        expense_data[category]['subcategories'][subcategory] += amount
-    expense_category_totals = [
-        {
-            'category': cat,
-            'total': data['total'],
-            'subcategories': list(data['subcategories'].items())
-        }
-        for cat, data in sorted(expense_data.items())
-    ]
-    income_qs = Transaction.objects.filter(
-        user=user,
-        date__year=selected_year,
-        trans_type='Income'
-    ).select_related('sub_cat__category')
-    income_data = defaultdict(lambda: {'total': Decimal('0.00'), 'subcategories': defaultdict(Decimal)})
-    for t in income_qs:
-        category = t.sub_cat.category.category if t.sub_cat and t.sub_cat.category else "Uncategorized"
-        subcategory = t.sub_cat.sub_cat if t.sub_cat else "Uncategorized"
-        amount = t.amount
-        income_data[category]['total'] += amount
-        income_data[category]['subcategories'][subcategory] += amount
-    income_category_totals = [
-        {
-            'category': cat,
-            'total': data['total'],
-            'subcategories': list(data['subcategories'].items())
-        }
-        for cat, data in sorted(income_data.items())
-    ]
-    income_total = sum(row['total'] for row in income_category_totals)
-    expense_total = sum(row['total'] for row in expense_category_totals)
-    net_profit = income_total - expense_total
+    try:
+        selected_year = int(year)
+    except ValueError:
+        selected_year = timezone.now().year
 
-    html_string = render_to_string('finance/financial_statement_pdf.html', {
-        'selected_year': selected_year,
-        'income_category_totals': income_category_totals,
-        'expense_category_totals': expense_category_totals,
-        'income_category_total': income_total,
-        'expense_category_total': expense_total,
-        'net_profit': net_profit,
-        'now': timezone.now(),
-    })
+    context = get_summary_data(request, selected_year)
+    context['now'] = timezone.now()
 
+    html_string = render_to_string('finance/financial_statement_pdf.html', context)
     pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = f'filename="Financial_Statement_{selected_year}.pdf"'
-    return response
 
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Financial_Statement_{selected_year}.pdf"'
+
+    return response
 
 
 
@@ -1235,14 +1194,14 @@ def form_4797_view(request):
     report_data = []
 
     for item in sold_equipment:
-        basis = Decimal('0.00') if item.deducted_full_cost else (item.purchase_price or Decimal('0.00'))
-        gain = item.sale_price - basis
+        purchase_cost = Decimal('0.00') if item.deducted_full_cost else (item.purchase_price or Decimal('0.00'))
+        gain = item.sale_price - item.purchase_cost
 
         report_data.append({
             'name': item.name,
             'date_sold': item.date_sold,
             'sale_price': item.sale_price,
-            'basis': basis,
+            'purchase_cost': item.purchase_cost,
             'gain': gain,
         })
 
@@ -1274,7 +1233,7 @@ def form_4797_pdf(request):
     context = {
         'report_data': report_data,
         'company_name': "Airborne Images",
-        'logo_path': settings.STATIC_ROOT + '/images/logo2.png' if not settings.DEBUG else settings.STATICFILES_DIRS[0] + '/images/logo2.png',
+ 
     }
 
     template = get_template('finance/form_4797_pdf.html')

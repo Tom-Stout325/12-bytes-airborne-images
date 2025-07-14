@@ -1,4 +1,5 @@
 {% load humanize %}
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,7 +8,7 @@
     <style>
         body { font-family: 'Arial', sans-serif; font-size: 12px; margin: 40px; }
         h1, h2 { text-align: center; margin: 0; }
-        .logo { text-align: center; margin-bottom: 20px; }
+        .logo { text-align: center; margin-bottom: 20px; width: 150px; margin: auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 30px; }
         th, td { padding: 8px; border: 1px solid #333; text-align: right; }
         th { background-color: #eee; }
@@ -17,7 +18,7 @@
 </head>
 <body>
     <div class="logo">
-        <img src="{{ logo_path }}" alt="Airborne Images Logo" height="60">
+        <img src="{% static 'images/logo2.png' %}" class="logo" alt="Airborne Images Logo">  
     </div>
     <h1>Airborne Images</h1>
     <h2>Form 4797 - Sales of Business Property</h2>

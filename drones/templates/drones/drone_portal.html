@@ -48,7 +48,7 @@
           <h5 class="card-title text-center text-primary"><img src="{% static 'images/logo.png' %}" width="25px" alt="Logo"> &nbsp;My Drones</h5>
           <p class="card-text mb-3">Manage drones, FAA registration, and expiration tracking.</p>
           <div class="mt-auto">
-            <a href="{% url 'drone_list' %}" class="btn btn-secondary w-100">View Drone Inventory</a>
+            <a href="{% url 'equipment_list' %}" class="btn btn-secondary w-100">View Drone Inventory</a>
           </div>
         </div>
       </div>
@@ -106,7 +106,7 @@
       <div class="card shadow-sm h-100 border-warning hover-scale">
         <div class="card-body d-flex flex-column">
           <h5 class="card-title text-warning text-center">🛠️ Equipment</h5>
-          <p class="card-text mb-3">Track batteries, controllers, and firmware versions.</p>
+          <p class="card-text mb-3">Track batteries, controllers, and other equipment.</p>
           <div class="mt-auto">
             <a href="{% url 'equipment_list' %}" class="btn btn-warning w-100 text-dark">View Equipment</a>
           </div>
