@@ -4,4 +4,3 @@ from .models import *
 admin.site.register(DroneIncidentReport)
 admin.site.register(SOPDocument)
 admin.site.register(GeneralDocument)
-admin.site.register(Drone)

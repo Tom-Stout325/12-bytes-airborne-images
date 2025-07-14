@@ -1,8 +1,12 @@
 {% load static %}
 {% load humanize static %}
+
+  {% block title %}Invoice#: {{invoice.invoice_numb}}{% endblock %}
+  
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
+  {% block title %}Invoice#: {{invoice.invoice_numb}}{% endblock %}
   <meta charset="utf-8">
   <style>
     body {

@@ -3,6 +3,7 @@ from django.forms import inlineformset_factory
 from .models import *
 
 
+
 class TransForm(forms.ModelForm):
     keyword = forms.ModelChoiceField(
         queryset=Keyword.objects.order_by('name'),
@@ -18,16 +19,15 @@ class TransForm(forms.ModelForm):
         required=False
     )
 
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-
     class Meta:
         model = Transaction
-        exclude = ['category', 'user']
-
+        fields = (
+            'date', 'trans_type', 'sub_cat', 'amount',
+            'invoice_numb', 'team','transaction', 'receipt',
+            'transport_type', 'keyword'
+        )
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date'}),
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'transport_type': forms.Select(attrs={'class': 'form-control'}),
         }
 
@@ -43,47 +43,44 @@ class TransForm(forms.ModelForm):
         transport = cleaned_data.get("transport_type")
         sub_cat = cleaned_data.get("sub_cat")
 
-        if transport == "personal_vehicle" and sub_cat and sub_cat.sub_cat.lower() in ['fuel', 'gas', 'gasoline']:
-            raise forms.ValidationError(
-                "Gas expenses are not deductible when using a personal vehicle. Use mileage instead."
-            )
+        if sub_cat:
+            cleaned_data['category'] = sub_cat.category
+
         return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if instance.sub_cat:
+            instance.category = instance.sub_cat.category
+        if commit:
+            instance.save()
+        return instance
+
+
 
 
 
 class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
-        fields = [
-            'invoice_numb', 'client', 'event', 'location', 'keyword',
-            'service', 'amount', 'date', 'due', 'paid_date', 'status'
-        ]
+        exclude = ['amount']  # keep amount excluded, it's calculated
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
             'due': forms.DateInput(attrs={'type': 'date'}),
             'paid_date': forms.DateInput(attrs={'type': 'date'}),
+            'keyword': forms.Select(attrs={'class': 'form-select'}), 
         }
-        
+
 
 class InvoiceItemForm(forms.ModelForm):
     class Meta:
         model = InvoiceItem
         fields = ['description', 'qty', 'price']
-
-    description = forms.CharField(
-        label="Description",
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Service or product description'})
-    )
-
-    qty = forms.IntegerField(
-        label="Qty",
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 1})
-    )
-
-    price = forms.DecimalField(
-        label="Price",
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'})
-    )
+        widgets = {
+            'description': forms.TextInput(attrs={'class': 'form-control'}),
+            'qty': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+        }
 
 
 
@@ -94,6 +91,11 @@ InvoiceItemFormSet = inlineformset_factory(
     extra=5,
     can_delete=True
 )
+
+
+
+
+
     
 
 class CategoryForm(forms.ModelForm):
@@ -106,6 +108,8 @@ class CategoryForm(forms.ModelForm):
                 'placeholder': 'Enter category name'
             }),
         }
+
+
 
 
 class SubCategoryForm(forms.ModelForm):
@@ -130,6 +134,8 @@ class ClientForm(forms.ModelForm):
         fields = ['business', 'first', 'last', 'street', 'address2', 'email', 'phone']
 
 
+
+
 class MileageForm(forms.ModelForm):
     class Meta:
         model = Miles
@@ -139,12 +145,17 @@ class MileageForm(forms.ModelForm):
             'begin': forms.NumberInput(attrs={'step': '0.1', 'class': 'form-control'}),
             'end': forms.NumberInput(attrs={'step': '0.1', 'class': 'form-control'}),
             'client': forms.Select(attrs={'class': 'form-control'}),
-            'invoice': forms.TextInput(attrs={'class': 'form-control'}),
+            'invoice': forms.Select(attrs={'class': 'form-control'}),  # changed from TextInput to Select
             'tax': forms.TextInput(attrs={'class': 'form-control'}),
             'job': forms.TextInput(attrs={'class': 'form-control'}),
             'vehicle': forms.TextInput(attrs={'class': 'form-control'}),
             'mileage_type': forms.Select(attrs={'class': 'form-control'}),
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['invoice'].queryset = Invoice.objects.order_by('-date')
+
+
 
 class MileageRateForm(forms.ModelForm):
     class Meta:

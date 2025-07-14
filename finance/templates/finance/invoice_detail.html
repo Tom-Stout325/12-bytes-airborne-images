@@ -112,7 +112,7 @@
                 {% for item in invoice.items.all %}
                 <tr>
                     <td>{{ item.qty|default:0 }}</td>
-                    <td>{{ item.item.service }}</td>
+                    <td>{{ item.description }}</td>
                     <td>${{ item.price|floatformat:2|intcomma }}</td>
                     <td>${{ item.total|floatformat:2|intcomma }}</td>
                 </tr>

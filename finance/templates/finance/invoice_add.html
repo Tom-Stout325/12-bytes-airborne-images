@@ -18,17 +18,16 @@
           <div class="col-md-6 mb-3">{{ form.invoice_numb|as_crispy_field }}</div>
           <div class="col-md-6 mb-3">{{ form.client|as_crispy_field }}</div>
           <div class="col-md-6 mb-3">{{ form.event|as_crispy_field }}</div>
+          <div class="col-md-6 mb-3">{{ form.keyword|as_crispy_field }}</div>
+
           <div class="col-md-6 mb-3">{{ form.location|as_crispy_field }}</div>
           <div class="col-md-6 mb-3">{{ form.service|as_crispy_field }}</div>
-          <div class="col-md-6 mb-3">{{ form.amount|as_crispy_field }}</div>
           <div class="col-md-6 mb-3">{{ form.date|as_crispy_field }}</div>
           <div class="col-md-6 mb-3">{{ form.due|as_crispy_field }}</div>
           <div class="col-md-6 mb-3">{{ form.paid_date|as_crispy_field }}</div>
           <div class="col-md-6 mb-3">{{ form.status|as_crispy_field }}</div>
         </div>
-
         <hr class="mt-4 mb-4">
-
         <h5 class="mb-3">Invoice Items</h5>
 {{ formset.management_form }}
 
@@ -45,15 +44,16 @@
     </thead>
     <tbody>
       {% for form in formset %}
-      <tr class="invoice-item-row">
-        <td>{{ form.description }}</td>
-        <td>{{ form.qty }}</td>
-        <td>{{ form.price }}</td>
-        <td class="row-total">$<span class="total-value">0.00</span></td>
-        <td class="text-center">{{ form.DELETE }}</td>
-      </tr>
+        <tr class="invoice-item-row">
+          <td>{{ form.description|as_crispy_field }}</td>
+          <td>{{ form.qty|as_crispy_field }}</td>
+          <td>{{ form.price|as_crispy_field }}</td>
+          <td class="row-total">$<span class="total-value">0.00</span></td>
+          <td class="text-center">{{ form.DELETE }}</td>
+        </tr>
       {% endfor %}
     </tbody>
+
     <tfoot>
       <tr class="table-light">
         <td colspan="3" class="text-end fw-bold">Grand Total:</td>
@@ -71,6 +71,18 @@
     </div>
   </div>
 </div>
+
+{% if form.errors %}
+  <div class="alert alert-danger">{{ form.errors }}</div>
+{% endif %}
+{% if formset.non_form_errors %}
+  <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
+{% endif %}
+
+{% for form in formset %}
+  {{ form.errors }}
+{% endfor %}
+
 
 <script>
   function calculateTotals() {

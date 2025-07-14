@@ -15,7 +15,15 @@
         <div class="card-body bg-light">
           <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
-            {{ form.non_field_errors }}
+
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                  <div>{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
             {{ form.media }}
 
             {{ form.date|as_crispy_field }}

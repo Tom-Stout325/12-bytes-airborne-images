@@ -1,0 +1,45 @@
+invoice_numb,event,location,amount,date,due,client_id,keyword_id,service_id,paid_date,status
+240047,Summit NHRA Nationals,"Norwalk, OH",3000,7/2/24,8/2/24,NHRA,Norwalk,Drone Services,8/15/24,Paid
+240049,Sonoma Nationals,"Sonoma, CA",3000,7/30/24,8/30/24,NHRA,Sonoma,Drone Services,9/5/24,Paid
+240051,Lucas Oil Nationals,"Brainerd, MN",3000,8/21/24,9/21/24,NHRA,Brainerd,Drone Services,9/30/24,Paid
+240053,Pep Boys Nationals,"Reading, PA",3000,9/18/24,10/18/24,NHRA,Reading,Drone Services,10/22/24,Paid
+240054,Midwest Nationals,"St. Louis, IL",3000,10/1/24,11/1/24,NHRA,St Louis,Drone Services,11/10/24,Paid
+240055,Carolina Nationals,"Charlotte, NC",3000,10/1/24,11/1/24,NHRA,Charlotte II,Drone Services,11/10/24,Paid
+240056,Texas FallNationals,"Dallas, TX",3000,10/15/24,11/14/24,NHRA,Dallas,Drone Services,11/20/24,Paid
+240039,ThunderNationals,Bristol,3000,6/11/24,7/11/24,NHRA,Bristol,Drone Services,7/12/24,Paid
+250101,NHRA GatorNationals,Gainesville,3250,3/15/25,4/12/25,NHRA,Gainesville,Drone Services,5/1/25,Paid
+250102,NHRA Arizona Nationals,Phoenix,3250,3/26/25,4/26/25,NHRA,Phoenix,Drone Services,5/1/25,Paid
+250103,NHRA Winternationals,"Pomona, CA",3250,4/2/25,5/2/25,NHRA,Pomona I,Drone Services,5/6/25,Paid
+240057,Nevada Nationals,"Las Vegas, NV",3000,11/8/24,12/8/24,NHRA,Vegas II,Drone Services,12/26/24,Paid
+250104,Vegas 4 Wide,Las Vegas,3250,4/14/25,5/14/25,NHRA,Vegas I,Drone Services,5/16/25,Paid
+240058,NHRA Finals,Pomona,3000,11/20/24,12/20/24,NHRA,Pomona II,Drone Services,12/31/24,Paid
+230015,Summit NHRA Nationals,"Norwalk, OH",1500,6/25/23,7/25/23,NHRA,Norwalk,Drone Services,8/15/23,Paid
+240042,Virginia Nationals,"Richmond, VA",3000,6/24/24,7/24/24,NHRA,Richmond,Drone Services,7/30/24,Paid
+230016,Mile-High Nationals,"Denver, CO",1500,7/16/23,8/16/23,NHRA,Denver,Drone Services,8/25/23,Paid
+240015,Gatornationals,"Gainesville, FL",1585.79,3/12/24,4/12/24,NHRA,Gainesville,Drone Services,4/20/24,Paid
+240016,WinterNationals,"Pomona, CA",1549.78,3/28/24,4/28/24,NHRA,Pomona I,Drone Services,5/10/24,Paid
+240052,US Nationals,"Indianapolis, IN",3000,9/7/24,10/7/24,NHRA,Indy,Drone Services,10/11/24,Paid
+230017,Northwest Nationals,"Seattle, WA",1500,7/23/23,8/23/23,NHRA,Seattle,Drone Services,9/1/23,Paid
+230011,Gatornationals,"Gainsesville, FL",1500,3/12/23,4/12/23,NHRA,Gainesville,Drone Services,4/20/23,Paid
+230012,New England Nationals,"Epping, NH",1500,4/2/23,5/2/23,NHRA,Epping,Drone Services,5/15/23,Paid
+230013,Winternationals,"Pomona, CA",1500,4/2/23,5/2/23,NHRA,Pomona I,Drone Services,5/15/23,Paid
+230014,NHRA Four-Wide Nationals,"Las Vegas, NV",1500,4/16/23,5/16/23,NHRA,Vegas I,Drone Services,5/15/23,Paid
+240018,Nevada Nationals,"Phoenix, AZ",1529.99,4/10/24,5/10/24,NHRA,Phoenix,Drone Services,5/20/24,Paid
+240019,NHRA 4-Wide Nationals,"Las Vegas, NV",1561.87,4/17/24,5/18/24,NHRA,Vegas I,Drone Services,5/22/24,Paid
+230018,Sonoma Nationals,"Sonoma, CA",1548.08,7/30/23,8/30/23,NHRA,Sonoma,Drone Services,9/5/23,Paid
+230019,Lucas Oil Nationals,"Brainerd, MN",1560.19,8/20/23,9/20/23,NHRA,Brainerd,Drone Services,9/25/23,Paid
+230020,US Nationals,"Indianapolis, IN",1500,9/5/23,10/5/23,NHRA,Indy,Drone Services,10/15/23,Paid
+230021,Pep Boys Nationals,"Reading, PA",1500,9/17/23,10/17/23,NHRA,Reading,Drone Services,10/30/23,Paid
+230022,Carolina Nationals,"Charlotte, NC",1624,9/24/23,10/24/23,NHRA,Charlotte II,Drone Services,10/27/23,Paid
+230023,Midwest Nationals,St Louis,1559.26,10/1/23,11/2/23,NHRA,St Louis,Drone Services,11/10/23,Paid
+230024,Texas FallNationals,"Dallas, TX",1531.7,10/15/23,11/15/23,NHRA,Dallas,Drone Services,11/20/23,Paid
+230025,Nevada Nationals,"Las Vegas, NV",1531.71,10/29/23,11/29/23,NHRA,Vegas II,Drone Services,12/10/23,Paid
+230026,NHRA Finals,"Pomona, Ca",1598.06,11/12/23,12/12/23,NHRA,Pomona II,Drone Services,12/20/23,Paid
+240025,Charlotte 4-Wide,"Charlotte, NC",3000,4/30/24,5/30/24,NHRA,Charlotte I,Drone Services,6/10/24,Paid
+250105,Charlotte 4-Wide Nationals,Charlotte,4000,4/28/25,5/28/25,NHRA,Charloote I,Drone Services,5/30/25,Paid
+250108,NHRA ThunderNationals,"Bristol, TN",3250,6/8/25,7/8/25,NHRA,Bristol,Drone Services,,Unpaid
+240033,Route 66 Nationals,"Chicago, IL",3000,5/20/24,6/20/24,NHRA,Chicago,Drone Services,7/25/24,Paid
+250109,NHRA Virginia Nationals,"Richmond, VA",3250,6/22/25,7/23/25,NHRA,Richmond,Drone Services,,Unpaid
+250106,Route 66 NHRA Nationals,"Joliet, IL",3250,5/19/25,6/19/25,NHRA,Chicago,Drone Services,6/21/25,Paid
+250110,Summit NHRA Nationals,"Norwalk, OH",4000,6/29/25,7/29/25,NHRA,Norwalk,Drone Services,,Unpaid
+250107,New England Nationals,"Epping, NH",3250,6/1/25,7/1/25,NHRA,Epping,Drone Services,7/1/25,Paid

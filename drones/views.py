@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from formtools.wizard.views import SessionWizardView
@@ -7,35 +6,29 @@ from django.template.loader import render_to_string
 from django.template.loader import get_template
 from django.templatetags.static import static
 from django.core.paginator import Paginator
-from django.template import RequestContext
 from datetime import datetime, timedelta
 from django.utils.timezone import now
-from .models import FlightLog, Drone
 from django.http import HttpResponse
 from django.contrib import messages
 from django.utils import timezone
-from django.db.models import Sum
 from django.conf import settings
-from operator import attrgetter
 from django.db.models import Q
 from datetime import timedelta
-from itertools import groupby
 from weasyprint import HTML 
 import os
 import csv
-import subprocess
 import uuid
 import tempfile
 import re
 from .forms import *
 from .models import *
 from datetime import timedelta
-from drones.models import Drone, FlightLog
+
 
 
 @login_required
 def drone_portal(request):
-    total_drones = Drone.objects.count()
+
     total_flights = FlightLog.objects.count()
     active_drones = FlightLog.objects.all()
     total_flight_time = timedelta()
@@ -59,7 +52,7 @@ def drone_portal(request):
     )
 
     context = {
-        'total_drones': total_drones,
+
         'active_drones': active_drones,
         'total_flights': total_flights,
         'total_flight_time': total_flight_time,
@@ -70,117 +63,9 @@ def drone_portal(request):
 
     return render(request, 'drones/drone_portal.html', context)
 
-# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Drone Views
-
-@login_required
-def drone_list(request):
-    drones = Drone.objects.all()
-    soon = now() + timedelta(days=30)
-    context = {
-        'drones': drones,
-        'soon_expiring': {drone.pk for drone in drones if drone.faa_experiation and drone.faa_experiation <= soon},
-        'current_page': 'drones'  
-    }
-    return render(request, 'drones/drone_list.html', context)
-
-@login_required
-def drone_create(request):
-    form = DroneForm(request.POST or None, request.FILES or None)
-    if form.is_valid():
-        drone = form.save()
-        messages.success(request, f'Drone "{drone.nickname or drone.model}" was successfully created.')
-        return redirect('drone_detail', pk=drone.pk)
-    context = {
-        'form': form,
-        'current_page': 'drones'
-    }
-    return render(request, 'drones/drone_form.html', context)
 
 
-@login_required
-def drone_edit(request, pk):
-    drone = get_object_or_404(Drone, pk=pk)
-    form = DroneForm(request.POST or None, request.FILES or None, instance=drone)
-    if form.is_valid():
-        form.save()
-        messages.success(request, f'Drone "{drone.nickname or drone.model}" was successfully updated.')
-        return redirect('drone_detail', pk=drone.pk)
-    context = {
-        'form': form,
-        'current_page': 'drones'  
-    }
-    return render(request, 'drones/drone_form.html', context)
 
-
-@login_required
-def drone_delete(request, pk):
-    drone = get_object_or_404(Drone, pk=pk)
-    if request.method == 'POST':
-        drone.delete()
-        return redirect('drone_list')
-    context = {
-        'drone': drone,
-        'current_page': 'drones'  
-    }
-    return render(request, 'drones/drone_confirm_delete.html', context)
-
-
-@login_required
-def drone_detail(request, pk):
-    drone = get_object_or_404(Drone, pk=pk)
-    flights = FlightLog.objects.filter(drone_serial=drone.serial_number)
-    flight_count = flights.count()
-    total_time = flights.aggregate(total=Sum('air_time'))['total'] or timedelta()
-    context = {
-        'drone': drone,
-        'flight_count': flight_count,
-        'total_time': total_time,
-        'current_page': 'drones'  
-    }
-    return render(request, 'drones/drone_detail.html', context)
-
-
-@login_required
-def drone_detail_pdf(request, pk):
-    drone = get_object_or_404(Drone, pk=pk)
-    flights = FlightLog.objects.filter(drone_serial=drone.serial_number)
-    flight_count = flights.count()
-    total_time = flights.aggregate(total=Sum('air_time'))['total'] or timedelta()
-    context = {
-        'drone': drone,
-        'flight_count': flight_count,
-        'total_time': total_time,
-        'current_page': 'drones'  
-    }
-    html_string = render_to_string('drones/drone_detail_pdf.html', context)
-    response = HttpResponse(content_type='application/pdf')
-    if request.GET.get("preview") == "1":
-        response['Content-Disposition'] = f'inline; filename="drone_{drone.pk}_report.pdf"'
-    else:
-        response['Content-Disposition'] = f'attachment; filename="drone_{drone.pk}_report.pdf"'
-    with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
-        HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(tmp_file.name)
-        tmp_file.seek(0)
-        response.write(tmp_file.read())
-    return response
-
-
-@login_required
-def export_drones_csv(request):
-    drones = Drone.objects.all()
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="drones.csv"'
-    writer = csv.writer(response)
-    writer.writerow(['Nickname', 'Model', 'Serial Number', 'FAA Number', 'Expiration Date'])
-    for drone in drones:
-        writer.writerow([
-            drone.nickname,
-            drone.model,
-            drone.serial_number,
-            drone.faa_number,
-            drone.faa_experiation.strftime('%Y-%m-%d') if drone.faa_experiation else ''
-        ])
-    return response
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Documents Views
 

@@ -28,12 +28,6 @@ from .views import (
 
     # Drones
     drone_portal,
-    drone_list,
-    drone_detail,
-    drone_create,
-    drone_edit,
-    drone_delete,
-    drone_detail_pdf,
 
     # Flight Logs
     flightlog_list,
@@ -91,15 +85,6 @@ urlpatterns = [
     path('equipment/<int:pk>/delete/', equipment_delete, name='equipment_delete'),
     path('equipment/pdf/', equipment_pdf, name='equipment_pdf'),
     path('equipment/<int:pk>/pdf/', equipment_pdf_single, name='equipment_pdf_single'),
-
-
-    # Drones
-    path('drones/', drone_list, name='drone_list'),
-    path('drones/create/', drone_create, name='drone_create'),
-    path('drones/<int:pk>/edit/', drone_edit, name='drone_edit'),
-    path('drones/<int:pk>/delete/', drone_delete, name='drone_delete'),
-    path('drones/<int:pk>/pdf/', drone_detail_pdf, name='drone_detail_pdf'),
-    path('drones/<int:pk>/', drone_detail, name='drone_detail'),
 
     # Flight Logs
     path('flightlogs/', flightlog_list, name='flightlog_list'),

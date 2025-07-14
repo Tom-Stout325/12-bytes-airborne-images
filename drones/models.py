@@ -1,66 +1,57 @@
 from django.db import models
 from django.utils.text import slugify
 from django.core.validators import FileExtensionValidator
+import uuid
+from django.core.exceptions import ValidationError
 
+class Equipment(models.Model):
+    EQUIPMENT_TYPE_CHOICES = [
+        ('Drone', 'Drone'),
+        ('Controller', 'Controller'),
+        ('Battery', 'Battery'),
+        ('Charger', 'Charger'),
+        ('Accessory', 'Accessory'),
+        ('Other', 'Other'),
+    ]
 
-
-DRONE_MODEL_CHOICES = [
-    ('Air 3S', 'Air 3s'),
-    ('Avata 2', 'Avata 2'),
-    ('Mavic 3 Pro', 'Mavic 3 Pro'),
-    ('Mavic 3 Classic', 'Mavic 3 Classic'),
-    ('Air 2S', 'Air 2S'),
-    ('Mini 3 Pro', 'Mini 3 Pro'),
-    ('Inspire 2', 'Inspire 2'),
-    ('Other', 'Other'),
-]
-
-class Drone(models.Model):
-    model            = models.CharField(max_length=100, choices=DRONE_MODEL_CHOICES, default='Other')
-    nickname         = models.CharField(max_length=50, unique=True, blank=True)
-    serial_number    = models.CharField(max_length=50, unique=True, blank=True)
-    faa_number       = models.CharField(max_length=50, unique=True, blank=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200)
+    equipment_type = models.CharField(max_length=50, choices=EQUIPMENT_TYPE_CHOICES)
+    brand = models.CharField(max_length=100, blank=True)
+    model = models.CharField(max_length=200, blank=True)
+    serial_number = models.CharField(max_length=200, blank=True)
+    faa_number = models.CharField(max_length=100, blank=True)
     faa_certificate = models.FileField(
         upload_to='registrations/',
         validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])],
         blank=True,
         null=True,
     )
-
-    faa_experiation  = models.DateTimeField()
-    date_purchased   = models.DateTimeField()
-
-    def __str__(self):
-        return self.model or f"{self.model} ({self.nickname}) ({self.faa_experiation})"
-
-
-class Equipment(models.Model):
-    EQUIPMENT_TYPES = [
-        ('Drone', 'Drone'),
-        ('Battery', 'Battery'),
-        ('Controller', 'Controller'),
-        ('Charger', 'Charger'),
-        ('Accessory', 'Accessory'),
-        ('Other', 'Other'),
-    ]
-
-    name = models.CharField(max_length=100)
-    equipment_type = models.CharField(max_length=50, choices=EQUIPMENT_TYPES)
-    brand = models.CharField(max_length=100, blank=True)
-    model = models.CharField(max_length=100, blank=True)
-    serial_number = models.CharField(max_length=100, blank=True)
-    faa_registration = models.CharField(max_length=100, blank=True)
-    firmware_version = models.CharField(max_length=100, blank=True)
     purchase_date = models.DateField(null=True, blank=True)
-    date_disposed = models.DateField(null=True, blank=True)
+    date_sold = models.DateField(null=True, blank=True)
+    sale_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    deducted_full_cost = models.BooleanField(default=True)
     notes = models.TextField(blank=True)
+
+    def is_drone(self):
+        return self.equipment_type == 'Drone'
+
+    def clean(self):
+        super().clean()
+        if not self.is_drone():
+            if self.faa_number:
+                raise ValidationError({'faa_number': 'FAA number is only applicable to drones.'})
+            if self.faa_certificate:
+                raise ValidationError({'faa_certificate': 'FAA certificate is only applicable to drones.'})
 
     def __str__(self):
         return f"{self.name} ({self.equipment_type})"
 
+    class Meta:
+        ordering = ['equipment_type', 'name']
+        verbose_name_plural = "Equipment"
 
     
-
 class DroneIncidentReport(models.Model):
     report_date = models.DateField()
     reported_by = models.CharField(max_length=100)

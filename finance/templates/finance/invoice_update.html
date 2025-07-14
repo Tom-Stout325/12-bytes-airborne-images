@@ -37,7 +37,6 @@
           <div class="col-md-6 mb-3">{{ form.location|as_crispy_field }}</div>
           <div class="col-md-6 mb-3">{{ form.keyword|as_crispy_field }}</div>
           <div class="col-md-6 mb-3">{{ form.service|as_crispy_field }}</div>
-          <div class="col-md-6 mb-3">{{ form.amount|as_crispy_field }}</div>
           <div class="col-md-6 mb-3">{{ form.date|as_crispy_field }}</div>
           <div class="col-md-6 mb-3">{{ form.due|as_crispy_field }}</div>
           <div class="col-md-6 mb-3">{{ form.paid_date|as_crispy_field }}</div>
@@ -60,10 +59,11 @@
           <table class="table table-bordered table-hover align-middle">
             <thead class="table-light">
               <tr>
-                <th>Item</th>
+                <th>Description</th>
                 <th>Qty</th>
                 <th>Price</th>
                 <th>Delete</th>
+
               </tr>
             </thead>
             <tbody>
@@ -71,12 +71,12 @@
                 {% for hidden in item_form.hidden_fields %}
                   {{ hidden }}
                 {% endfor %}
-                <tr>
-                  <td>{{ item_form.item|as_crispy_field }}</td>
-                  <td>{{ item_form.qty|as_crispy_field }}</td>
-                  <td>{{ item_form.price|as_crispy_field }}</td>
-                  <td class="text-center">{{ item_form.DELETE }}</td>
-                </tr>
+                  <tr>
+                    <td>{{ item_form.description|as_crispy_field }}</td>
+                    <td>{{ item_form.qty|as_crispy_field }}</td>
+                    <td>{{ item_form.price|as_crispy_field }}</td>
+                    <td class="text-center">{{ item_form.DELETE }}</td>
+                  </tr>
               {% endfor %}
             </tbody>
           </table>

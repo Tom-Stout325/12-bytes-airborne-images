@@ -93,35 +93,3 @@ class EquipmentForm(forms.ModelForm):
 
 #<---------------------------------------- DRONE FORMS ---------------------------------------->
 
-
-class DroneForm(forms.ModelForm):
-    class Meta:
-        model = Drone
-        fields = [
-            'model',
-            'nickname',
-            'serial_number',
-            'faa_number',
-            'faa_certificate',
-            'faa_experiation',
-            'date_purchased'
-        ]
-        widgets = {
-            'faa_experiation': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'date_purchased': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-        }
-        labels = {
-            'model': 'Drone Model',
-            'nickname': 'Nickname',
-            'serial_number': 'Serial Number',
-            'faa_number': 'FAA Registration Number',
-            'faa_certificate': 'FAA Registration Certificate (PDF/Image)',
-            'faa_experiation': 'FAA Certificate Expiration',
-            'date_purchased': 'Date Purchased',
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            if not isinstance(field.widget, forms.FileInput):
-                field.widget.attrs.update({'class': 'form-control'})

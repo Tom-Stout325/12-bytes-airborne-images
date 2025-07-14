@@ -34,10 +34,13 @@
      <div class="text-end mt-3 me-3">
         {% if selected_year %}
             <a href="{% url 'financial_statement_pdf' selected_year %}?preview=1" target="_blank" class="btn btn-outline-secondary me-2">
-            <i class="fa-solid fa-eye"></i> Preview PDF
+                <i class="fa-solid fa-eye"></i> Preview PDF
             </a>
             <a href="{% url 'financial_statement_pdf' selected_year %}" class="btn btn-outline-danger">
-            <i class="fa-solid fa-file-pdf"></i> Download PDF
+                <i class="fa-solid fa-file-pdf"></i> Download PDF
+            </a>
+            <a href="{% url 'schedule_c_summary' %}?year={{ selected_year }}" class="btn btn-outline-dark me-2">
+                <i class="fas fa-table"></i> Schedule C Summary
             </a>
         {% endif %}
     </div>
@@ -60,27 +63,33 @@
                             <th class="text-end px-4">Total Amount</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {% for row in income_category_totals %}
-                        <!-- Category Row -->
-                        <tr class="table-success fw-bold">
-                            <td class="px-4">{{ row.category }}</td>
-                            <td class="text-end px-4">$ {{ row.total|floatformat:2|intcomma }}</td>
-                        </tr>
+                 <tbody>
+                    {% for row in income_category_totals %}
+                    <!-- Category Row -->
+                    <tr class="table-success fw-bold">
+                        <td class="px-4">{{ row.category }}</td>
+                        <td class="text-end px-4">$ {{ row.total|floatformat:2|intcomma }}</td>
+                    </tr>
 
-                        <!-- Subcategory Rows -->
-                        {% for sub_cat, amount in row.subcategories %}
-                        <tr>
-                            <td class="ps-5">{{ sub_cat }}</td>
-                            <td class="text-end px-4">$ {{ amount|floatformat:2|intcomma }}</td>
-                        </tr>
-                        {% endfor %}
-                        {% empty %}
-                        <tr>
-                            <td colspan="2" class="text-center text-muted py-3">No income transactions found.</td>
-                        </tr>
-                        {% endfor %}
+                    <!-- Subcategory Rows -->
+                    {% for sub_cat, amount, schedule_line in row.subcategories %}
+                    <tr>
+                        <td class="ps-5">
+                        {{ sub_cat }}
+                        {% if schedule_line %}
+                        <span class="text-muted small">({{ schedule_line }})</span>
+                        {% endif %}
+                        </td>
+                        <td class="text-end px-4">$ {{ amount|floatformat:2|intcomma }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="text-center text-muted py-3">No income transactions found.</td>
+                    </tr>
+                    {% endfor %}
                     </tbody>
+
                     <tfoot>
                         <tr class="table-light">
                             <td class="fw-bold px-4">Total Income</td>
@@ -104,16 +113,22 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for row in expense_category_totals %}
+                         {% for row in expense_category_totals %}
                             <tr>
-                                <td class="px-4">{{ row.category__category }}</td>
-                                <td class="text-end px-4">-$ {{ row.total|floatformat:2|intcomma }}</td>
+                            <td class="px-4">
+                                {{ row.category }}
+                                {% if row.subcategories and row.subcategories.0.2 %}
+                                <span class="text-muted small">({{ row.subcategories.0.2 }})</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end px-4">-$ {{ row.total|floatformat:2|intcomma }}</td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="2" class="text-center text-muted py-3">No expense transactions found.</td>
+                            <td colspan="2" class="text-center text-muted py-3">No expense transactions found.</td>
                             </tr>
                             {% endfor %}
+
                         </tbody>
                         <tfoot>
                             <tr class="table-light">

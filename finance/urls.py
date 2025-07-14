@@ -54,6 +54,11 @@ urlpatterns = [
     path('race-expense-report/pdf/', race_expense_report_pdf, name='race_expense_report_pdf'),
     path('reports/travel-analysis/', travel_expense_analysis, name='travel_expense_analysis'),
     path('reports/travel-analysis/pdf/', travel_expense_analysis_pdf, name='travel_expense_analysis_pdf'),
+    path('schedule-c/', schedule_c_summary, name='schedule_c_summary'),
+    path('schedule-c/<int:year>/pdf/', schedule_c_summary_pdf, name='schedule_c_summary_pdf'),
+    path('form-4797/', form_4797_view, name='form_4797'),
+    path('form-4797/pdf/', form_4797_pdf, name='form_4797_pdf'),
+
 
     # Mileage
     path('mileage-log/', mileage_log, name='mileage_log'),
