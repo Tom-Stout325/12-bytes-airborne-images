@@ -16,7 +16,6 @@ urlpatterns = [
     path('training/<int:pk>/edit/', training_edit, name='training_edit'),
     path('training/<int:pk>/delete/', training_delete, name='training_delete'),
 
-
     path('register/', register, name='register'),
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
