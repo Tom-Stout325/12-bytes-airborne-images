@@ -182,9 +182,6 @@ class Invoice(models.Model):
         self.amount = total
         self.save()
         
-
-
-
     @property
     def is_paid(self):
         return self.paid_date is not None

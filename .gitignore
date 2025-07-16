@@ -65,3 +65,6 @@ rebuild_venv.sh
 Thumbs.db
 ehthumbs.db
 .env
+
+
+backups/

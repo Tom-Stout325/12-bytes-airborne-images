@@ -1,5 +1,8 @@
 PRODUCTION UPDATES
 
+Install Heroku Schedule:  heroku addons:create scheduler:standard --app airborne-images-12bytes
+
+Open Schedule dashboard:  heroku addons:open scheduler --app airborne-images-12bytes
 
 
 -------------------------------------------

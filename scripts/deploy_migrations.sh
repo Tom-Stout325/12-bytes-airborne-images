@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # === CONFIG ===
-HEROKU_APP="airborne-images-12bytes"  # Replace with your actual Heroku app name
-BRANCH="main"                         # Change to 'master' if you're using that
+HEROKU_APP="airborne-images-12bytes"  
+BRANCH="main"                      
 
 echo "🔧 Making migrations..."
 python3 manage.py makemigrations
