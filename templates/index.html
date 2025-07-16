@@ -19,6 +19,17 @@
   <meta name="twitter:description" content="Upload and analyze your DJI drone logs for free. Track all key metrics." />
   <meta name="twitter:image" content="https://www.yourdomain.com/static/images/twitter-banner.jpg" />
 
+
+  <!-- iOS Web App Meta -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="12Bytes Transactions">
+  <link rel="apple-touch-icon" href="{% static 'images/app-icon.png' %}"> <!-- 180x180 icon -->
+
+  <!-- Viewport for better mobile scaling -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+
   <!-- Favicon -->
   <link rel="icon" href="{% static 'images/favicon.ico' %}" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="{% static 'images/favicon.ico' %}">
@@ -79,6 +90,7 @@
 
     {% block content %}{% endblock %}
     {% block extra_js %}{% endblock %}
+    {% block extra_css %}{% endblock %}
   </div>
 
   <!-- Bootstrap JS -->
