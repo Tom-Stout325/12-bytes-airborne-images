@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>{% block title %}Drone Flight Log App{% endblock %}</title>
 
   <!-- SEO & Open Graph -->
@@ -19,17 +19,28 @@
   <meta name="twitter:description" content="Upload and analyze your DJI drone logs for free. Track all key metrics." />
   <meta name="twitter:image" content="https://www.yourdomain.com/static/images/twitter-banner.jpg" />
 
-
   <!-- iOS Web App Meta -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="12Bytes Transactions">
-  <link rel="apple-touch-icon" href="{% static 'images/app-icon.png' %}"> <!-- 180x180 icon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/app-icon-192.png' %}">
+  <link rel="apple-touch-startup-image" href="{% static 'images/app-splash.png' %}">
 
-  <!-- Viewport for better mobile scaling -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="apple-touch-startup-image" href="{% static 'images/app-splash-640x1136.png' %}" media="(device-width: 320px) and (device-height: 568px)">
+  <link rel="apple-touch-startup-image" href="{% static 'images/app-splash-750x1334.png' %}" media="(device-width: 375px) and (device-height: 667px)">
+  <link rel="apple-touch-startup-image" href="{% static 'images/app-splash-828x1792.png' %}" media="(device-width: 414px) and (device-height: 896px)">
+  <link rel="apple-touch-startup-image" href="{% static 'images/app-splash-1125x2436.png' %}" media="(device-width: 375px) and (device-height: 812px)">
+  <link rel="apple-touch-startup-image" href="{% static 'images/app-splash-1242x2688.png' %}" media="(device-width: 414px) and (device-height: 896px)">
+  <link rel="apple-touch-startup-image" href="{% static 'images/app-splash-1536x2048.png' %}" media="(device-width: 768px) and (device-height: 1024px)">
+  <link rel="apple-touch-startup-image" href="{% static 'images/app-splash-1668x2224.png' %}" media="(device-width: 834px) and (device-height: 1112px)">
+  <link rel="apple-touch-startup-image" href="{% static 'images/app-splash-1668x2388.png' %}" media="(device-width: 834px) and (device-height: 1194px)">
+  <link rel="apple-touch-startup-image" href="{% static 'images/app-splash-2048x2732.png' %}" media="(device-width: 1024px) and (device-height: 1366px)">
+  
 
-
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="{% static 'manifest.json' %}">
+  <meta name="theme-color" content="#0d6efd">
+  
   <!-- Favicon -->
   <link rel="icon" href="{% static 'images/favicon.ico' %}" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="{% static 'images/favicon.ico' %}">
@@ -47,13 +58,17 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-  <!-- Custom Styles -->
+  <!-- Global Custom Styles -->
   <link rel="stylesheet" href="{% static 'styles/index.css' %}">
+
+  <!-- Page-Specific Styles -->
+  {% block extra_css %}{% endblock %}
 </head>
 
 <body>
   {% include 'navbar.html' %}
 
+  <!-- Breadcrumb Navigation -->
   <div class="breadcrumb-container">
     <nav aria-label="breadcrumb" class="container mt-3">
       <ol class="breadcrumb">
@@ -66,18 +81,19 @@
                 </li>
             {% endfor %}
         {% elif current_page in drone_navigation %}
-        {% for name, url in drone_navigation.items %}
-            <li class="breadcrumb-item {% if current_page == name %}active{% endif %}">
-                <a href="{{ url }}" {% if current_page == name %}aria-current="page"{% endif %}>
-                    {{ name|title }}
-                </a>
-            </li>
-        {% endfor %}
+            {% for name, url in drone_navigation.items %}
+                <li class="breadcrumb-item {% if current_page == name %}active{% endif %}">
+                    <a href="{{ url }}" {% if current_page == name %}aria-current="page"{% endif %}>
+                        {{ name|title }}
+                    </a>
+                </li>
+            {% endfor %}
         {% endif %}
       </ol>
     </nav>
   </div>
 
+  <!-- Messages -->
   <div class="container mt-4">
     {% if messages %}
       {% for message in messages %}
@@ -89,9 +105,10 @@
     {% endif %}
 
     {% block content %}{% endblock %}
-    {% block extra_js %}{% endblock %}
-    {% block extra_css %}{% endblock %}
   </div>
+
+  <!-- Page-Specific Scripts -->
+  {% block extra_js %}{% endblock %}
 
   <!-- Bootstrap JS -->
   {% bootstrap_javascript %}
@@ -108,15 +125,28 @@
       });
     });
   </script>
-  <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-      new bootstrap.Tooltip(tooltipTriggerEl)
-    })
-  });
-</script>
 
+  <!-- Tooltips -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl)
+      })
+    });
+  </script>
+
+  <!-- Service Worker for PWA -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("{% static 'service-worker.js' %}")
+        .then((registration) => {
+          console.log("Service Worker registered with scope:", registration.scope);
+        })
+        .catch((error) => {
+          console.log("Service Worker registration failed:", error);
+        });
+    }
+  </script>
 </body>
 </html>
-  

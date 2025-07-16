@@ -13,7 +13,10 @@ environ.Env.read_env(os.path.join(Path(__file__).resolve().parent.parent, '.env'
 ENV = env('ENV', default='development')
 DEBUG = env.bool('DEBUG', default=True)
 SECRET_KEY = env('DJANGO_SECRET_KEY')
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+#ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1", '10.0.0.192'])
+
+ALLOWED_HOSTS = ["*"]
+print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
