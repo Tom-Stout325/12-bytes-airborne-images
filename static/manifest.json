@@ -1,10 +1,12 @@
 {
   "name": "12Bytes Transactions",
-  "short_name": "Transactions",
+  "short_name": "12Bytes",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f5f7fa",
-  "theme_color": "#0d6efd",
+  "background_color": "#ffffff",
+  "theme_color": "#004080",
+  "orientation": "portrait",
+  "scope": "/",
   "icons": [
     {
       "src": "/static/images/app-icon-192.png",
@@ -15,6 +17,11 @@
       "src": "/static/images/app-icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/static/images/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
     }
   ]
 }

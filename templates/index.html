@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>{% block title %}Drone Flight Log App{% endblock %}</title>
+  <title>{% block title %}12bytes{% endblock %}</title>
 
   <!-- SEO & Open Graph -->
   <meta name="description" content="Upload, parse, and manage DJI drone flight logs. Track your flight time, speed, altitude, and more with this intuitive drone logbook web app.">
@@ -23,7 +23,13 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="12Bytes Transactions">
-  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/app-icon-192.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'images/app-icon-192.png' %}">
+  <link rel="apple-touch-icon" sizes="192x192" href="{% static 'images/app-icon-192.png' %}">
+  <link rel="apple-touch-icon" sizes="512x512" href="{% static 'images/app-icon-512.png' %}">
+  <link rel="apple-touch-icon" sizes="192x192" href="{% static 'images/app-icon-192.png' %}" type="image/png">
+
+  <link rel="mask-icon" href="{% static 'images/app-icon-192.png' %}" color="#004080">
+
   <link rel="apple-touch-startup-image" href="{% static 'images/app-splash.png' %}">
 
   <link rel="apple-touch-startup-image" href="{% static 'images/app-splash-640x1136.png' %}" media="(device-width: 320px) and (device-height: 568px)">

@@ -28,7 +28,6 @@ from datetime import timedelta
 
 @login_required
 def drone_portal(request):
-
     total_flights = FlightLog.objects.count()
     active_drones = FlightLog.objects.all()
     total_flight_time = timedelta()
@@ -52,17 +51,19 @@ def drone_portal(request):
     )
 
     context = {
-
         'active_drones': active_drones,
         'total_flights': total_flights,
         'total_flight_time': total_flight_time,
         'total_photos': total_photos,
         'total_videos': total_videos,
-        'current_page': 'home'
-    }
+        'current_page': 'home',
+        'highest_altitude_flight': FlightLog.objects.order_by('-max_altitude_ft').first(),
+        'fastest_speed_flight': FlightLog.objects.order_by('-max_speed_mph').first(),
+        'longest_flight': FlightLog.objects.order_by('-max_distance_ft').first(),
+        }
+
 
     return render(request, 'drones/drone_portal.html', context)
-
 
 
 
@@ -308,23 +309,36 @@ def equipment_list(request):
     return render(request, 'drones/equipment_list.html', context)
 
 
-
+@login_required
 def equipment_create(request):
     if request.method == 'POST':
         form = EquipmentForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect('equipment_list')
+        else:
+            if not form.is_valid():
+                print("POST data:", request.POST)
+                print("FILES data:", request.FILES)
+                print("Form errors:", form.errors)
+
+                print("Form errors:", form.errors)  # <-- for debugging
     else:
         form = EquipmentForm()
-    return render(request, 'equipment_list.html', {'form': form})
+    return render(request, 'drones/equipment_list.html', {
+        'form': form,
+        'equipment': Equipment.objects.all(),
+    })
+
 
 
 @login_required
 def equipment_edit(request, pk):
     item = get_object_or_404(Equipment, pk=pk)
+
     if request.method == 'POST':
-        form = EquipmentForm(request.POST, request.FILES, instance=item) 
+        form = EquipmentForm(request.POST, request.FILES, instance=item)
+
         if form.is_valid():
             form.save()
             return redirect('equipment_list')
@@ -335,7 +349,7 @@ def equipment_edit(request, pk):
         'form': form,
         'item': item
     })
-
+    
 
 @login_required
 def equipment_delete(request, pk):
@@ -353,28 +367,44 @@ def equipment_delete(request, pk):
 @login_required
 def equipment_pdf(request):
     equipment = Equipment.objects.all().order_by('equipment_type', 'name')
+    logo_url = request.build_absolute_uri(static('images/logo.png'))
+
+    context = {
+        'equipment': equipment,
+        'logo_url': logo_url,
+    }
+
     template = get_template('drones/equipment_pdf.html')
-    html_string = template.render({'equipment': equipment})
+    html_string = template.render(context)
+
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename=equipment_inventory.pdf'
 
     with tempfile.NamedTemporaryFile(delete=True) as tmp_file:
-        HTML(string=html_string).write_pdf(target=tmp_file.name)
+        HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(target=tmp_file.name)
         tmp_file.seek(0)
         response.write(tmp_file.read())
 
     return response
 
 
-
-
 @login_required
 def equipment_pdf_single(request, pk):
     equipment = get_object_or_404(Equipment, pk=pk)
-    logo_url = request.build_absolute_uri(static('images/logo2.png'))
-    
+    logo_url = request.build_absolute_uri(static('images/logo.png'))
+
+    faa_is_pdf = equipment.faa_certificate.name.lower().endswith('.pdf') if equipment.faa_certificate else False
+    receipt_is_pdf = equipment.receipt.name.lower().endswith('.pdf') if equipment.receipt else False
+
+    context = {
+        'item': equipment,
+        'logo_url': logo_url,
+        'faa_is_pdf': faa_is_pdf,
+        'receipt_is_pdf': receipt_is_pdf,
+    }
+
     template = get_template('drones/equipment_pdf_single.html')
-    html_string = template.render({'item': equipment, 'logo_url': logo_url})
+    html_string = template.render(context)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename={equipment.name}_equipment.pdf'
@@ -414,6 +444,7 @@ def export_flightlogs_csv(request):
         writer.writerow(row)
 
     return response
+
 
 @login_required
 def flightlog_detail(request, pk):
@@ -485,6 +516,99 @@ def safe_int(value):
         return None
 
 
+# @login_required
+# def upload_flightlog_csv(request):
+#     if request.method == 'POST':
+#         form = FlightLogCSVUploadForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             file = form.cleaned_data['csv_file']
+#             decoded = file.read().decode('utf-8-sig').splitlines()
+#             reader = csv.DictReader(decoded)
+#             reader.fieldnames = [field.replace('\ufeff', '').strip() for field in reader.fieldnames]
+#             for row in reader:
+#                 row = {k.strip(): (v.strip() if v else "") for k, v in row.items()}
+#                 if not row.get("Flight/Service Date"):
+#                     print("Skipping row: missing Flight/Service Date")
+#                     continue
+
+#                 # Parse date/time
+#                 try:
+#                     clean_dt = re.sub(r'(\d+)(st|nd|rd|th)', r'\1', row["Flight/Service Date"])
+#                     dt = datetime.strptime(clean_dt, "%b %d, %Y %I:%M%p")
+#                     flight_date = dt.date()
+#                     landing_time = dt.time()
+#                 except Exception as e:
+#                     print("Skipping row: invalid date format", e)
+#                     continue
+
+#                 try:
+#                     air_seconds = safe_int(row.get("Air Seconds")) or 0
+#                     air_time = timedelta(seconds=air_seconds)
+
+#                     FlightLog.objects.create(
+#                         flight_date=flight_date,
+#                         flight_title=row.get("Flight Title", ""),
+#                         flight_description=row.get("Flight Description", ""),
+#                         pilot_in_command=row.get("Pilot-in-Command", ""),
+#                         license_number=row.get("License Number", ""),
+#                         takeoff_latlong=row.get("Takeoff Lat/Long", ""),
+#                         takeoff_address=row.get("Takeoff Address", ""),
+#                         landing_time=landing_time,
+#                         air_time=air_time,
+#                         above_sea_level_ft=safe_float(row.get("Above Sea Level (Feet)")),
+#                         drone_name=row.get("Drone Name", ""),
+#                         drone_type=row.get("Drone Type", ""),
+#                         drone_serial=row.get("Drone Serial Number", ""),
+#                         battery_name=row.get("Battery Name", ""),
+#                         battery_serial_printed=row.get("Bat Printed Serial", ""),
+#                         battery_serial_internal=row.get("Bat Internal Serial", ""),
+#                         landing_battery_pct=safe_int(row.get("Landing Bat %").replace("%", "")),
+#                         landing_mah=safe_int(row.get("Landing mAh")),
+#                         landing_volts=safe_float(row.get("Landing Volts")),
+#                         max_altitude_ft=safe_float(row.get("Max Altitude (Feet)")),
+#                         max_distance_ft=safe_float(row.get("Max Distance (Feet)")),
+#                         max_speed_mph=safe_float(row.get("Max Speed (mph)")),
+#                         total_mileage_ft=safe_float(row.get("Total Mileage (Feet)")),
+#                         avg_wind=safe_float(row.get("Avg Wind")),
+#                         max_gust=safe_float(row.get("Max Gust")),
+#                         ground_weather_summary=row.get("Ground Weather Summary", ""),
+#                         ground_temp_f=safe_float(row.get("Ground Temperature (f)")),
+#                         visibility_miles=safe_float(row.get("Ground Visibility (Miles)")),
+#                         wind_speed=safe_float(row.get("Ground Wind Speed")),
+#                         wind_direction=row.get("Ground Wind Direction", ""),
+#                         cloud_cover=row.get("Cloud Cover", "").replace("%", ""),
+#                         signal_losses=safe_int(row.get("Signal Losses (>1 sec)")),
+#                         photos=safe_int(row.get("Photos")),
+#                         videos=safe_int(row.get("Videos")),
+#                         notes=row.get("Add Additional Notes", ""),
+#                         tags=row.get("Tags", ""),
+#                     )
+#                 except Exception as e:
+#                     print("Row error:", e, row)
+#                     continue
+#             return redirect('flightlog_list')
+#     else:
+#         form = FlightLogCSVUploadForm()
+
+#     context = {'form': form, 'current_page': 'flightlogs'}  
+#     return render(request, 'drones/upload_log.html', context)
+
+
+
+
+
+def safe_int(val):
+    try:
+        return int(val)
+    except:
+        return None
+
+def safe_float(val):
+    try:
+        return float(val)
+    except:
+        return None
+
 @login_required
 def upload_flightlog_csv(request):
     if request.method == 'POST':
@@ -493,21 +617,28 @@ def upload_flightlog_csv(request):
             file = form.cleaned_data['csv_file']
             decoded = file.read().decode('utf-8-sig').splitlines()
             reader = csv.DictReader(decoded)
-            reader.fieldnames = [field.replace('\ufeff', '').strip() for field in reader.fieldnames]
+            reader.fieldnames = [field.strip().replace('\ufeff', '') for field in reader.fieldnames]
+
+            # Header alias mapping
+            field_aliases = {
+                "Flight/Service Date": "Flight Date/Time"
+            }
+
             for row in reader:
-                row = {k.strip(): (v.strip() if v else "") for k, v in row.items()}
-                if not row.get("Flight/Service Date"):
-                    print("Skipping row: missing Flight/Service Date")
+                # Normalize column keys
+                row = {field_aliases.get(k.strip(), k.strip()): (v.strip() if v else "") for k, v in row.items()}
+
+                if not row.get("Flight Date/Time"):
+                    print("Skipping row: missing Flight Date/Time")
                     continue
 
-                # Parse date/time
                 try:
-                    clean_dt = re.sub(r'(\d+)(st|nd|rd|th)', r'\1', row["Flight/Service Date"])
+                    clean_dt = re.sub(r'(\d+)(st|nd|rd|th)', r'\1', row["Flight Date/Time"])
                     dt = datetime.strptime(clean_dt, "%b %d, %Y %I:%M%p")
                     flight_date = dt.date()
                     landing_time = dt.time()
                 except Exception as e:
-                    print("Skipping row: invalid date format", e)
+                    print("Skipping row: invalid date/time format", e)
                     continue
 
                 try:
@@ -528,25 +659,43 @@ def upload_flightlog_csv(request):
                         drone_name=row.get("Drone Name", ""),
                         drone_type=row.get("Drone Type", ""),
                         drone_serial=row.get("Drone Serial Number", ""),
+                        drone_reg_number=row.get("Drone Registration Number", ""),
+                        flight_application=row.get("Flight App", ""),
+                        remote_id=row.get("Remote ID", ""),
                         battery_name=row.get("Battery Name", ""),
                         battery_serial_printed=row.get("Bat Printed Serial", ""),
                         battery_serial_internal=row.get("Bat Internal Serial", ""),
+                        takeoff_battery_pct=safe_int(row.get("Takeoff Bat %").replace("%", "")),
+                        takeoff_mah=safe_int(row.get("Takeoff mAh")),
+                        takeoff_volts=safe_float(row.get("Takeoff Volts")),
                         landing_battery_pct=safe_int(row.get("Landing Bat %").replace("%", "")),
                         landing_mah=safe_int(row.get("Landing mAh")),
                         landing_volts=safe_float(row.get("Landing Volts")),
                         max_altitude_ft=safe_float(row.get("Max Altitude (Feet)")),
                         max_distance_ft=safe_float(row.get("Max Distance (Feet)")),
+                        max_battery_temp_f=safe_float(row.get("Max Bat Temp (f)")),
                         max_speed_mph=safe_float(row.get("Max Speed (mph)")),
                         total_mileage_ft=safe_float(row.get("Total Mileage (Feet)")),
+                        signal_score=safe_float(row.get("Signal Score")),
+                        max_compass_rate=safe_float(row.get("Max Compass Rate")),
                         avg_wind=safe_float(row.get("Avg Wind")),
                         max_gust=safe_float(row.get("Max Gust")),
+                        signal_losses=safe_int(row.get("Signal Losses (>1 sec)")),
                         ground_weather_summary=row.get("Ground Weather Summary", ""),
                         ground_temp_f=safe_float(row.get("Ground Temperature (f)")),
                         visibility_miles=safe_float(row.get("Ground Visibility (Miles)")),
                         wind_speed=safe_float(row.get("Ground Wind Speed")),
                         wind_direction=row.get("Ground Wind Direction", ""),
                         cloud_cover=row.get("Cloud Cover", "").replace("%", ""),
-                        signal_losses=safe_int(row.get("Signal Losses (>1 sec)")),
+                        humidity_pct=safe_int(row.get("Humidity", "").replace("%", "")),
+                        dew_point_f=safe_float(row.get("Dew Point (f)")),
+                        pressure_inhg=safe_float(row.get("Pressure")),
+                        rain_rate=row.get("Rain Rate", ""),
+                        rain_chance=row.get("Rain Chance", ""),
+                        sunrise=row.get("Sunrise", ""),
+                        sunset=row.get("Sunset", ""),
+                        moon_phase=row.get("Moon Phase", ""),
+                        moon_visibility=row.get("Moon Visibility", ""),
                         photos=safe_int(row.get("Photos")),
                         videos=safe_int(row.get("Videos")),
                         notes=row.get("Add Additional Notes", ""),
@@ -555,9 +704,9 @@ def upload_flightlog_csv(request):
                 except Exception as e:
                     print("Row error:", e, row)
                     continue
+
             return redirect('flightlog_list')
     else:
         form = FlightLogCSVUploadForm()
 
-    context = {'form': form, 'current_page': 'flightlogs'}  
-    return render(request, 'drones/upload_log.html', context)
+    return render(request, 'drones/upload_log.html', {'form': form, 'current_page': 'flightlogs'})

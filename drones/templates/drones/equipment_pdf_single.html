@@ -97,6 +97,15 @@
             </div>
         </div>
     {% endif %}
+    {% if item.receipt %}
+        <div class="field-pair">
+            <div class="field-label">Receipt</div>
+            <div class="field-value">
+                <a href="{{ item.receipt.url }}" target="_blank">View Receipt</a>
+            </div>
+        </div>
+    {% endif %}
+
 
     <!-- Financial -->
     <div class="section-title">Purchase & Sale</div>

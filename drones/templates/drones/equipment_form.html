@@ -1,147 +1,125 @@
-{% extends "index.html" %}
+{% load static %}
 {% load crispy_forms_tags %}
 
-
-<head>
-  <style>
-    #drop-zone:hover {
-    background-color: #e9ecef;
-}
-
-  .faa-field {
-    display: block !important;
+<style>
+  .drop-zone {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s;
   }
-  </style>
-</head>
-{% block content %}
-<div class="container mt-5">
-  <h2 class="mb-4">Add New Equipment</h2>
-  
-  <form method="post" enctype="multipart/form-data">  
 
+  .drop-zone:hover {
+    background-color: #f1f1f1;
+  }
+
+  .form-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .preview-img {
+    max-height: 180px;
+  }
+</style>
+
+<div class="container mt-4">
+  <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    
-    <div class="mb-3">
-      {{ form.name.label_tag }} {{ form.name }}
+    <div class="row">
+      {% for field in form.visible_fields %}
+        {% if field.name not in 'faa_certificate receipt active deducted_full_cost' %}
+          <div class="col-md-4 mb-3">
+            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+            {{ field }}
+          </div>
+        {% endif %}
+      {% endfor %}
     </div>
 
-    <div class="mb-3">
-      {{ form.equipment_type.label_tag }} {{ form.equipment_type }}
-    </div>
-
-    <div class="mb-3">
-      {{ form.brand.label_tag }} {{ form.brand }}
-    </div>
-
-    <div class="mb-3">
-      {{ form.model.label_tag }} {{ form.model }}
-    </div>
-
-    <div class="mb-3">
-      {{ form.serial_number.label_tag }} {{ form.serial_number }}
-    </div>
-
-    <!-- FAA fields only for Drones -->
-    <div class="mb-3 faa-field">
-      {{ form.faa_number.label_tag }} {{ form.faa_number }}
-    </div>
-
-    <div class="mb-3 faa-field">
-      <label for="id_faa_certificate" class="form-label">FAA Certificate</label>
-
-      <div id="drop-zone" class="border border-secondary rounded p-3 text-center bg-light" style="cursor: pointer;">
-        <p class="mb-2"><i class="fas fa-cloud-upload-alt fa-2x text-primary"></i></p>
-        <p class="mb-1">Drag & drop an image here, or click to browse.</p>
-        <input type="file" name="faa_certificate" id="id_faa_certificate" accept=".jpg,.jpeg,.png" class="form-control d-none">
+    <div class="row">
+      <div class="col-md-6 mb-3 d-flex align-items-center">
+        <label class="me-2">{{ form.deducted_full_cost.label_tag }}</label>
+        {{ form.deducted_full_cost }}
       </div>
-
-      <div id="preview-container" class="mt-3 text-center d-none">
-        <p class="small text-muted">Preview:</p>
-        <img id="preview-image" src="#" alt="Preview" class="img-fluid rounded border" style="max-height: 200px;">
+      <div class="col-md-6 mb-3 d-flex align-items-center">
+        <label class="me-2">{{ form.active.label_tag }}</label>
+        {{ form.active }}
       </div>
     </div>
 
+    <div class="row">
+      <!-- FAA Certificate -->
+      <div class="col-md-6 mb-4">
+        <label for="id_faa_certificate" class="form-label">FAA Certificate</label>
+        <div class="drop-zone" id="faa-drop-zone">
+          <p><i class="fas fa-upload fa-lg text-primary"></i></p>
+          <p>Drag & drop or click to upload FAA Certificate (PDF/Image)</p>
+          <input type="file" name="faa_certificate" id="id_faa_certificate" accept=".pdf,.jpg,.jpeg,.png" hidden>
+        </div>
+        {% if form.instance.faa_certificate %}
+          <div id="faa-preview" class="mt-2 text-center small text-muted">
+            {% if form.instance.faa_certificate.url|slice:"-4:" == ".pdf" %}
+              <a href="{{ form.instance.faa_certificate.url }}" target="_blank">
+                <i class="fas fa-file-pdf"></i> View PDF
+              </a>
+            {% else %}
+              <img src="{{ form.instance.faa_certificate.url }}" class="img-fluid rounded border mt-2 preview-img">
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
 
-    <div class="mb-3">
-      {{ form.purchase_date.label_tag }} {{ form.purchase_date }}
+      <!-- Receipt -->
+      <div class="col-md-6 mb-4">
+        <label for="id_receipt" class="form-label">Receipt</label>
+        <div class="drop-zone" id="receipt-drop-zone">
+          <p><i class="fas fa-upload fa-lg text-primary"></i></p>
+          <p>Drag & drop or click to upload Receipt (PDF/Image)</p>
+          <input type="file" name="receipt" id="id_receipt" accept=".pdf,.jpg,.jpeg,.png" hidden>
+        </div>
+        {% if form.instance.receipt %}
+          <div id="receipt-preview" class="mt-2 text-center small text-muted">
+            {% if form.instance.receipt.url|slice:"-4:" == ".pdf" %}
+              <a href="{{ form.instance.receipt.url }}" target="_blank">
+                <i class="fas fa-file-pdf"></i> View PDF
+              </a>
+            {% else %}
+              <img src="{{ form.instance.receipt.url }}" class="img-fluid rounded border mt-2 preview-img">
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
     </div>
 
-    <div class="mb-3">
-      {{ form.date_sold.label_tag }} {{ form.date_sold }}
+    <div class="text-end">
+      <button type="submit" class="btn btn-success">
+        <i class="fas fa-save"></i> Save Equipment
+      </button>
     </div>
-
-    <div class="mb-3">
-      {{ form.sale_price.label_tag }} {{ form.sale_price }}
-    </div>
-
-    <div class="form-check mb-3">
-      {{ form.deducted_full_cost }} {{ form.deducted_full_cost.label_tag }}
-    </div>
-
-    <div class="mb-3">
-      {{ form.notes.label_tag }} {{ form.notes }}
-    </div>
-
-    <button type="submit" class="btn btn-primary">Save Equipment</button>
-    <a href="{% url 'equipment_list' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
   </form>
 </div>
+
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const typeField = document.getElementById("id_equipment_type");
-    const faaFields = document.querySelectorAll(".faa-field");
-    const dropZone = document.getElementById("drop-zone");
-    const input = document.getElementById("id_faa_certificate");
-    const previewContainer = document.getElementById("preview-container");
-    const previewImage = document.getElementById("preview-image");
+  document.querySelectorAll('.drop-zone').forEach(zone => {
+    const input = zone.querySelector('input');
 
-    function toggleFAAFields() {
-      const isDrone = typeField.value === "Drone";
-      faaFields.forEach(field => {
-        field.style.display = isDrone ? "block" : "none";
-      });
-    }
+    zone.addEventListener('click', () => input.click());
 
-    toggleFAAFields();
-    typeField.addEventListener("change", toggleFAAFields);
-
-    dropZone.addEventListener("click", () => input.click());
-
-    dropZone.addEventListener("dragover", function (e) {
+    zone.addEventListener('dragover', (e) => {
       e.preventDefault();
-      dropZone.classList.add("bg-primary", "text-white");
+      zone.classList.add('bg-light');
     });
 
-    dropZone.addEventListener("dragleave", function () {
-      dropZone.classList.remove("bg-primary", "text-white");
+    zone.addEventListener('dragleave', () => {
+      zone.classList.remove('bg-light');
     });
 
-    dropZone.addEventListener("drop", function (e) {
+    zone.addEventListener('drop', (e) => {
       e.preventDefault();
-      dropZone.classList.remove("bg-primary", "text-white");
+      zone.classList.remove('bg-light');
       input.files = e.dataTransfer.files;
-      showPreview(input.files[0]);
-      input.dispatchEvent(new Event('change', { bubbles: true }));
     });
-
-    input.addEventListener("change", function () {
-      if (input.files && input.files[0]) {
-        showPreview(input.files[0]);
-      }
-    });
-
-    function showPreview(file) {
-      if (!file.type.startsWith("image/")) return;
-
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        previewImage.src = e.target.result;
-        previewContainer.classList.remove("d-none");
-      };
-      reader.readAsDataURL(file);
-    }
   });
 </script>
-
-
-{% endblock %}

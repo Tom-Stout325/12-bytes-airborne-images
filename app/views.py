@@ -41,7 +41,10 @@ def profile(request):
         'profile': profile,
         'trainings': trainings,
         'years': [y.year for y in training_years],
-        'current_page': 'profile'
+        'current_page': 'profile',
+        'highest_altitude_flight': FlightLog.objects.order_by('-max_altitude_ft').first(),
+        'fastest_speed_flight': FlightLog.objects.order_by('-max_speed_mph').first(),
+        'longest_flight': FlightLog.objects.order_by('-max_distance_ft').first(),
     }
     return render(request, 'app/profile.html', context)
 

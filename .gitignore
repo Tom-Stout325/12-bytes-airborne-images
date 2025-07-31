@@ -12,12 +12,6 @@ ENV/
 .venv/
 *.sqlite3
 
-.env
-.env.local
-.env_copy
-settings local.py
-settings production.py
-
 # macOS
 .DS_Store
 

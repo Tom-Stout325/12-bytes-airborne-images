@@ -10,8 +10,8 @@ urlpatterns = [
     # Transactions
     path('transactions/', Transactions.as_view(), name="transactions"),
     path('transactions/download/', DownloadTransactionsCSV.as_view(), name="download_transactions_csv"),
-    path('transaction/new', TransactionCreateView.as_view(), name="add_transaction"),
-    path('transaction/success', add_transaction_success, name='add_transaction_success'),
+    path('transaction/add/', TransactionCreateView.as_view(), name="add_transaction"),
+    path('transaction/success/', add_transaction_success, name='add_transaction_success'),
     path('transaction/<int:pk>/', TransactionDetailView.as_view(), name='transaction_detail'),
     path('transaction/edit/<int:pk>/', TransactionUpdateView.as_view(), name='edit_transaction'),
     path('transaction/delete/<int:pk>/', TransactionDeleteView.as_view(), name='delete_transaction'),
